@@ -19,6 +19,7 @@ on:
   push:
     paths:
       - ".github/workflows/markup.yml"
+      - "tools/dump_markup.py"
 
 jobs:
   dump:

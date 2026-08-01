@@ -11,21 +11,28 @@ tables.
 Term codes are <2-digit academic year start><term>, where term is
 10=Fall, 20=Winter, 30=Spring, 40=Summer. So 2610 is 2026-27 Fall.
 
-Page shape, per observed markup:
+Page shape, confirmed against the live site (tools/dump_markup.py):
 
-    ACCT 2010 - Principles of Accounting I (3 units)
-    [DELI]
+    div#classes
+      div.course
+        div.courseinfo > div.courseattrContainer > div.subject
+            "ACCT 2010 - Principles of Accounting I (3 units)"
+        table            -- ATTRIBUTES / DESCRIPTION / outcomes
+        table.sections
+          tr                          -- header: Section, Date & Time, Room,
+                                         Instructor, TA/IA/GTA, Quota, Enrol,
+                                         Avail, Wait, Remarks
+          tr.newsect.mainRow          -- a section
+          tr.mobileInstructorRow      -- mobile-only duplicate, skipped
+          tr.mobileViewDetail         -- mobile-only duplicate, skipped
 
-    Section      Date & Time               Room                      Remarks
-    L01 (1038)   TuTh 01:30PM - 02:50PM    Rm 6573, Lift 29-30 (88)
-    Instructor
-    DONG, Qingkai
+Only tr.mainRow carries real data; the two mobile rows repeat it for a
+narrow viewport and would otherwise triple every section. A mainRow
+without .newsect is an additional meeting slot for the section above it,
+so it is merged into that section rather than emitted separately.
 
-Section columns are read from each table's own header row rather than
-hardcoded, so a page that also carries Quota/Enrol/Avail/Wait columns is
-picked up without a code change. Instructor arrives as a nested sub-table
-inside the section row instead of as a column, so nested label/value
-tables are folded into the section as extra named fields.
+Column names come from the table's own header row, so a layout change
+that adds or reorders columns does not need a code change.
 
 Usage:
     python wcq_scrape.py                    # default term
@@ -60,9 +67,12 @@ COURSE_RE = re.compile(
     r"^(?P<subject>[A-Z]{4})\s+(?P<number>[0-9A-Z]+)\s*-\s*"
     r"(?P<title>.*?)\s*(?:\((?P<units>[\d.]+)\s*units?\)\s*)?$"
 )
-ATTRIBUTE_RE = re.compile(r"\[([A-Z0-9]+)\]")
-
 LEAD_FIELDS = ["subject", "course_number", "course_title", "units", "attributes"]
+
+# Seat counts are deliberately not collected. They also arrive with
+# mobile-only text baked into the cell ("75 Quota/Enrol/Avail ACCT: 75/0/75"),
+# so dropping them avoids having to unpick that.
+DROP_FIELDS = {"quota", "enrol", "avail", "wait"}
 
 
 def squash(text):
@@ -91,8 +101,8 @@ def own_rows(table):
 def cell_text(cell):
     """Cell text with nested tables stripped.
 
-    A nested sub-table is read separately by nested_fields; leaving it in
-    would smear "Instructor DONG, Qingkai" into the Remarks column.
+    Several cells carry a nested table holding the mobile-viewport copy of
+    the same data; leaving it in smears that duplicate into the value.
     """
     clone = copy.copy(cell)
     for nested in clone.find_all("table"):
@@ -137,86 +147,81 @@ def subject_urls(session, base, delay, only=None):
     return sorted(urls.items())
 
 
-def parse_course(table):
-    """Pull course identity out of the nearest preceding heading.
+def norm(text):
+    """Header label to field name: "Date & Time" -> date_time."""
+    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+
+
+def parse_course(course):
+    """Course identity from the div.subject heading inside a div.course.
 
     Falls back to the raw heading text when the line doesn't match the
     usual "CODE NUMBER - Title (N units)" shape.
     """
-    node = table.find_previous(["h1", "h2", "h3", "h4", "caption"])
-    if not node:
-        return {"course_title": ""}
-    heading = squash(node.get_text(" "))
-    # The [DELI]-style attribute tags sit between the heading and the table.
-    between = squash("".join(str(s) for s in node.next_siblings if s is not table))
-    attributes = ATTRIBUTE_RE.findall(between)
+    heading_node = course.select_one("div.subject")
+    heading = cell_text(heading_node) if heading_node else ""
+
+    # Attributes live in the course's info table, as the cell beside the
+    # ATTRIBUTES header, e.g. "[BLD] Blended learning".
+    attributes = ""
+    for tr in course.find_all("tr"):
+        head = cells(tr, "th")
+        body = cells(tr, "td")
+        if head and body and cell_text(head[0]).upper() == "ATTRIBUTES":
+            attributes = cell_text(body[0])
+            break
 
     match = COURSE_RE.match(heading)
     if not match:
-        return {"course_title": heading, "attributes": ",".join(attributes)}
+        return {"course_title": heading, "attributes": attributes}
     return {
         "subject": match["subject"],
         "course_number": match["number"],
         "course_title": match["title"],
         "units": match["units"] or "",
-        "attributes": ",".join(attributes),
+        "attributes": attributes,
     }
-
-
-def nested_fields(row):
-    """Fold nested label/value tables into named fields.
-
-    Instructor is delivered this way -- a sub-table headed "Instructor"
-    inside the section row rather than a column of the section table.
-    """
-    fields = {}
-    for table in row.find_all("table"):
-        labels, values = [], []
-        for tr in table.find_all("tr"):
-            head = [squash(c.get_text(" ")) for c in cells(tr, "th")]
-            body = [squash(c.get_text(" ")) for c in cells(tr, "td")]
-            labels.extend(head)
-            values.extend(body)
-        for i, label in enumerate(labels):
-            if label and i < len(values) and values[i]:
-                key = label.lower().replace(" ", "_")
-                fields[key] = "; ".join(filter(None, [fields.get(key), values[i]]))
-    return fields
 
 
 def header_names(table):
     """Column names from the table's own header row."""
     for tr in own_rows(table):
-        head = [cell_text(c) for c in cells(tr, "th")]
+        head = [norm(cell_text(c)) for c in cells(tr, "th")]
         if head:
-            return [h.lower().replace(" & ", "_").replace(" ", "_") for h in head]
+            return head
     return []
 
 
 def scrape_subject(session, code, url, delay):
     soup = fetch(session, url, delay)
     rows = []
-    # Only top-level tables; nested ones are handled as part of their parent row.
-    for table in (t for t in soup.find_all("table") if not t.find_parent("table")):
-        course = parse_course(table)
-        course.setdefault("subject", code)
+    for course in soup.select("div.course"):
+        info = parse_course(course)
+        info.setdefault("subject", code)
+        table = course.select_one("table.sections")
+        if not table:
+            continue
         names = header_names(table)
-        for tr in own_rows(table):
+        # mainRow only: mobileInstructorRow and mobileViewDetail repeat the
+        # same section for a narrow viewport and would triple every row.
+        for tr in table.select("tr.mainRow"):
             values = [cell_text(c) for c in cells(tr, "td")]
-            nested = nested_fields(tr)
-            if not any(values):
-                # A continuation row -- Instructor arrives this way when it
-                # isn't nested inside the section row itself. Fold it back
-                # into the section it belongs to rather than emitting a
-                # row with no section.
-                if nested and rows:
-                    rows[-1].update(nested)
+            row = {
+                names[i] if i < len(names) else f"col{i + 1}": value
+                for i, value in enumerate(values)
+            }
+            row = {k: v for k, v in row.items() if k not in DROP_FIELDS}
+
+            if "newsect" not in (tr.get("class") or []) and rows:
+                # An extra meeting slot for the section above, not a new
+                # section -- fold its time and room into that section.
+                for key in ("date_time", "room"):
+                    extra = row.get(key)
+                    if extra:
+                        rows[-1][key] = "; ".join(filter(None, [rows[-1].get(key), extra]))
                 continue
-            row = dict(course)
-            for i, value in enumerate(values):
-                row[names[i] if i < len(names) else f"col{i + 1}"] = value
-            row.update(nested)
-            rows.append(row)
+
+            rows.append({**info, **row})
     return rows
 
 

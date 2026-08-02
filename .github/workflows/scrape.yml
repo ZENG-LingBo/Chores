@@ -20,6 +20,11 @@ on:
         description: "Seconds between requests"
         required: false
         default: "1"
+      commit:
+        description: "Commit the CSV to data/wcq_<term>.csv on this branch"
+        required: false
+        type: boolean
+        default: false
   push:
     # A small smoke run on each push, so a change to the parser gets
     # checked against the live site without scraping all 96 subjects.
@@ -30,6 +35,9 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    # Only the opt-in commit step writes; everything else is read-only.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -72,3 +80,23 @@ jobs:
           name: quota-csv
           path: quota.csv
           if-no-files-found: warn
+
+      - name: Commit CSV
+        # Opt-in only. A sandbox with no outbound network can still reach git
+        # through its proxy, so committing the CSV is how the scraped data
+        # gets somewhere it can actually be read and worked on.
+        if: ${{ inputs.commit && hashFiles('quota.csv') != '' }}
+        env:
+          WCQ_TERM: ${{ inputs.term || '2610' }}
+        run: |
+          mkdir -p data
+          cp quota.csv "data/wcq_${WCQ_TERM}.csv"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "data/wcq_${WCQ_TERM}.csv"
+          if git diff --cached --quiet; then
+            echo "no change to data/wcq_${WCQ_TERM}.csv"
+            exit 0
+          fi
+          git commit -m "Update data/wcq_${WCQ_TERM}.csv from scrape run ${GITHUB_RUN_ID}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

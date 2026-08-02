@@ -32,3 +32,21 @@ slots merged into a single row.
 blank or duplicated columns.
 
 Keep the request delay in place; it's a small departmental server.
+
+## plan_schedule.py
+
+Builds conflict-free timetables from `data/wcq_<term>.csv` for a specific set of
+degree requirements (currently: ISD 2022-23, Year 4). One section per component
+(lecture + tutorial + lab) is enrolled together; TBA sections are surfaced, not
+dropped.
+
+```sh
+python plan_schedule.py data/wcq_2610.csv --availability
+python plan_schedule.py data/wcq_2610.csv \
+    --must "ISDN 4001" --must "ISDN 1001" \
+    --pool "ISOM 2700,MARK 2120" --pool "COMP 3111,COMP 4331"
+```
+
+The `data/` CSV is written by the scrape workflow when dispatched with
+`commit: true` -- that is how scraped data reaches a sandbox whose only
+outbound channel is git.

@@ -50,3 +50,21 @@ python plan_schedule.py data/wcq_2610.csv \
 The `data/` CSV is written by the scrape workflow when dispatched with
 `commit: true` -- that is how scraped data reaches a sandbox whose only
 outbound channel is git.
+
+## plan_schedule.py
+
+Builds conflict-free timetables from `data/wcq_<term>.csv`. Courses are grouped
+into enrolments (one section per component -- L, T, LA) before combining, since
+HKUST enrols per component, not per section.
+
+```sh
+python plan_schedule.py data/wcq_2610.csv                         # availability
+python plan_schedule.py data/wcq_2610.csv \
+  --must "ISDN 4001" --must "ISDN 1001" \
+  --pool "ISOM 2700,MARK 2120" --top 3                            # search
+```
+
+Hard constraints: no overlaps, no class before `--earliest` (default 10:30).
+Scoring prefers fewer days on campus, less idle time between classes, and an
+empty `--free-day` (default Fr). TBA-time sections are surfaced, never silently
+treated as free.

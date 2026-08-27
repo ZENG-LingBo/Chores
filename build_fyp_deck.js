@@ -375,24 +375,24 @@ NOTE: Warm, unhurried. Don't rush into the pitch — the two of them agreeing to
   const cards = [
     {
       fill: LAVENDER,
-      label: "Route",
-      heading: "It is one of your three",
+      label: "We are not assuming",
+      heading: "We know this is unusual",
       body:
-        "The kick-off deck names three ways to start, and the first is your own idea: “start early, form a team, validate users.” That is the route we are asking to take.",
+        "As far as we know, nobody has carried a Year-3 project straight into Year 4 this way. We did not want to assume it is allowed, which is why we asked to speak with you before term starts.",
     },
     {
       fill: SKY,
-      label: "Timing",
-      heading: "We started early",
-      body:
-        "“Before September: students who want to pursue their own idea should begin developing it as early as possible.” We are here on 28 August, before classes begin.",
-    },
-    {
-      fill: PINK,
-      label: "Substance",
+      label: "What we would bring",
       heading: "It is already real",
       body:
         "Two years of user research, a validated pre-launch MVP, an incorporated company, and an application already in development.",
+    },
+    {
+      fill: PINK,
+      label: "What we are asking",
+      heading: "Your read on it",
+      body:
+        "Whether this is a project the Division would want as an FYP — and if it is, what it would need to look like.",
     },
   ];
   cards.forEach((c, i) => {
@@ -409,21 +409,19 @@ NOTE: Warm, unhurried. Don't rush into the pitch — the two of them agreeing to
   });
 
   s.addNotes(
-`SCRIPT — VICTOR  (about 45 seconds)
+`SCRIPT — VICTOR  (about 60 seconds)
 
 "So here's the ask, straight away, so nothing is ambiguous.
 
-We'd like to register Fliq as our own-idea FYP topic.
+We'd like to register Fliq as our own-idea FYP topic — the project we've been building through 3001 and 3002.
 
-We're asking because your kick-off deck says that's one of the three ways to start — your own idea: start early, form a team, validate users.
-
-And the timing was deliberate. The deck said students pursuing their own idea should begin developing it before September. That's why we emailed in August rather than turning up in week three.
+And we want to say up front that we know this is an unusual thing to ask. As far as we know, nobody has carried a project from Year 3 straight into Year 4 like this. The kick-off mentioned bringing your own idea as one of the ways to start, but we didn't want to assume that stretches to something we've already been building for two years. That's exactly why we wanted to speak to you before term starts, rather than just registering it and hoping it was fine.
 
 What we'd bring to it isn't a concept. It's two years of user research, a validated MVP, an incorporated company, and an app that's in build right now.
 
-The next few slides are the evidence for that."
+And what we're really asking for is your read — whether this is something the Division would want as an FYP, and if it is, what it would need to look like."
 
-NOTE: Don't oversell here. State it plainly and move on — everything that earns the ask is on slides 3 to 7.`
+NOTE: This slide sets the tone for the whole meeting. We are asking, not claiming a right. Because nobody has done this before, the professors get to shape what it becomes — so invite that rather than presenting it as settled. Don't oversell; the evidence is on slides 3 to 7.`
   );
 }
 
@@ -1014,8 +1012,8 @@ NOTE: This slide is the whole argument in miniature. Energy, but no boasting —
 {
   const s = slide({
     tint: LAVENDER,
-    eyebrow: "Alignment · the kick-off deck's own four outcomes",
-    title: "This is what the FYP asks for",
+    eyebrow: "Alignment · the four outcomes you set out",
+    title: "Where we think we stand",
   });
 
   const goals = [
@@ -1105,7 +1103,7 @@ NOTE: This slide is the whole argument in miniature. Energy, but no boasting —
   });
 
   s.addText(
-    "Quoted from slide two of the ISDN 4001 kick-off deck.",
+    "The four outcomes set out at the ISDN 4001 kick-off meeting.",
     {
       x: L,
       y: 6.56,
@@ -1122,7 +1120,7 @@ NOTE: This slide is the whole argument in miniature. Energy, but no boasting —
   s.addNotes(
 `SCRIPT — VICTOR  (about 40 seconds)
 
-"We went back to your kick-off deck and looked at the four things you said a student should finish the year with.
+"We looked at the four things the kick-off set out for the year, and tried to be honest with ourselves about where we actually are against each.
 
 A strong prototype — we have a pipeline with a frozen specification and four documented test passes behind it. A system, not a demo.
 
@@ -1148,7 +1146,7 @@ NOTE: Keep this brisk — it's a checkpoint, not an argument. Point four is usua
     title: "Entrepreneurship and Venture",
   });
   s.addText(
-    "The three deliverables the kick-off deck sets for this track, and what we can already put against each.",
+    "The three deliverables set for this track, and what we can already put against each.",
     {
       x: L,
       y: TOP,
@@ -1372,7 +1370,7 @@ NOTE: If they push toward Research and Technology, take it seriously rather than
   s.addNotes(
 `SCRIPT — VICTOR  (about 60 seconds)
 
-"Now the objection we'd rather raise ourselves, because your deck raises it. Continuation is not repetition. So what's actually new?
+"Now the objection we'd rather raise ourselves, because it's the obvious one. Continuation is not repetition. So what's actually new?
 
 Here's the honest answer.
 

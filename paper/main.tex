@@ -1,0 +1,867 @@
+%% DefuseLab: Community Notes between rival fandoms -- CHI'27 draft
+%% Reconstructed from sns25_polarization_defusing_chi27.pdf with figures,
+%% tables, and statistics computed from data/ by analysis/analyze.py.
+%% Compile: latexmk -pdf main.tex
+\documentclass[manuscript,screen,review,anonymous]{acmart}
+
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+\input{stats}
+
+%% Inline marker for items that still need author input (IRB, transcripts, ...)
+\newcommand{\todonote}[1]{\textcolor{orange!80!black}{\textbf{[TODO: #1]}}}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{Bib\TeX}}}
+
+\setcopyright{acmlicensed}
+\copyrightyear{2026}
+\acmYear{2026}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+\acmConference[Conference acronym 'XX]{Make sure to enter the correct
+  conference title from your rights confirmation email}{June 03--05,
+  2027}{Woodstock, NY}
+\acmISBN{978-1-4503-XXXX-X/2018/06}
+
+\begin{document}
+
+\title{Defusing Affective Polarization with a Co-Authored Community Note:
+A Field Experiment with Rival K-pop Fandoms}
+
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \city{Anonymous City}
+  \country{Anonymous Country}}
+
+\renewcommand{\shortauthors}{Anon.}
+
+\begin{abstract}
+Hostility between online communities is often rooted in group identity rather
+than substantive disagreement, and interventions that target what individuals
+believe leave that hostility largely untouched. Drawing on cooperative
+interdependence theory, we built a platform feature through which members of
+rival groups must co-author a single, publicly co-signed post: a Community
+Note with one contribution slot per group that publishes only when both sides
+have written their part. We deployed the feature on KFeed, a Reddit-style
+forum built for this research, in two-day sessions where members of ARMY and
+BLINK---the rival fandoms of BTS and BLACKPINK---discussed K-pop topics under
+persistent fandom badges, with a large language model monitoring toxicity and
+publishing the finished note entirely backstage. In the fully logged
+treatment session, mean message toxicity fell from \StatfreeMean{} in the 20
+minutes before the note to \StatnoteMean{} in the 20 minutes after it, a
+\StatredPct\% reduction; \StatnDeclined{} of \StatpairedN{} participants who
+posted in both phases became less toxic, while survey measures of outgroup
+attitudes did not move. The most toxic participant did not soften even as the
+group did, and third-person references to the rival fandom gave way to
+first-person plural framing. We argue that the note works by interrupting the
+attention that escalation requires, not by producing a common identity, and
+discuss implications for designing conflict interventions that need not be
+accepted to work.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10003120.10003130</concept_id>
+       <concept_desc>Human-centered computing~Collaborative and social computing</concept_desc>
+       <concept_significance>500</concept_significance>
+   </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Human-centered computing~Collaborative and social computing}
+
+\keywords{Affective Polarization, Community Notes, Online Communities,
+Intergroup Contact, Large Language Models, Fandom}
+
+\begin{teaserfigure}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_teaser}
+  \caption{The Community Notes intervention and its headline effect.
+  (A)~When toxicity in a mixed ARMY--BLINK feed crosses a threshold, the
+  platform pins a Community Note with one contribution slot per fandom; the
+  note publishes only when both sides have written their part, each entry
+  verbatim under its author's badge, assembled backstage by an LLM that never
+  appears as a participant. (B)~Mean message toxicity in the fully logged
+  treatment session dropped from \StatfreeMean{} in the 20 minutes before the
+  note to \StatnoteMean{} in the 20 minutes after it, a \StatredPct\%
+  reduction (Welch $t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$).}
+  \Description{Left: a three-stage diagram showing an escalating mixed feed,
+  a pinned Community Note with one slot for ARMY and one for BLINK, and a
+  published co-signed note. Right: a bar chart showing mean message toxicity
+  falling from 0.329 before the note to 0.220 after it.}
+  \label{fig:teaser}
+\end{teaserfigure}
+
+\maketitle
+
+\section{Introduction}
+
+People like to fight online over who they are, not what to do. This hostility
+toward out-groups, rooted in group identity rather than substantive
+disagreement, is known as affective polarization~\cite{iyengar2012,
+iyengar2019}, and it pervades online communities~\cite{rathje2021,
+tornberg2022}. Common intuitive solutions target what people think. However,
+neither works reliably: exposure to the other side can entrench
+positions~\cite{bail2018}, and belief-correcting interventions produce
+modest, short-lived effects~\cite{voelkel2023}. If the animosity is anchored
+in identity, interventions aimed at information miss the layer where the
+conflict lives.
+
+Classic intergroup research suggests that hostility is reduced not by
+changing beliefs, but by changing relationships between groups. When rival
+groups become mutually dependent on a shared goal, cooperation fosters a
+common identity and reduces conflict~\cite{sherif1954, gaertner2000}. This
+mechanism, cooperative interdependence, has shown robust effects in
+real-world settings~\cite{levine2005, mousa2020}. However, existing online
+depolarization interventions target individuals rather than group
+relationships~\cite{guess2023, combs2023, wojcik2022}, and none brings rival
+groups into cooperative production. In this study, we investigate whether
+structured co-creation between rival groups can reduce intergroup hostility
+on online platforms.
+
+We instantiate this idea as Community Notes, a platform feature through which
+members of rival groups co-author a single, publicly co-signed post. A pinned
+prompt offers one slot per group; the note publishes only when both sides
+have written their part, each entry verbatim under its author's badge.
+Neither side can complete a note alone, and neither has to stop being itself.
+The LLM behind the feature stays out of sight: it monitors the discussion and
+publishes the finished note. Participants encounter a platform feature and
+each other, not a machine.
+
+Testing such a feature requires rival groups whose hostility is real,
+identity-driven, and native to platforms. We chose K-pop fandom, one of the
+largest transnational fan cultures online~\cite{jin2016, mclaren2020}, and
+the rivalry between ARMY and BLINK, fandoms of BTS and BLACKPINK: it is
+enduring, conducted almost entirely on platforms, and rests on no substantive
+dispute, a near-pure case of identity-driven hostility~\cite{yin2020,
+duffett2013}. We deploy the feature on KFeed, a Reddit-style forum built for
+this research, where mixed sessions of ARMY and BLINK members discuss K-pop
+topics with or without the feature. We measure toxicity through automated
+scoring and human coding, and qualitatively analyze how cross-group
+interaction changes. We ask:
+
+\begin{itemize}
+  \item \textbf{RQ1:} How do Community Notes affect polarized groups posting
+  on online forums?
+  \item \textbf{RQ2:} How does what they post change after the Community Note
+  intervention?
+\end{itemize}
+
+In answering these questions, our work contributes: (1) a reusable platform
+mechanism that operationalizes cooperative interdependence in an online
+forum; (2) an extension of LLM-based depolarization from persuading
+individuals to structuring how groups interact; and (3) empirical evidence
+from real polarized communities on whether joint creation reduces toxicity.
+
+\section{Related Work}
+
+Defusing polarization in online forums raises three questions: what kind of
+polarization it is, what reduces it, and what role an AI system can play. We
+first characterize affective polarization as a group-level phenomenon rooted
+in social identity. We then draw on cooperative interdependence theory to
+elicit the requirements for our intervention. Finally, we examine how LLMs
+have been used to intervene in online communities.
+
+\subsection{Affective Polarization in Online Fan Communities}
+
+Affective polarization refers to animosity toward an out-group that is rooted
+in group membership rather than substantive
+disagreement~\cite{iyengar2012, iyengar2019}. Social identity theory traces
+this animosity to the self-concept: because people define themselves partly
+through their groups, favoring the in-group and derogating the out-group
+becomes a way of maintaining a positive self-image~\cite{tajfel1979}.
+Strikingly, this requires almost nothing. In minimal group experiments,
+assigning people to arbitrary, meaningless categories was enough to produce
+discrimination between groups~\cite{tajfel1971}. Hostility follows from the
+group boundary itself, not from any dispute across it. The intuitive remedy,
+correcting what each side believes about the other, therefore addresses the
+wrong layer. Polarization is a membership problem, not an information
+problem.
+
+Political contexts make this hard to see, because partisan identity is
+entangled with real ideological stakes and the contribution of identity alone
+cannot be isolated~\cite{mason2018}. Online fan communities present the
+phenomenon in purer form. Rival fandoms sustain hostility toward one another
+with no substantive dispute to resolve~\cite{duffett2013}. The bond runs
+deeper than preference: fans incorporate their idol's successes and failures
+into their own self-worth, basking in reflected glory when the idol
+prevails~\cite{cialdini1976}, and the more strongly they identify, the less
+able they are to distance themselves when the idol is
+attacked~\cite{wann1990}.
+
+This self-investment explains why fan conflict takes the form of costly,
+active aggression rather than mere dislike. Among the most devoted fans,
+personal and group identity can fuse, and fused individuals do not simply
+favor their group: they act for it, willingly bearing personal costs to
+defend it~\cite{swann2009, swann2012}. Notably, this conflict unfolds within
+platform mechanics: fans fight with posts, downvotes, and coordinated
+campaigns, in forums and comment sections, at times over the use of those
+spaces themselves~\cite{yin2020, marwick2021}. Perceived threats to the
+group's standing harden identification further rather than loosening
+it~\cite{branscombe1999}. In idol and sports forums, toxicity and hostile
+language accordingly concentrate around encounters with rival
+groups~\cite{cleland2014, rathje2021}. K-pop fandoms are a prominent case,
+organized, transnational, and highly active online~\cite{jin2016,
+mclaren2020}.
+
+HCI has largely overlooked this side of fandom: the field's fan research
+centers on positive collective action~\cite{fiesler2016}, and fandom itself
+remains a self-acknowledged gap~\cite{fiesler2016}. Fan communities thus
+offer what political settings cannot: a near-pure case of identity-driven
+animosity, unfolding entirely within platform mechanics, and a clean setting
+for testing interventions that target identity rather than information.
+
+\subsection{Cooperative Interdependence and Intergroup Contact}
+
+The intuitive remedies for intergroup hostility are more contact and better
+information. Neither reliably changes identity-based conflict. Exposing
+partisans to opposing views entrenched their positions rather than softening
+them~\cite{bail2018}, and a megastudy of depolarization interventions found
+even the strongest effects modest and short-lived~\cite{voelkel2023}. Yet one
+apparent failure reveals a design opportunity. In a field experiment, Iraqi
+Christians were assigned to amateur soccer teams that were either
+all-Christian or mixed with Muslim teammates~\cite{mousa2020}. Playing
+together did not change their general attitudes toward Muslims, but it
+changed their behavior. Months later, players from mixed teams were more
+likely to train with Muslim peers and sign up for mixed leagues. Attitudes
+rooted in identity are difficult to shift directly, while cooperative
+behavior emerges when groups share a goal that neither side can achieve
+alone.
+
+This mechanism is known as cooperative interdependence. In the Robbers Cave
+experiments, contact alone intensified competition between rival groups,
+until they were placed in situations requiring collaboration toward
+superordinate goals~\cite{sherif1954}. The Common Ingroup Identity Model
+explains why. Working toward a shared outcome leads people to recategorize
+themselves under a broader identity, extending the positive regard reserved
+for the in-group to former out-group members~\cite{gaertner2000}. The
+mechanism operates among real-world rivals. Manchester United fans who
+encountered an injured jogger were more likely to help when he wore a United
+shirt than a Liverpool one; when a shared identity as football fans had been
+made salient beforehand, they helped the Liverpool supporter just as
+readily~\cite{levine2005}. In both cases, behavior changed while group
+identities stayed intact.
+
+These findings set three requirements for interventions targeting
+identity-driven conflict. Interaction must involve genuine interdependence,
+since tasks that either group can complete alone provide no motivation for
+recategorization~\cite{gaertner2000}. The shared identity must be layered on
+top of existing subgroup identities rather than replacing them, because
+attempts to erase group boundaries read as identity threats, which intensify
+rather than reduce identification~\cite{branscombe1999, hornsey2000}. And the
+shared identity must emerge from the interaction itself rather than being
+imposed explicitly, because categorization follows the identities made
+salient by the immediate situation~\cite{turner1987, levine2005}. Our
+intervention is built to satisfy all three.
+
+Online platforms are deeply involved in shaping these interactions. Platform
+affordances enable rival communities to organize, amplify, and sustain
+hostility at scale~\cite{marwick2021}, and platform design can further
+intensify rivalry among fandoms~\cite{yin2020}. But the same mechanisms that
+structure conflict can be redesigned to support cooperation. Existing
+approaches intervene at three points, setting aside moderation, which
+suppresses hostile expression without changing the relationship between
+groups. Exposure-based designs modify what users encounter across group
+boundaries, such as cross-cutting feeds or shared casual
+games~\cite{bail2018, guess2023}. Matching-based designs modify who interacts
+with whom, pairing individuals across the divide~\cite{combs2023}.
+Correction-based designs modify how contested information is evaluated, most
+notably Community Notes, where a bridging mechanism surfaces contributions
+considered helpful by users with otherwise opposing
+viewpoints~\cite{wojcik2022}.
+
+These approaches leave the relationship between the groups unchanged.
+Polarized communities remain audiences exposed to one another, strangers
+temporarily paired, or adversaries evaluating each other's claims. None
+intervenes at the point where relationships are formed through joint
+creation, where opposing groups must produce something together rather than
+merely encounter, discuss, or judge one another. Cooperative interdependence,
+the mechanism with the strongest field evidence for changing intergroup
+behavior, has never been built into a platform and tested with members of
+real polarized communities.
+
+\subsection{LLM Interventions in Online Communities}
+
+When AI systems intervene in online conflict, they take one of the roles that
+conflict resolution research assigns to human third parties. Moderators
+enforce conduct rules after violations occur, facilitators manage
+participation without touching content, and mediators contribute questions
+and proposals of their own~\cite{moore2014}. LLMs have now filled each seat.
+They moderate at scale~\cite{gilardi2023}, suggest real-time rephrasings that
+make contentious conversations feel heard~\cite{argyle2023}, reduce belief in
+conspiracy theories through persuasive dialogue~\cite{costello2024}, and
+mediate live debates with psychologically grounded
+strategies~\cite{tessler2024}. Across this spectrum, what varies is how much
+the system contributes to the conversation.
+
+Two features hold constant. First, the intervention targets individual minds.
+Each system persuades, corrects, or calms particular interlocutors, treating
+polarization as something wrong in what a person thinks. The results echo a
+familiar pattern. LLM dialogue can move issue positions, yet affective
+polarization stays where it was~\cite{costello2024, tessler2024}, the same
+dissociation Mousa observed on the soccer field, and the one expected if
+hostility follows membership rather than belief. Second, the system is a
+visible party to the exchange. Users know they are talking with, or being
+coached by, a machine, and disclosed AI authorship invites discounting and
+reactance~\cite{jakesch2019}. The deeper problem is theoretical. An agent
+that openly steers people toward common ground is doing precisely what the
+third requirement rules out, announcing a shared identity rather than letting
+the situation produce one.
+
+Across this spectrum, then, the LLM holds a seat in the interaction, and
+users are acted upon by the machine. No existing work inverts that
+allocation, returning the interaction entirely to the users while confining
+the system to the conditions under which they meet. In that position the LLM
+shapes when cooperation becomes possible and how a joint product takes form,
+but what participants encounter, throughout, is each other.
+
+Together, the three literatures leave a single gap. Affective polarization
+has been studied almost entirely in political settings, leaving its purest
+identity-driven form in fan communities unexamined~\cite{fiesler2016,
+duffett2013}. Cooperative interdependence, the mechanism with the strongest
+field evidence, has never been built into a platform~\cite{sherif1954,
+mousa2020}. And LLM interventions have varied the system's role within the
+conversation without asking whether it belongs in the conversation at
+all~\cite{argyle2023, tessler2024}. Our work sits at this intersection. We
+build a community notes feature through which members of rival fandoms
+co-author a single, publicly co-signed post, with the LLM working only
+backstage, and test it with two polarized communities on a live forum.
+
+\section{Experiment: Community Notes in a Polarized Forum}
+
+We conducted a two-day experiment to test whether a co-authorship feature
+reduces toxicity between rival fandoms. Participants, self-identified members
+of ARMY or BLINK, joined mixed sessions of ARMY and BLINK members on KFeed, a
+Reddit-style forum built for this research, and discussed K-pop topics under
+their fandom badge. Discussion threads were seeded with prompts, including
+toxic arguments drawn from pilot sessions, so that hostile, neutral, or
+constructive interaction could emerge naturally.
+
+Throughout each session, the platform scored incoming posts for toxicity in
+real time. When session-level toxicity crossed a threshold determined from
+pilot sessions, the assigned feature appeared in the feed. We randomly
+assigned sessions to two conditions:
+
+\begin{enumerate}
+  \item \textbf{Community Notes treatment:} the feature that appeared was a
+  Community Note, a pinned prompt framed at the K-pop level with one
+  contribution slot per fandom. The note published only when both sides had
+  written their part, each entry preserved verbatim under its author's badge.
+  \item \textbf{Inert feature control:} the feature that appeared was matched
+  to Community Notes on visual salience and interaction cost but required no
+  cross-fandom contribution. Its specific design is being finalized.
+  Following the placebo-activity logic of Combs et al.~\cite{combs2023},
+  this condition ensures that both arms experience a triggered platform
+  event, so that novelty and regression toward the mean are shared across
+  conditions and the treatment effect is identified by the
+  condition-by-phase contrast.
+\end{enumerate}
+
+On Day 2, participants returned to the same session composition and discussed
+without any feature, allowing us to examine whether behavioral changes
+persisted after the mechanism was removed.
+
+\subsection{Building KFeed and the Community Notes Feature}
+
+KFeed supports community feeds, threaded discussion, moderator-pinned posts,
+and persistent fandom badges on every post. The Community Notes feature
+translates the three requirements from Section~2.2 into interface rules
+(Figure~\ref{fig:teaser}A).
+
+\begin{itemize}
+  \item \textbf{A note needs both fandoms.} After one side submits, the entry
+  sits waiting under its author's badge until a rival answers. Neither side
+  can write for the other or publish alone.
+  \item \textbf{Both badges stay visible.} From draft to publication, each
+  entry carries its author's fandom badge, and votes accrue to the note as a
+  whole rather than to either half.
+  \item \textbf{Nothing is said about shared identity.} Prompts address K-pop
+  fans at large, but no instruction tells participants to identify as one
+  group, and entries are published verbatim rather than merged.
+\end{itemize}
+
+\subsection{Configuring the Backstage LLM}
+
+An LLM performs two functions in the system, both invisible to participants.
+First, it monitors the discussion: incoming posts are scored for toxicity in
+real time, producing the session-level signal that triggers the assigned
+feature. Second, it publishes the Community Note: once both fandom slots are
+filled, it verifies that the note contains one entry per fandom and assembles
+the two entries verbatim into the pinned format. The model does not write or
+rewrite anyone's words, does not converse with participants, and claims no
+identity. We keep it backstage deliberately: an agent that visibly steered
+rivals toward common ground would announce the shared identity that the
+design requires the situation to produce. In our system, the LLM decides when
+the cooperative task appears and makes its outcome public; the cooperation
+itself belongs entirely to the participants.
+
+\subsection{Recruitment and Participants}
+
+We recruited participants through fandom communities on social platforms,
+screening with an open-ended fandom identification question to avoid
+signaling the study's focus, with working language and location as
+eligibility criteria. \todonote{final recruitment N (target 25+25), exact
+channels (WeChat, Xiaohongshu, Weibo, Discord), compensation, and IRB status
+pending.}
+
+\subsection{Procedure}
+
+Participants completed a pre-survey at recruitment (fandom identification,
+trait covariates, and eligibility screening), then joined fixed time slots
+and confirmed readiness before each session. Sessions lasted approximately
+one hour per day on two consecutive days. A survey followed each day's
+session: after Day 1, the outcome battery; after Day 2, the outcome battery
+again, feature-specific items, and a funneled suspicion probe. After the Day
+2 survey, we invited a subset of participants to semi-structured interviews
+about their experience across both days, sampling from both fandoms and both
+conditions.
+
+\subsection{Measures}
+
+Toxicity is the primary outcome, scored on pre-moderation text by Perspective
+API~\cite{lees2022} and independent human coding following Coe, Kenski, and
+Rains's incivility codebook~\cite{coe2014}, supplemented by a K-pop
+incivility lexicon validated before use with inter-rater reliability
+reported. Survey outcomes adapt validated instruments to the fandom boundary,
+following the battery of Rajadesingan et al.~\cite{rajadesingan2020}: the
+feeling thermometer toward rival-fandom members~\cite{iyengar2012}, common
+in-group identity representation as the mediator~\cite{gaertner2000}, and
+fandom identification via a fan identification scale~\cite{wann1993}, which
+also tests that the intervention does not erode subgroup identity. Behavioral
+logs capture cross-fandom replies, votes, and we/they pronoun
+ratios~\cite{pennebaker2011}. Reactance serves as a backfire
+guardrail~\cite{brehm1966}.
+
+\subsection{Analysis}
+
+For RQ1, we compare toxicity across conditions and phases; because both
+conditions are triggered at the same threshold, the treatment effect is
+identified by the condition-by-phase contrast rather than by a before-after
+comparison, and Day 2 tests whether changes persist. For RQ2, two researchers
+will code forum posts and interview transcripts for shifts in cross-group
+interaction.
+
+\section{Results}
+
+We have run \StatnCohorts{} two-day sessions to date, each mixing ARMY and
+BLINK members who discussed K-pop topics under a prominent badge marking
+their fandom. On Day 1, participants discussed freely until session toxicity
+reached a threshold, which triggered Community Notes; on Day 2, the same
+participants discussed without it. The behavioral analyses below draw on the
+treatment session with complete message-level logs: \StatnParticipants{}
+participants (three ARMY, three BLINK, anonymized A1--A3 and B1--B3)
+exchanged \StatnMessages{} messages over \StatsessionMinutes{} minutes on Day
+1, with the Community Note appearing 20 minutes into the session. Day-level
+comparisons additionally use the platform's per-participant session summaries
+across treatment sessions, and survey results draw on the \StatsurveyN{}
+treatment-arm participants who completed the post-session battery.
+Message-level toxicity is scored 0--1.
+
+\begin{table}
+  \caption{The studied session by phase: free discussion (first 20 minutes)
+  versus the note phase (after the Community Note appeared). Toxicity fell
+  while first-person plural framing replaced third-person references to the
+  rival fandom.}
+  \label{tab:phases}
+  \begin{tabular}{lcc}
+    \toprule
+    & Free phase & Note phase \\
+    \midrule
+    Messages & \StatnFreeMsgs & \StatnNoteMsgs \\
+    Mean toxicity & \StatfreeMean & \StatnoteMean \\
+    ``They'' references per message & \StattheyFree & \StattheyNote \\
+    ``We'' references per message & \StatweFree & \StatweNote \\
+    ``They'' share of plural references & \StattheyPropFree & \StattheyPropNote \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Behavior Moved, Attitudes Did Not (RQ1)}
+
+\subsubsection{Toxicity fell when the note appeared.}
+Toxicity was high through the free phase, then dropped when Community Notes
+appeared. Mean message toxicity decreased from \StatfreeMean{} to
+\StatnoteMean{}, a \StatredPct\% reduction (Welch
+$t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$;
+Table~\ref{tab:phases}).
+
+Figure~\ref{fig:windows} shows the change in toxicity over ten-minute
+windows. Toxicity peaked at \StatwinPeak{} in the window before the Community
+Note appeared. After the note appeared, every ten-minute window had lower
+toxicity than every window before it, falling to \StatwinE{} in the final
+window. At the participant level, we compared the participants who posted in
+both phases; their mean within-participant difference was
+$M_{\mathit{diff}}=\StatpairedMeanDiff$ (paired
+$t(\StatpairedDf)=\StatpairedT$, $p=\StatpairedP$), with
+$d_z=\StatpairedDz$.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\linewidth]{figures/fig_windows}
+  \caption{Mean message toxicity in ten-minute windows across the studied
+  session ($n$ per window: 20, 19, 19, 17, 6 messages). The Community Note
+  appeared 20 minutes in. Every window after the note is lower than every
+  window before it.}
+  \Description{Bar chart of mean toxicity for five ten-minute windows:
+  0.355 and 0.303 before a dashed line marking the Community Note, then
+  0.266, 0.206, and 0.117 after it.}
+  \label{fig:windows}
+\end{figure}
+
+\subsubsection{Attitudes did not change.}
+Participants rated the note low in legitimacy (\StatlegitM/5) and high in
+reactance (\StatreactM/5). Perceived similarity to the rival fandom was near
+the scale midpoint (\StatsimilM/5), while the thermometer gap between their
+own and the rival fandom was \StatthermGap{} points
+(Table~\ref{tab:survey}). These ratings suggest that participants did not
+respond to the note because they accepted its authority or felt more
+positively toward the rival fandom.
+
+Survey responses and focus-group accounts pointed in different directions.
+While participants rated the note low in legitimacy, they described the
+pop-out itself as a useful feature: \textit{``This function\ldots{} well I
+don't need to think about blinks too much. I just wrote my own opinion on the
+note and that's it. But at least it is useful because I\ldots''} (P\#, focus
+group). \todonote{quote is cut off; complete from transcript and replace P\#
+with the participant code.}
+
+\begin{table}
+  \caption{Post-session survey outcomes for treatment-arm participants
+  ($n=\StatsurveyN$). Scale items are 1--5; thermometers are 0--100.
+  Participants experienced the sessions as heated, granted the note little
+  legitimacy, reported high reactance, and their outgroup attitudes stayed
+  cold.}
+  \label{tab:survey}
+  \begin{tabular}{lc}
+    \toprule
+    Measure & M (SD) \\
+    \midrule
+    Legitimacy of the note & \StatlegitM{} (\StatlegitSD) \\
+    Reactance toward the note & \StatreactM{} (\StatreactSD) \\
+    Perceived similarity to rival fandom & \StatsimilM{} (\StatsimilSD) \\
+    Perception of rival fandom (intelligent, moral) & \StatpercM{} (\StatpercSD) \\
+    Cross-fandom contact intentions & \StatcontactM{} (\StatcontactSD) \\
+    Session felt heated / attacked & \StatsessM{} (\StatsessSD) \\
+    Thermometer: own fandom & \StatthermOwn \\
+    Thermometer: rival fandom & \StatthermRival \\
+    Thermometer gap (own $-$ rival) & \StatthermGap{} (\StatthermGapSD) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{The Effect Is Group-Level, Not Individual-Level (RQ1)}
+
+\subsubsection{The drop was not driven by a single participant.}
+The reduction in toxicity was spread across participants. Of the
+\StatpairedN{} participants who posted in both phases, \StatpctDeclined\%
+became less toxic (Figure~\ref{fig:participants}). The one participant whose
+mean toxicity increased was among the least active in the session, making
+their individual mean less stable. One further participant posted only after
+the note appeared, at low toxicity.
+
+The reduction remained when we removed participants one at a time, with the
+observed drop ranging from \StatlooMin{} to \StatlooMax. Toxicity showed no
+significant trend within the free phase itself (slope \StatfreeSlope{} per
+minute, $p=\StatfreeSlopeP$), so the discontinuity at the note does not
+reflect a smooth pre-existing decline, though the short pre-period limits how
+strongly a trend can be ruled out.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\linewidth]{figures/fig_participants}
+  \caption{Per-participant mean toxicity in the free phase versus the note
+  phase, for the \StatpairedN{} participants who posted in both.
+  \StatnDeclined{} of \StatpairedN{} became less toxic; the most toxic
+  participant (\StatmostToxicCode) declined least in relative terms and
+  remained the most toxic voice in the room. Participant A1, who posted only
+  after the note (4 messages, mean 0.175), is omitted.}
+  \Description{Slope chart with five lines from free phase to note phase.
+  Four lines decline, one rises slightly. The highlighted line for the most
+  toxic participant B1 starts at 0.50 and ends at 0.37, remaining the
+  highest.}
+  \label{fig:participants}
+\end{figure}
+
+\subsubsection{Hostility was concentrated from the start.}
+A small number of participants produced much of the discussion. In the
+studied session, three of the six participants wrote \StattopThreePct\% of
+the messages, and a single ARMY--BLINK pair
+(\StattopPairA--\StattopPairB) accounted for \StattopPairN{} of the
+session's \StatnReplies{} replies. These figures are from the single fully
+logged session; we will report the distribution across sessions as the
+remaining logs are processed.
+
+The most active participant, \StatmostActiveCode{}, posted
+\StatmostActiveFreeN{} messages during the free phase and
+\StatmostActiveNoteN{} during the note phase, and their per-message toxicity
+fell from \StatmostActiveFreeM{} to \StatmostActiveNoteM{}: the loudest voice
+softened with the group. The most toxic participant, \StatmostToxicCode{},
+did not. Their note-phase per-message toxicity (\StatmostToxicNoteM, with a
+message at \StatmostToxicNoteMax) remained at the level of the whole group
+\emph{before} the note, and the right tail of the note-phase toxicity
+distribution belongs almost entirely to them
+(Figure~\ref{fig:histogram}). The group distribution shifted left; its most
+toxic member stayed where they were.
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_histogram}
+  \caption{Distribution of message toxicity before and after the Community
+  Note appeared. The bulk of the distribution shifts left after the note,
+  while the messages of the most toxic participant (\StatmostToxicCode,
+  hatched) continue to occupy the right tail: the group softened; its most
+  toxic member did not.}
+  \Description{Two histograms of message toxicity. In the free phase,
+  messages cluster around 0.2 to 0.3 with a tail reaching 1.0. In the note
+  phase the mass moves toward 0 to 0.3 and the remaining high-toxicity
+  messages, marked with hatching, belong to participant B1.}
+  \label{fig:histogram}
+\end{figure*}
+
+\subsection{The Topic Shift and the Toxicity Drop Occurred Together (RQ2)}
+
+\subsubsection{Conflict moved from works to persons to identity.}
+Focus-group participants described a similar escalation pattern across
+discussions. Conflicts often began with disagreements about works, such as
+comebacks, album sales, view and like counts on YouTube, or choreography.
+They then shifted to comments about the idol, followed by comments about the
+other participant, and finally to broader statements about fandom identity:
+\textit{``\ldots when they [BLINKs] talk about BTS, they would say that oh,
+we ARMY have a fetish of ugly men. They would say we have a problem with
+aesthetics.''} (P\#, focus group). \todonote{replace P\# with the participant
+code.}
+
+\subsubsection{The note redirected the conversation rather than ending it.}
+Participants continued talking after the note appeared, but their attention
+shifted toward the note itself. In the focus groups, participants described
+the interruption as briefly taking them out of the argument, a state one
+described as \textit{tuozhan}, or standing down: not agreement, but stepping
+away from that particular fight. \todonote{add supporting quote from
+transcript.}
+
+A second measure showed a change at the same time. Third-person plural
+references fell from \StattheyFree{} to \StattheyNote{} per message, while
+first-person plural references increased from \StatweFree{} to \StatweNote.
+The proportion of plural references using ``they'' therefore fell from
+\StattheyPropFree{} to \StattheyPropNote{} (Table~\ref{tab:phases}).
+
+Together, these results show that the conversation changed at the same time
+as toxicity decreased. We do not claim that the topic shift caused the
+reduction in toxicity.
+
+\subsection{The Effect Did Not Persist to Day 2}
+
+On Day 2 the same participants returned and discussed without the feature.
+Their mean toxicity (\StattOneDayTwoM{} across \StattOneDayTwoN{} active
+participant-sessions) sat between the Day 1 free phase (\StatfreePartM) and
+the Day 1 note phase (\StatnotePartM), distinguishable from neither at these
+sample sizes (free vs.\ Day 2: Welch $t=\StatfreeDayTwoT$,
+$p=\StatfreeDayTwoP$; note vs.\ Day 2: Welch $t=\StatnoteDayTwoT$,
+$p=\StatnoteDayTwoP$; Figure~\ref{fig:days}). Across all treatment
+participant-sessions, Day 1 and Day 2 toxicity likewise did not differ
+(\StatdayOneM{} vs.\ \StatdayTwoM; Welch $t=\StatdayWelchT$,
+$p=\StatdayWelchP$). The reduction observed while the note was on screen did
+not carry over once it was gone, a pattern we return to in
+Section~\ref{sec:pause}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\linewidth]{figures/fig_days}
+  \caption{Participant-level mean toxicity in the Day 1 free phase, the Day 1
+  note phase, and the Day 2 session without the feature (bars: group means;
+  dots: participants). Day 2 sits between the two Day 1 phases and differs
+  significantly from neither.}
+  \Description{Bar chart with jittered dots showing mean toxicity of 0.347
+  in the Day 1 free phase, 0.228 in the Day 1 note phase, and 0.267 on Day
+  2, with tests reported as not significant.}
+  \label{fig:days}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{A Shared Task Without a Shared Identity}
+
+The CIIM framework was necessary, but it worked differently from how we
+expected. It did not produce a common identity. It produced a shared task
+that both sides were willing to enter for a short time.
+
+We built the feature to satisfy three requirements: real interdependence
+(neither side can publish alone), dual identities kept visible (badges
+remain), and no explicit common-identity framing (prompts address K-pop fans
+without asking anyone to identify as one group).
+
+Behavior changed, but recategorization did not occur. Outgroup similarity
+stayed at the scale midpoint (\StatsimilM/5), the own--rival thermometer gap
+remained at \StatthermGap{} points, and perception of the rival fandom stayed
+low (\StatpercM/5). Participants also rated the note low in legitimacy
+(\StatlegitM/5) and high in reactance (\StatreactM/5). If the mechanism were
+``we now see them as one of us,'' we would expect some loosening in outgroup
+attitudes or identification. We did not observe it.
+
+The shared task was still doing work. If interruption alone were sufficient,
+any pop-up would serve: an announcement, a poll, an image. What we required
+instead was that each fandom write half of a note that could not publish
+until both halves existed. Without a superordinate task both sides are
+willing to enter, participants have nowhere to go: they either ignore the
+interruption or read it as one more position and absorb it into the
+argument.
+
+The common-identity framing and the pause are therefore layered rather than
+alternative. The framing supplies somewhere to go once the argument is left;
+the pause is the step that does the work, and it stops short of
+recategorization. Moving attention was enough.
+
+This also accounts for low legitimacy alongside falling toxicity.
+Participants did not accept the note's authority over their dispute, but they
+did accept the task of writing something as a K-pop fan. The objects of
+judgment differ: the shared identity supplied a reason to participate, not an
+outcome of identification.
+
+One alternative reading should be kept. The shift from ``they'' to ``we''
+looks like common identity, but a change of subject produces the same
+linguistic pattern. We treat it as parallel to the attention account rather
+than as evidence for CIIM.
+
+This claim is testable. If interruption alone were doing the work, an inert
+feature matched on visual salience but requiring no cross-fandom contribution
+should produce the same effect. The control condition is a direct test of
+it.
+
+\subsection{Why a Pause Can Be Enough}
+\label{sec:pause}
+
+\textbf{Escalation requires sustained attention.} In our seeded sessions
+toxicity did not need time to build---threads opened hot, and the free phase
+held a mean near \StatfreeMean{}---but it did need attention to stay hot.
+Escalation takes participants staying with the same fight, and once the note
+pulled attention elsewhere, no ten-minute window returned to pre-note levels;
+by the final window toxicity had fallen to \StatwinE.
+
+\textbf{Interrupting attention may therefore be enough to interrupt
+escalation, without changing what anyone believes.} Depolarization
+interventions typically target beliefs, attitudes, group boundaries, or
+perceptions of the outgroup. Community Notes competes for none of these. It
+competes for where attention sits in the moment, which is a lower bar:
+participants need neither accept another position nor come to like the other
+side. But not every interruption will do. Attention needs somewhere to
+land---something both sides are willing to enter and must complete together.
+This is what the shared task provides. It does not change who participants
+are; it gives them somewhere to go for a few minutes.
+
+\textbf{Attention is itself scarce on platforms.} Recommendation, reply, and
+engagement mechanics keep users inside conflicts~\cite{rathje2021}, and
+participants themselves attributed sustained hostility to platform and
+industry incentives. An attention-based intervention need not compete with
+those mechanics over positions. It needs to win a few minutes.
+
+Returning toward baseline on Day 2 (Figure~\ref{fig:days}) is therefore not
+evidence of failure. If the mechanism is attention interruption rather than
+attitude change, the effect should be state-dependent. The note does not buy
+reconciliation; it buys time. In an escalating conflict, an interrupted climb
+has to be rebuilt.
+
+\subsection{The Intervention Did Not Need to Be Accepted to Work}
+
+Toxicity fell alongside low legitimacy (\StatlegitM/5) and very high
+reactance (\StatreactM/5). This is not a contradiction once the objects of
+resistance and participation are separated. Participants resisted the note's
+standing to intervene in their argument. What they accepted was the task of
+writing something as a K-pop fan, which asked them neither to concede
+anything to the other side nor to give up their own position. High reactance
+attached to the note's authority without fully translating into resistance to
+the behavioral intervention.
+
+Prior work notes that visible AI invites discounting and
+reactance~\cite{jakesch2019}. In our design the LLM never appeared as a
+persuader: participants encountered an interface feature rather than an agent
+telling them how to talk. This may be one reason resistance did not spread
+across the whole intervention.
+
+The design implication is that an effective conflict intervention need not be
+endorsed by its users. Mechanisms that do not depend on goodwill or agreement
+may be easier to deploy than mechanisms that depend on persuasion, because
+they need not win consent first. This is consistent with the second point
+above: competing for attention has a lower bar than competing for belief.
+
+We claim only that high reactance did not prevent the observed behavioral
+change. We cannot show that reactance is unimportant, nor rule out that
+higher reactance would defeat the intervention.
+
+\subsection{The Effect Reached the Periphery, Not the Core}
+
+Hostility was unevenly distributed. Three participants produced
+\StattopThreePct\% of messages, and a single ARMY--BLINK pair carried
+\StattopPairN{} of \StatnReplies{} replies.
+
+The most toxic participant is the key boundary case. While the group
+distribution shifted left after the note, their per-message toxicity barely
+moved: at \StatmostToxicNoteM{} it remained where the whole group had been
+before the note, and the note-phase right tail of the toxicity distribution
+is almost entirely theirs (Figure~\ref{fig:histogram}). Notably, volume and
+venom came apart: the most active participant softened with the group, while
+the most toxic one kept their edge.
+
+Community Notes therefore appears to soften the behavior of peripheral
+participants rather than to change the hostility of core producers. Group
+means fell while the participant most invested in the conflict did not
+visibly change.
+
+The mechanism above explains this boundary. The pause works because a shared
+task is available for both sides to enter. For participants already heavily
+committed to the fight, that task is not an attractive place to go: their
+attention stays anchored to the argument. The shared task catches those
+still willing to leave.
+
+For cooperative interdependence, this suggests that online cooperative
+mechanisms may reach those still willing to participate more readily than
+those already committed to the fight. This limits where the mechanism applies
+rather than undermining it.
+
+The design implication is that triggering should not depend only on the state
+of the whole discussion. A better design would combine individual
+trajectories---who is escalating, who is being drawn in, who is moving from
+the periphery toward the core---shifting the trigger from a session-level
+threshold to a participant-level trajectory.
+
+\subsection{Limitations}
+
+Four limitations bound these results. First, the message-level analyses draw
+on the single treatment session with complete logs; the remaining sessions
+enter the analysis only through per-participant summaries, and the control
+condition is still being fielded, so the condition-by-phase contrast that
+identifies the treatment effect is not yet available. Second, the note onset
+in the analyzed export is reconstructed as the 20-minute mark rather than
+read from a trigger log, so the phase boundary carries some imprecision.
+Third, day-level comparisons treat platform participant-sessions as the unit
+of analysis; participants who reconnected contribute more than one row.
+Fourth, the survey battery analyzed here was collected after Day 1 only, so
+attitude stability is inferred from post-session levels rather than
+pre--post change. Each of these will be addressed as the full dataset is
+assembled.
+
+\section{Conclusion}
+
+We built a platform feature that operationalizes cooperative interdependence:
+a Community Note that members of rival fandoms must co-author before it can
+publish, assembled backstage by an LLM that never enters the conversation. In
+a live session between ARMY and BLINK members, toxicity fell by
+\StatredPct\% when the note appeared, the decline was shared by most
+participants rather than driven by one, and conversation shifted from
+``they'' toward ``we''---while attitudes toward the rival fandom did not move
+and the note itself was granted little legitimacy. The pattern is consistent
+with an attention account: the co-authored note gives an escalating fight
+somewhere else to go, without asking anyone to change what they believe or
+who they are. A pause, it turns out, can be built.
+
+\begin{acks}
+\todonote{acknowledgments pending.}
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

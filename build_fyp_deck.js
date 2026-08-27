@@ -317,9 +317,21 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Thank them for making time before term starts, and CY for moving the meeting to Friday.\n\n" +
-      "One line of framing: we are here to ask whether we may carry this project into ISDN 4001, and to show you what it already is.\n\n" +
-      "Note the name early: the project you saw as NewsFlick in our email now ships as Fliq — NewsFlick Limited is still the company."
+`SCRIPT — VICTOR  (about 60 seconds)
+
+"Good morning, and thank you both for making the time before term starts. Professor Tsui, thank you for moving this to Friday to fit us in.
+
+I'm Victor, this is Adam. We're both Year 4 in ISD.
+
+Professor Tsui — we first met you in ISDN 1001, and again at the HKUST-HSBC Social Entrepreneurship Competition last November.
+
+We're here for one reason. We'd like to ask whether we can carry the project we've been building for the last two years into ISDN 4001 as our final year project.
+
+One quick note on the name. In our email we called it NewsFlick. That's still the company — NewsFlick Limited. The product now ships as Fliq. Same project.
+
+We'll take about fifteen minutes, and then we'd really like to hear what you think."
+
+NOTE: Warm, unhurried. Don't rush into the pitch — the two of them agreeing to meet in August is a favour, so acknowledge it properly.`
   );
 }
 
@@ -397,9 +409,21 @@ function card(s, o) {
   });
 
   s.addNotes(
-    "Lead with the ask so nothing is ambiguous — we are not fishing, we are asking one specific question.\n\n" +
-      "The middle card matters: the kick-off deck told students with their own idea to start before September. That is exactly why we wrote in August rather than turning up in week three.\n\n" +
-      "Do not oversell here. The evidence is on the next five slides."
+`SCRIPT — VICTOR  (about 45 seconds)
+
+"So here's the ask, straight away, so nothing is ambiguous.
+
+We'd like to register Fliq as our own-idea FYP topic.
+
+We're asking because your kick-off deck says that's one of the three ways to start — your own idea: start early, form a team, validate users.
+
+And the timing was deliberate. The deck said students pursuing their own idea should begin developing it before September. That's why we emailed in August rather than turning up in week three.
+
+What we'd bring to it isn't a concept. It's two years of user research, a validated MVP, an incorporated company, and an app that's in build right now.
+
+The next few slides are the evidence for that."
+
+NOTE: Don't oversell here. State it plainly and move on — everything that earns the ask is on slides 3 to 7.`
   );
 }
 
@@ -522,9 +546,25 @@ function card(s, o) {
   });
 
   s.addNotes(
-    "The one line to land: readers are not short of news, they are unsure what to believe.\n\n" +
-      "We did not assume that problem — the numbers on the left are our own study, not a market report.\n\n" +
-      "If asked why there is no single trust score: interviews told us a bare number is semantically empty — “a percentage out of what?” — so we show the evidence instead of averaging it away."
+`SCRIPT — VICTOR  (about 70 seconds)
+
+"Very quickly, what it actually is.
+
+We started from one observation: young readers aren't short of news. They're unsure what to believe.
+
+We didn't assume that — we measured it. In our own hundred-response study, seventy-nine percent ranked trust, knowing a story is accurate, as their number-one priority. Ahead of speed, ahead of clarity. Fifty-two percent told us they'd read more news if they could trust it more. And forty-three percent said they simply can't tell what's true.
+
+So we built against that.
+
+Every story carries a confidence signal — Low, Medium or High, plus where the story is in its lifecycle. Deliberately not a percentage.
+
+Inside a story, every individual claim is tagged: Confirmed, Developing, Disputed, or Analysis. You can tap any one of them and see who confirmed it, and why.
+
+Underneath, we ground stories in primary evidence through an ingestion model we call two pools, one gate.
+
+And the feed is finite. It ends. That's a deliberate choice for a Gen-Z audience."
+
+IF ASKED why no single trust score: our interviews killed it. People asked "a percentage out of what?" A bare number felt precise but told them nothing, so we show the evidence rather than averaging it away.`
   );
 }
 
@@ -638,9 +678,23 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "The point here is process, not features: we iterated in generations and let evidence drive each transition.\n\n" +
-      "G4 is the story worth telling aloud — the A/B test mildly preferred a numeric score, but interviews showed the number was meaningless to people. We followed the deeper evidence and dropped it. That is the judgement we want to bring to Year 4.\n\n" +
-      "Credit Prof. Joneja and Prof. Huang clearly and early."
+`SCRIPT — VICTOR  (about 60 seconds)
+
+"This is last year, across ISDN 3001 and 3002, under Professor Joneja and Professor Huang.
+
+We didn't design it once. We went through five generations, and each one was pushed by evidence rather than by our own taste.
+
+G1 established the card and feed metaphor. G2 is where it stopped being aesthetic-led — we did the user landscape, the journey, the persona, and the research told us the job of this product is trust, not speed. That reframed everything after it.
+
+G3 turned scattered mockups into one versioned component library, so the design and the generation pipeline share a single source of truth.
+
+G4 is the one I'd point at. We explored ten directions for the confidence signal. In our A/B test, people actually preferred a numeric score — but the interviews told us that number was meaningless to them. So we dropped it. We followed the deeper evidence against a surface preference.
+
+G5 made the claim tags legible and discoverable, after testing showed people didn't realise they were tappable.
+
+Underneath all of it: two questionnaires, about thirty interviews, and an eighty-six person A/B test."
+
+NOTE: Credit Prof. Joneja and Prof. Huang out loud, not just on the slide. G4 is the story that shows judgement — take your time on it.`
   );
 }
 
@@ -735,9 +789,27 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "This is the slide that answers “is it real?”\n\n" +
-      "Say plainly: we treated the AI pipeline as a system to be validated, not demonstrated. Each figure comes from a documented pass and now serves as a regression baseline.\n\n" +
-      "Read the caveat line aloud if they press on the numbers — volunteering the limits is stronger than being caught by them, and it is in our ISDN 3002 report verbatim."
+`SCRIPT — ADAM  (about 75 seconds)
+
+"I'll take this one, since it's the engineering side.
+
+The thing that matters here is that we treated the pipeline as a system to be validated, not demonstrated.
+
+On the product bet: across eighty-six A/B participants, around eighty-five percent said they'd switch to the transparent version — that's seventy-three of eighty-six — and around eighty-eight percent rated a visibly shown trust indicator as important.
+
+On the pipeline itself, we ran four documented passes in June.
+
+The arc taxonomy converged from twenty-two arcs down to eleven with no loss of coverage, which tells us the abstraction actually holds as the corpus grows.
+
+Card quality scored about seventeen-point-eight out of twenty against a clarity, structure and completeness rubric.
+
+The lifecycle and hallucination-resistance pass came back clean. On a quiet day the system reports 'no relevant developments' rather than inventing movement — that one is load-bearing, because a single confident unsupported claim would undermine the whole confidence signal.
+
+And the voice layer passed across a hundred and forty-four renderings with the facts preserved verbatim.
+
+I want to be straight about the limits, because they're in our report too. The card-quality number is a best-and-worst-per-arc sample scored by the model itself, and the lifecycle pass rests on three tracked stories. These are directional baselines and regression bars. They aren't exhaustive proof."
+
+NOTE: Say the caveat even if they don't ask. Volunteering the limits is far stronger than being caught by them, and it's what makes the other numbers credible.`
   );
 }
 
@@ -821,9 +893,19 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Do not read this grid out item by item — let them scan it. One sentence: the project has had to survive judging by people outside HKUST, repeatedly.\n\n" +
-      "If asked about the angel round: a small angel and family round, closed. We are not claiming institutional investment.\n\n" +
-      "The pill dispenser is where we last met Prof. Tsui — a natural, warm callback."
+`SCRIPT — ADAM  (about 45 seconds)
+
+"Alongside the coursework we took it outside the classroom, and it's had to survive judging by people who don't know us.
+
+Silver at Techathon+ this year, in Trusted AI and Data Science.
+
+We incorporated as NewsFlick Limited. We closed a small angel and family round — and I want to be precise about that: it's angel and family, not institutional investment.
+
+We're in the InnoBay twenty-six twenty-seven cohort. We completed HKSTP Ideation and Dream Builder. We're on AWS Activate. And a provisional patent is in preparation.
+
+Professor Tsui — the HKUST-HSBC competition we mentioned earlier, the pill dispenser, was where we last saw you."
+
+NOTE: Don't read the grid item by item, let them scan it. The one sentence that matters is that outsiders keep backing it. Be scrupulous about the funding wording — overstating it is the fastest way to lose them.`
   );
 }
 
@@ -912,9 +994,17 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "This slide is the argument in miniature. Deliver it with energy but no boasting.\n\n" +
-      "Two competition wins over the summer, while the course was not running — nobody asked us to enter them.\n\n" +
-      "The third card is what matters for this conversation: we are mid-build on the app right now, and that is exactly the work Year 4 would carry."
+`SCRIPT — VICTOR  (about 45 seconds)
+
+"This is the part we most wanted to show you, because all of it happened after the course ended, and nobody asked us to do any of it.
+
+Over the summer we won the IET Young Professionals Exhibition and Competition as Undergraduate Champion. And we were Regional Champion at Enactus Hong Kong.
+
+And right now we're building the app itself. That's the step from a validated design to something a real reader can actually open.
+
+Which is the honest reason we're sitting here. This is a live venture with momentum. It isn't a finished piece of coursework we're asking to hand in twice."
+
+NOTE: This slide is the whole argument in miniature. Energy, but no boasting — the facts do the work. Let the last line land, then move on.`
   );
 }
 
@@ -1030,9 +1120,21 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Use their own words back to them — these four outcomes are quoted from the kick-off deck.\n\n" +
-      "Keep this quick, about forty seconds. It is a checkpoint, not an argument.\n\n" +
-      "Point four is the one professors tend to care about most: what does the student actually walk away with in June."
+`SCRIPT — VICTOR  (about 40 seconds)
+
+"We went back to your kick-off deck and looked at the four things you said a student should finish the year with.
+
+A strong prototype — we have a pipeline with a frozen specification and four documented test passes behind it. A system, not a demo.
+
+A convincing story — trust as the scarce resource in news, and we measured that ourselves.
+
+Evidence of defining and solving a meaningful problem — our research reframed it from information overload to trust, and the whole product follows from that.
+
+And something you can show after graduation — a company, an app going to beta, and a patent in preparation.
+
+That last one is honestly a large part of why this matters to us."
+
+NOTE: Keep this brisk — it's a checkpoint, not an argument. Point four is usually the one professors care about most.`
   );
 }
 
@@ -1124,8 +1226,23 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Declare the track clearly — the deadline to lock it is end of September, so showing we have already chosen is a good signal.\n\n" +
-      "If they suggest Research and Technology instead, take it seriously rather than defending. The band at the bottom exists to show the project has that depth too, and we would genuinely welcome their advice on which track serves it better."
+`SCRIPT — ADAM  (about 45 seconds)
+
+"On tracks — we'd declare Entrepreneurship and Venture.
+
+Against the three deliverables you set for it:
+
+Market and value contribution — we have the incorporated company, a subscription-plus-advertising model built on what people actually told us they'd pay, and the closed round.
+
+MVP and business concept — a pre-launch MVP with a frozen specification and an architecture that scales by adding licensed source pools, now moving into app development.
+
+Pitch and customer validation — the eighty-six person A/B test, the interviews, the questionnaires, and four competitions judged by panels outside the university.
+
+We'd also bring research and technology depth into the track — the AI pipeline, the ingestion architecture, the stress tests.
+
+And if you think the Research and Technology track serves the project better, we'd genuinely like your view on that. We're not attached to the label."
+
+NOTE: If they push toward Research and Technology, take it seriously rather than defending. Asking their advice here costs nothing and shows we're coachable.`
   );
 }
 
@@ -1253,9 +1370,19 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "This slide answers the strongest objection — that we are asking to hand in the same project twice.\n\n" +
-      "Say it directly: the MVP has never met a real reader. Everything measured so far was measured on prototypes and mockups. Year 4 is when it goes live and faces actual users and actual money.\n\n" +
-      "The lime line is the sentence to leave in their heads."
+`SCRIPT — VICTOR  (about 60 seconds)
+
+"Now the objection we'd rather raise ourselves, because your deck raises it. Continuation is not repetition. So what's actually new?
+
+Here's the honest answer.
+
+Year 3 defined and measured the problem, ran five design generations, settled the confidence-signal design, and produced four documented test passes. And it produced a pre-launch MVP that has never met a real reader. Everything we've measured so far, we measured on prototypes and mockups.
+
+Year 4 is where it ships. A public beta on real, live news. Real readers in real sessions, measured. First paying users, with the pricing actually tested rather than surveyed. The stress tests automated into a regression suite, so every future version of the pipeline is measured rather than eyeballed. And the provisional patent filed.
+
+Year 3 showed that people want this. Year 4 has to show that they'll use it, and pay for it."
+
+NOTE: This is the strongest objection to what we're asking, so own it before they raise it. "Has never met a real reader" is the admission that makes the rest credible. End on the lime line and stop.`
   );
 }
 
@@ -1386,9 +1513,23 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Show that we have read the calendar: topic locked end of September, mid-term in the winter, final demo June 2027.\n\n" +
-      "The band at the bottom pre-empts a fair worry — that a team arriving with a finished idea will treat the bootcamp as a formality. We would use it properly, on scope.\n\n" +
-      "Confirm we have both reserved 19–20 September."
+`SCRIPT — ADAM  (about 55 seconds)
+
+"Here's how that sits on your calendar.
+
+September: lock the topic, confirm advisor and track, and the InnoX bootcamp on the nineteenth and twentieth. We've both reserved those dates already.
+
+And on InnoX — we don't want to treat it as a formality just because we're arriving with an idea. We'd use the two pitching rounds to pressure-test the scope of the beta. What goes in and what doesn't is a genuinely open question for us.
+
+October: the detailed plan and feasibility work — ingestion breadth, the cost model, and the scope of the beta.
+
+November and December: build and launch the public beta, alongside the mid-term deliverables. First real readers.
+
+January to May: live iteration on genuine sessions, commercial validation, first paying users, and the patent filed.
+
+And June twenty twenty-seven: the final demo is a live product with real users and traction data behind it. Not a prototype."
+
+NOTE: The InnoX point pre-empts a fair worry — that a team arriving with a finished idea will coast through the bootcamp. Say it before they think it.`
   );
 }
 
@@ -1547,9 +1688,19 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Raise team size ourselves rather than waiting to be asked — it shows we read the kick-off deck properly and are not hoping it slips past.\n\n" +
-      "The case in one sentence: two people carried this through two courses, four competitions and an incorporation, so a pair is not a shortfall in capacity.\n\n" +
-      "Then genuinely stop and listen. If they want us larger, the last line is honest — we would rather be guided than argue. Do not fight this point in the room."
+`SCRIPT — ADAM  (about 55 seconds)
+
+"On the team.
+
+It's the two of us. Victor leads product, design and research. I lead engineering and the business side — the ingestion architecture, the generation pipeline, the MVP, the stress-test programme and the commercial model.
+
+And we want to raise team size ourselves rather than wait for you to ask. We know the kick-off deck asks for three to five, and that a pair is provisional.
+
+We'd like to make the case for the two of us. Everything on the last ten slides was delivered by these two people, alongside a full course load. The company is incorporated, with roles and equity already settled between us. And we already have two faculty advisors engaged who know the project's history.
+
+But if the Division would rather we were a larger team, we'd genuinely welcome your guidance on how to bring people in well. That's a harder question than it looks, because of the company structure, and we'd rather get it right than guess."
+
+NOTE: Then stop and listen. Do not argue this point in the room — if they want a larger team, take the guidance and work out the details afterwards. Fighting it here is the one thing that could sour the meeting.`
   );
 }
 
@@ -1667,9 +1818,22 @@ function card(s, o) {
   );
 
   s.addNotes(
-    "Close on questions, not on us talking. Ask all three, then be quiet.\n\n" +
-      "Question two matters practically: CY suggested Prof. Gu and Prof. Song meet us first, so the advisor arrangement is genuinely open and worth asking about rather than assuming.\n\n" +
-      "Thank them again for shifting the meeting to Friday, and offer to send the ISDN 3002 report and the stress-test evidence afterwards."
+`SCRIPT — VICTOR  (about 35 seconds)
+
+"So — three things we'd like to ask you.
+
+First: may we register Fliq as our FYP topic, under the Entrepreneurship and Venture track?
+
+Second: how would you advise us on advisor arrangements for the year ahead?
+
+And third: what would you like to see from us before the first class on the third of September, and before the InnoX bootcamp?
+
+Thank you again for making the time before term begins. We're very happy to send you the ISDN 3002 report and the stress-test evidence afterwards, if that would be useful."
+
+NOTE: Ask all three, then stop talking and let the silence sit. Question two matters practically — Prof. Tsui suggested Prof. Gu and Prof. Song meet us first, so the advisor arrangement is genuinely open. Don't assume who our advisor would be.
+
+IF THEY SAY YES: don't celebrate and leave. Ask what they need from us to make it official, and when.
+IF THEY HESITATE: ask what would make them comfortable, and offer to come back with it before the third.`
   );
 }
 

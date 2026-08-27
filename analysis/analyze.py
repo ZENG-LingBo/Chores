@@ -324,15 +324,15 @@ BOXW = 0.44
 
 def stage(x0, title, edge=INK2):
     rounded(ax, x0, 0.06, BOXW, 0.92, "#fcfcfb", edge)
-    ax.text(x0 + BOXW / 2, 0.885, title, ha="center", fontsize=6.4,
-            fontweight="bold")
+    ax.text(x0 + BOXW / 2, 0.865, title, ha="center", va="center",
+            fontsize=6.4, fontweight="bold")
 
 def caption(x0, text):
     ax.text(x0 + BOXW / 2, 0.175, text, ha="center", va="center", fontsize=5.9,
             color=INK2, style="italic")
 
 # Stage 1: escalating mixed feed
-stage(0.02, "Mixed feed escalates")
+stage(0.02, "Mixed feed\nescalates")
 for i, fan in enumerate(["ARMY", "BLINK", "ARMY"]):
     yy = 0.66 - i * 0.16
     badge(ax, 0.055, yy, fan)
@@ -344,7 +344,7 @@ arrow = FancyArrowPatch((0.475, 0.52), (0.565, 0.52), arrowstyle="-|>",
 ax.add_patch(arrow)
 
 # Stage 2: the pinned Community Note with two slots
-stage(0.58, "Community Note (pinned)", INK)
+stage(0.58, "Community Note\n(pinned)", INK)
 badge(ax, 0.615, 0.63, "ARMY")
 msg_lines(ax, 0.72, 0.675, 0.26, 2, "#c9c8c2")
 badge(ax, 0.615, 0.44, "BLINK")
@@ -358,7 +358,7 @@ arrow = FancyArrowPatch((1.035, 0.52), (1.125, 0.52), arrowstyle="-|>",
 ax.add_patch(arrow)
 
 # Stage 3: co-signed note published
-stage(1.14, "Co-signed note published")
+stage(1.14, "Co-signed note\npublished")
 badge(ax, 1.19, 0.62, "ARMY")
 badge(ax, 1.30, 0.62, "BLINK")
 msg_lines(ax, 1.19, 0.52, 0.34, 3, "#c9c8c2")

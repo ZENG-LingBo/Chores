@@ -484,9 +484,13 @@ Table~\ref{tab:phases}).
 
 Figure~\ref{fig:windows} shows the change in toxicity over
 \StatwindowMin-minute windows, aligned so that the note falls on a window
-boundary. Toxicity stood at \StatwinPeak{} in the window before the Community
-Note appeared. Each window after the note was lower than the one before it,
-falling to \StatwinLast{} in the final window. At the participant level, we compared the participants who posted in
+boundary. Toxicity peaked at \StatwinPeak{} in the window immediately before
+the Community Note appeared, then halved to \StatwinFirstNote{} in the window
+immediately after it, a \StatdropAtNote\% drop across a single window. The
+recovery that followed stayed well short of the free phase: the highest
+post-note window reached \StatwinPostMax, below even the quietest pre-note
+window (\StatwinPreMin), and toxicity then fell to \StatwinLast{} by the end
+of the session. At the participant level, we compared the participants who posted in
 both phases; their mean within-participant difference was
 $M_{\mathit{diff}}=\StatpairedMeanDiff$ (paired
 $t(\StatpairedDf)=\StatpairedT$, $p=\StatpairedP$), with
@@ -494,18 +498,22 @@ $d_z=\StatpairedDz$.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.6\linewidth]{figures/fig_windows}
+  \includegraphics[width=\linewidth]{figures/fig_windows}
   \caption{Mean message toxicity in \StatwindowMin-minute windows across the
   studied session ($n$ per window: \StatwinNs{} messages), with the trend
   across windows overlaid. Windows are aligned to the note onset at
   \StatnoteOnsetMin{} minutes, so the free/note boundary falls on a window edge
-  rather than inside a bar; the last window absorbs the session's final
-  minutes. Toxicity falls window by window, from \StatwinA{} before the note to
-  \StatwinLast{} at the end.}
-  \Description{Bar chart of mean toxicity for three windows, with a line
-  connecting the bar tops: 0.368 for minutes 0 to 15 before a dashed line
-  marking the Community Note, then 0.245 and 0.183 after it. The line descends
-  steadily.}
+  rather than inside a bar; the final window absorbs the session's last
+  minutes. Toxicity peaks in the window immediately before the note
+  (\StatwinPeak) and halves in the window immediately after
+  (\StatwinFirstNote). Toxicity partially recovers in the following two
+  windows, but no post-note window reaches even the quietest pre-note window,
+  and the session ends at \StatwinLast.}
+  \Description{Bar chart of mean toxicity for nine five-minute windows, with a
+  line connecting the bar tops. Before a dashed line marking the Community Note
+  at 15 minutes: 0.371, 0.317 and a peak of 0.395. After it: 0.200, 0.255,
+  0.281, 0.229, 0.190 and 0.117. The post-note windows all sit below the
+  pre-note ones.}
   \label{fig:windows}
 \end{figure}
 

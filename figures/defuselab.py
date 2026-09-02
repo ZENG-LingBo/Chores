@@ -27,7 +27,8 @@ DATA = os.path.join(ROOT, "data")
 PAPER_FIGS = os.path.join(ROOT, "paper", "figures")  # vector copies for LaTeX
 
 NOTE_ONSET_MIN = 15.0
-WINDOW_MIN = 15.0  # reporting windows, aligned to the note onset
+WINDOW_MIN = 5.0  # reporting windows; must divide NOTE_ONSET_MIN so the
+                  # note falls on a window edge rather than inside a bar
 
 # Validated palette (dataviz reference instance, light mode)
 BLUE = "#2a78d6"     # baseline / free phase / Day 1
@@ -115,11 +116,12 @@ S["msgWelchT"] = f"{t_msg:.2f}"
 S["msgWelchDf"] = f"{welch_msg.df:.1f}"
 S["msgWelchP"] = f"{p_msg:.3f}"
 
-# reporting windows, aligned to the note onset; a final window shorter than
-# half a window is merged into the one before it, so no window rests on 2 messages
+# reporting windows, aligned to the note onset; the session's final, incomplete
+# window is merged into the one before it so no window rests on a couple of messages
+assert NOTE_ONSET_MIN % WINDOW_MIN == 0, "windows must align with the note onset"
 session_end = msgs[-1]["min"]
 win_edges = list(np.arange(0, session_end, WINDOW_MIN)) + [session_end + 1e-6]
-if (win_edges[-1] - win_edges[-2]) < WINDOW_MIN / 2:
+if (win_edges[-1] - win_edges[-2]) < WINDOW_MIN:
     del win_edges[-2]
 win_means, win_ns, win_labels = [], [], []
 for lo, hi in zip(win_edges[:-1], win_edges[1:]):
@@ -130,8 +132,12 @@ for lo, hi in zip(win_edges[:-1], win_edges[1:]):
 n_pre = int(NOTE_ONSET_MIN // WINDOW_MIN)  # windows before the note appears
 for letter, m in zip("ABCDE", win_means):
     S["win" + letter] = f"{m:.3f}"
-S["winPeak"] = f"{max(win_means[:n_pre]):.3f}"
+S["winPeak"] = f"{max(win_means[:n_pre]):.3f}"          # highest window before the note
+S["winPreMin"] = f"{min(win_means[:n_pre]):.3f}"        # lowest window before the note
+S["winFirstNote"] = f"{win_means[n_pre]:.3f}"           # first window after the note
+S["winPostMax"] = f"{max(win_means[n_pre:]):.3f}"       # highest window after the note
 S["winLast"] = f"{win_means[-1]:.3f}"
+S["dropAtNote"] = f"{100 * (1 - win_means[n_pre] / max(win_means[:n_pre])):.0f}"
 S["nWindows"] = len(win_means)
 S["winNs"] = ", ".join(str(n) for n in win_ns)
 S["windowMin"] = f"{WINDOW_MIN:.0f}"

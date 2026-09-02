@@ -1,90 +1,101 @@
 #!/usr/bin/env python3
-"""Figure 3: the ceasefire at the participant level.
+"""Figure 2: the escalation the note prevented, at the participant level.
 
-Bars are message-level means, the same quantities the reported tests use;
-dots are individual participants' means, so the reader sees both the average
-and the people behind it. Left: the whole free and note phases. Right: the
-clearest contrast -- the peak window before the note against the quietest
-window after it.
+Left: Day-1 toxicity before and after the feature in each arm. Bars are
+message-level means (what the reported tests use); dots are individual
+participants' means, connected across the two phases, so the reader sees both
+the average and the people behind it. Right: each participant's change,
+split into the platform-coded heavy poster of each session and everyone
+else: in the note arm the periphery cooled while the core heated; in the
+control arm both rose together.
 
 Run: python3 fig_participants.py -> fig_participants.png + paper/figures/fig_participants.pdf
 """
 import numpy as np
 
-from defuselab import (BLUE, ORANGE, INK, INK2, SURFACE, S, clean_axes, code, free_tox,
-                       most_toxic, msgs, n_pre, note_tox, per, plt, save, win_edges,
-                       win_labels, win_means)
+from defuselab import (ARMS, ARM_COLOR, ARM_LIGHT, ARM_NAME, INK, INK2, SURFACE, A, S,
+                       clean_axes, per, plt, save)
 
 RNG = np.random.default_rng(11)
+XPOS = {"EXPT": (0.0, 1.0), "CTRL": (2.4, 3.4)}
 
 
-def participant_means(lo, hi):
-    """Per-participant mean toxicity for messages posted in [lo, hi)."""
-    out = {}
-    for h in per:
-        v = [r["tox"] for r in msgs if r["handle"] == h and lo <= r["min"] < hi]
-        if v:
-            out[h] = np.mean(v)
-    return out
-
-
-def bar_with_dots(ax, i, bar_mean, dots, col):
-    ax.bar(i, bar_mean, width=0.58, color=col, edgecolor=SURFACE, linewidth=1.5, zorder=1)
-    ax.text(i, 0.018, f"{bar_mean:.3f}", ha="center", va="bottom",
-            fontsize=7.5, fontweight="bold", color=SURFACE, zorder=5)
-    xs = i + RNG.uniform(-0.14, 0.14, len(dots))
-    ax.scatter(xs, dots, s=16, color=INK, zorder=4, edgecolor=SURFACE, linewidth=0.7)
-    return xs
-
-
-def finish(ax, labels, title, note):
-    ax.set_xticks(range(len(labels)))
-    ax.set_xticklabels(labels, fontsize=7, linespacing=1.15)
-    ax.set_xlim(-0.75, 1.75)
-    ax.set_ylim(0, 0.64)
-    clean_axes(ax)
-    ax.set_title(title, fontsize=8, pad=4)
-    ax.text(0.5, 0.985, note, transform=ax.transAxes, ha="center", va="top",
-            fontsize=6.6, color=INK2)
+def participants(cond):
+    ps = [p for p in per.values() if p["cond"] == cond and p["pre"] and p["post"]]
+    return [(np.mean(p["pre"]), np.mean(p["post"]), p["heavy"]) for p in ps]
 
 
 def main():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.9, 2.9), sharey=True,
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 3.0),
+                                   gridspec_kw={"width_ratios": [1.45, 1]},
                                    constrained_layout=True)
 
-    # ---- Left: whole phases --------------------------------------------------
-    both = [h for h in per if per[h]["free"] and per[h]["note"]]
-    fv = [np.mean(per[h]["free"]) for h in both]
-    nv = [np.mean(per[h]["note"]) for h in both]
-    x0 = bar_with_dots(ax1, 0, free_tox.mean(), fv, BLUE)
-    x1 = bar_with_dots(ax1, 1, note_tox.mean(), nv, ORANGE)
-    for a, b, xa, xb, h in zip(fv, nv, x0, x1, both):
-        hot = h == most_toxic
-        ax1.plot([xa, xb], [a, b], color=ORANGE if hot else INK2, lw=1.1 if hot else 0.6,
-                 alpha=0.9 if hot else 0.45, zorder=3)
-        if hot:
-            ax1.annotate(f"{code[h]} (most toxic)", xy=(xb, b), xytext=(1.34, b),
-                         fontsize=6.8, color=ORANGE, va="center")
-    finish(ax1,
-           [f"Free phase\n0–{S['noteOnsetMin']} min\n{S['nFreeMsgs']} messages",
-            f"Note phase\n{S['noteOnsetMin']}–{S['sessionMinutes']} min\n{S['nNoteMsgs']} messages"],
-           "Whole phases",
-           f"messages: Welch t({S['msgWelchDf']}) = {S['msgWelchT']}, p = {S['msgWelchP']}\n"
-           f"participants: paired t({len(both)-1}) = {S['pairedT']}, p = {S['pairedP']}")
-    ax1.set_ylabel("Mean toxicity", fontsize=7.5)
+    # ---- Left: arm x phase, bars = message means, dots = participants -------
+    for c in ARMS:
+        x_pre, x_post = XPOS[c]
+        for x, ph, col in ((x_pre, "pre", ARM_LIGHT[c]), (x_post, "post", ARM_COLOR[c])):
+            m = A[c][ph].mean()
+            ax1.bar(x, m, width=0.62, color=col, edgecolor=SURFACE, linewidth=1.5, zorder=1)
+            ax1.text(x, 2.5, f"{m:.1f}", ha="center", va="bottom", fontsize=7.5,
+                     fontweight="bold", color=INK if ph == "pre" else SURFACE, zorder=5)
+        pts = participants(c)
+        xa = x_pre + RNG.uniform(-0.15, 0.15, len(pts))
+        xb = x_post + RNG.uniform(-0.15, 0.15, len(pts))
+        for (a, b, heavy), x0, x1 in zip(pts, xa, xb):
+            ax1.plot([x0, x1], [a, b], color=INK if heavy else INK2,
+                     lw=1.1 if heavy else 0.5, alpha=0.95 if heavy else 0.35, zorder=3)
+        ax1.scatter(xa, [p[0] for p in pts], s=13, color=INK, zorder=4,
+                    edgecolor=SURFACE, linewidth=0.6)
+        ax1.scatter(xb, [p[1] for p in pts], s=13, color=INK, zorder=4,
+                    edgecolor=SURFACE, linewidth=0.6)
+        ax1.text((x_pre + x_post) / 2, -22, ARM_NAME[c] + " arm", ha="center", va="top",
+                 fontsize=7.5, fontweight="bold", color=ARM_COLOR[c])
+    ax1.set_xticks([XPOS[c][i] for c in ARMS for i in (0, 1)])
+    ax1.set_xticklabels([f"before\n0–{S['noteOnsetMin']} min", f"after\n{S['noteOnsetMin']}–{S['sessionMinutes']} min"] * 2,
+                        fontsize=7)
+    ax1.set_xlim(-0.6, 4.0)
+    ax1.set_ylim(0, 100)
+    ax1.set_ylabel("Mean toxicity (0–100)", fontsize=7.5)
+    clean_axes(ax1)
+    ax1.set_title("Day 1: before and after the feature", fontsize=8, pad=4)
+    ax1.text(0.5, 0.985,
+             f"difference-in-differences over sessions: {S['didM']} points, "
+             f"t({S['didDf']}) = {S['didT']}, p {S['didP']}",
+             transform=ax1.transAxes, ha="center", va="top", fontsize=6.2, color=INK2)
+    ax1.text(0.99, 0.87, "thick lines: the session's heaviest poster", transform=ax1.transAxes,
+             ha="right", va="top", fontsize=6.2, color=INK2, style="italic")
 
-    # ---- Right: peak window before vs quietest window after --------------------
-    peak_i = int(np.argmax(win_means[:n_pre]))
-    trough_i = n_pre + int(np.argmin(win_means[n_pre:]))
-    pk = participant_means(win_edges[peak_i], win_edges[peak_i + 1])
-    tr = participant_means(win_edges[trough_i], win_edges[trough_i + 1])
-    bar_with_dots(ax2, 0, win_means[peak_i], list(pk.values()), BLUE)
-    bar_with_dots(ax2, 1, win_means[trough_i], list(tr.values()), ORANGE)
-    finish(ax2,
-           [f"Peak before\n{win_labels[peak_i]} min\n{S['peakWinN']} msgs, {len(pk)} people",
-            f"Quietest after\n{win_labels[trough_i]} min\n{S['troughWinN']} msgs, {len(tr)} people"],
-           "Clearest contrast",
-           f"messages: Welch t({S['peakTroughDf']}) = {S['peakTroughT']}, p = {S['peakTroughP']}")
+    # ---- Right: change per participant, core vs periphery ------------------
+    groups = []
+    for c in ARMS:
+        pts = participants(c)
+        groups.append((c, "periphery", [b - a for a, b, h in pts if not h], False))
+        groups.append((c, "heaviest\nposter", [b - a for a, b, h in pts if h], True))
+    xs = [0, 1.3, 3.1, 4.4]
+    for x, (c, lab, vals, heavy) in zip(xs, groups):
+        m = np.mean(vals)
+        ax2.bar(x, m, width=0.62, color=ARM_COLOR[c], edgecolor=SURFACE, linewidth=1.5,
+                hatch="///" if heavy else None, zorder=1)
+        ax2.scatter(x + RNG.uniform(-0.15, 0.15, len(vals)), vals, s=13, color=INK, zorder=4,
+                    edgecolor=SURFACE, linewidth=0.6)
+        # value label beside the bar, on the side away from its neighbour
+        side = -1 if not heavy else 1
+        ax2.text(x + side * 0.38, m, f"{m:+.1f}", ha="right" if side < 0 else "left",
+                 va="center", fontsize=7.2, fontweight="bold", color=INK, zorder=5)
+    ax2.axhline(0, color=INK2, lw=0.8)
+    ax2.set_xticks(xs)
+    ax2.set_xticklabels([f"{g[1]}\n(n = {len(g[2])})" for g in groups], fontsize=6.6)
+    for c, x in zip(ARMS, (0.65, 3.75)):
+        ax2.text(x, -84, ARM_NAME[c] + " arm", ha="center", va="top",
+                 fontsize=7.5, fontweight="bold", color=ARM_COLOR[c])
+    ax2.set_xlim(-1.0, 5.3)
+    ax2.set_ylim(-52, 52)
+    ax2.set_ylabel("Change in mean toxicity (after − before)", fontsize=7.5)
+    clean_axes(ax2)
+    ax2.set_title("Who changed", fontsize=8, pad=4)
+    ax2.text(0.02, 0.985, f"note arm, core vs. periphery: Welch t({S['exptHeavyPeriDf']}) = "
+             f"{S['exptHeavyPeriT']}, p {S['exptHeavyPeriP']}",
+             transform=ax2.transAxes, ha="left", va="top", fontsize=6.2, color=INK2)
 
     save(fig, "fig_participants")
 

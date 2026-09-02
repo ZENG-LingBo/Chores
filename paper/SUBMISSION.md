@@ -51,40 +51,41 @@ expectations the paper doesn't target.
 > Hostility between online communities is rooted in group identity rather than
 > substantive disagreement, and interventions aimed at beliefs leave it
 > untouched. Drawing on cooperative interdependence theory, we built a platform
-> feature through which rival groups must co-author a single, co-signed post: a
+> feature through which rival groups must co-author a single co-signed post: a
 > Community Note with one slot per group that publishes only when both sides
-> have written their part. We deployed it on KFeed, a forum we built, in
-> sessions where members of ARMY and BLINK, the rival fandoms of BTS and
-> BLACKPINK, discussed K-pop topics, while an LLM monitored toxicity and
-> published the note backstage. When the note appeared, mean message toxicity
-> fell by 41%; the decline was shared across participants, and references to
-> the rival fandom as "they" halved, yet attitudes toward that fandom did not
-> move. We argue the note interrupts the attention escalation requires, and
-> discuss conflict interventions that need not be accepted to work.
+> have written. We deployed it on KFeed, our forum, in five two-day
+> sessions where members of ARMY and BLINK, rival fandoms of BTS and
+> BLACKPINK, discussed K-pop; matched control sessions received an inert
+> feature at the same trigger. Control sessions escalated after the trigger;
+> note sessions did not, a 25.3-point difference that held in every session
+> and persisted the next day without the feature. The calm came from the
+> periphery: the heaviest posters grew hotter. We argue the note interrupts
+> the attention escalation requires, and discuss interventions that need not
+> be accepted to work.
 
-(The same text is now the abstract in `main.tex`.)
+(The same text is the abstract in `main.tex`; the 25.3 comes from `stats.tex`.)
 
 ---
 
 ## 3. Alt-text for All Figures and Tables (paste-ready)
 
-Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B is a timeline of the logged session: 81 messages from six participants drawn as squares shaded from calm to toxic, with a dashed line at 15 minutes marking the Community Note; the darkest squares cluster before the line and the squares after it are mostly light."
+Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B shows one Day-1 session in both arms as two stacked timelines, six participant rows each, one square per message shaded from calm to toxic, with a dashed line at 35 minutes marking the feature. In the Community Note arm the squares after the line are mostly light; in the control arm they are mostly dark."
 
-Figure 2: "Two bar charts with individual participant dots. Left: message-level mean toxicity 0.368 in the free phase versus 0.217 in the note phase (Welch t(45.8) = 3.26, p = .002), with five participants' means connected by lines, four of which fall; the most toxic participant, B1, is highlighted. Right: 0.395 in the peak 10 to 15 minute window versus 0.100 in the quietest 40 to 45 minute window (Welch t(10.6) = 2.67, p = .023)."
+Figure 2: "Two bar charts with participant dots. Left, Day 1 mean toxicity before and after the feature: Community Note arm 45.9 then 44.2, control arm 46.9 then 68.8, with each participant's two means connected; most note-arm lines fall and five thick lines, the heaviest posters, rise; almost every control-arm line rises. The difference-in-differences over sessions is 25.3 points, t(4) = 10.57, p < .001. Right, mean change per participant: note-arm periphery minus 18.2 with 24 dots mostly below zero, note-arm heaviest posters plus 14.1 with all five above zero, control periphery plus 21.4, control heaviest posters plus 23.3."
 
-Figure 3: "Left: three bars on a 0 to 100 feeling thermometer, own fandom 80, K-pop overall 88, and rival fandom 20, with the 60-point own-rival gap marked. Right: horizontal bars for seven agreement items on a 1 to 5 scale: rival fans are intelligent 2.20, rival fans are moral 1.70, we share values 2.90, would share their post 2.50, would discuss K-pop with them 2.80, would work with them 2.90, and could be friends in real life 3.90, the only bar past the midpoint line at 3, highlighted."
+Figure 3: "Two paired histograms of message toxicity by arm, share of each arm's messages per 10-point bin. Before the feature, the Community Note arm (mean 45.9) and control arm (mean 46.9) follow the same hump centred near 45. After the feature, control bars pile up between 60 and 100 (mean 68.8, 77% of messages at 60 or above), while note-arm bars spread across the whole range (mean 44.2, 37% at 60 or above), with mass both at 0 to 30 and at 60 to 80."
 
-Figure 4: "Two histograms of message toxicity, before and after the note. In the free phase, messages cluster around 0.2 to 0.3 with a tail reaching 1.0. In the note phase the mass shifts toward 0 to 0.3, and the remaining high-toxicity messages, marked with hatching, belong almost entirely to the most toxic participant, B1."
+Figure 4: "Two line charts of mean toxicity per five-minute window, five sessions pooled in bold with each session faint. Day 1: both arms rise together from about 30 to about 65 by minute 35, marked by a dashed line; after it the control line continues to 61, 73, 68, 70 and 76 while the Community Note line falls to 47 and 32, then rises to 36, 45 and 58. Day 2, no feature: the control line runs between 67 and 76 from the first window; the note line runs between 38 and 52."
 
-Figure 5: "Bar chart of mean message toxicity in ten five-minute windows across the session, with a line connecting the bar tops. Before a dashed line marking the Community Note's appearance at 15 minutes, the windows read 0.371, 0.317 and a peak of 0.395. After it they read 0.200, 0.255, 0.281, 0.229, 0.190, 0.100 and 0.150. Toxicity halves across the note boundary, and no window after the note reaches even the quietest window before it."
+Figure 5: "Six bars of session-level mean toxicity with the five sessions as connected dots. Community Note arm: 46.1 before the feature on Day 1, 43.8 after it, 44.5 on Day 2, with a bracket marked not significant, p = 0.78, between the last two. Control arm: 45.8, 68.8, 71.6, with a bracket marked not significant, p = 0.17. A bracket across the two Day 2 bars is marked three stars, p = 0.0008."
 
-Figure 6: "Bar chart with jittered participant dots showing mean toxicity of 0.368 in the Day 1 free phase, 0.228 in the Day 1 note phase, and 0.267 on Day 2 with no feature. Significance brackets mark the Day 1 drop as significant at p = 0.033 and both Day 2 comparisons as not significant."
+Figure 6: "Left: three bars on a 0 to 100 feeling thermometer, own fandom 80, K-pop overall 88, and rival fandom 20, with the 60-point own-rival gap marked. Right: horizontal bars for seven agreement items on a 1 to 5 scale: rival fans are intelligent 2.20, rival fans are moral 1.70, we share values 2.90, would share their post 2.50, would discuss K-pop with them 2.80, would work with them 2.90, and could be friends in real life 3.90, the only bar past the midpoint line at 3, highlighted. Pilot cohorts, n = 10."
 
-Table 1: "Session summary by phase. Free phase: 30 messages, mean toxicity 0.368, 0.50 'they' references and 0.10 'we' references per message, 'they' share of plural references 0.833. Note phase: 51 messages, mean toxicity 0.217, 0.20 'they' and 0.08 'we' per message, 'they' share 0.714."
+Table 1: "Day 1 by arm and phase. Community Note arm before the feature: 272 messages, mean toxicity 45.9 (SD 20.1), 29% scoring 60 or above, 1.55 messages per minute, 0.42 'they' and 0.11 named references to the rival fandom per message, no note-task messages; after: 192 messages, 44.2 (25.7), 37%, 1.54 per minute, 0.19 'they', 0.29 named, 32% about the note task. Control arm before: 259 messages, 46.9 (20.2), 30%, 1.48 per minute, 0.48 'they', 0.12 named, none; after: 177 messages, 68.8 (17.9), 77%, 1.42 per minute, 0.44 'they', 0.12 named, 10% about the note task."
 
-Table 2: "Robustness of the free-to-note contrast by minimum messages posted. All six participants: Welch t = 3.26, p = .002, paired p = .033. At least six messages, five participants: Welch t = 3.17, p = .003, paired p = .033. At least eight messages, four participants: Welch t = 3.48, p = .001, paired p = .090."
+Table 2: "Robustness of the condition-by-phase difference. All 60 participants: note arm 46.1 to 43.8, control 45.8 to 68.8, difference-in-differences 25.3 points, t(4) = 10.57, p < .001. At least six messages, 56 participants: 24.8 points, t = 11.19. At least ten messages, 44 participants: 23.1 points, t = 8.64. Heaviest poster of each session excluded, 50 participants: note arm 44.8 to 26.9, control 46.9 to 69.5, 40.4 points, t = 10.52; all p < .001."
 
-Table 3: "Post-session survey means with standard deviations for the ten treatment-arm participants, on 1-to-5 scales: legitimacy of the note 2.20, reactance toward the note 4.25, perceived similarity to the rival fandom 3.02, perception of the rival fandom 1.95, cross-fandom contact intentions 3.02, session felt heated 4.20. Feeling thermometers, 0 to 100: own fandom 79.8, rival fandom 19.7, gap 60 points."
+Table 3: "Post-session survey means with standard deviations for the ten treatment-arm participants of the pilot cohorts, on 1-to-5 scales: legitimacy of the note 2.20, reactance toward the note 4.25, perceived similarity to the rival fandom 3.02, perception of the rival fandom 1.95, cross-fandom contact intentions 3.02, session felt heated 4.20. Feeling thermometers, 0 to 100: own fandom 79.8, rival fandom 19.7, gap 60 points."
 
 ---
 

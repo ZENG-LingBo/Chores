@@ -22,8 +22,6 @@ def main():
     path = defuselab.write_stats_tex()
     print("\nwrote", path)
     print(json.dumps(defuselab.S, indent=2))
-    print("\nParticipant codes:",
-          {defuselab.code[h]: h for h in defuselab.handles})
 
 
 if __name__ == "__main__":

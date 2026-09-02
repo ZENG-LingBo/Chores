@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
-"""Figure 1 (teaser): the Community Notes mechanism, and the headline drop.
+"""Figure 1 (teaser): the Community Notes mechanism, and one session in both arms.
+
+Panel A draws the mechanism in three stages. Panel B draws one Day-1 session
+message by message in both arms: the same six-person composition, the same
+35-minute trigger, a Community Note in one arm and the inert feature in the
+other. The session shown is the one whose treatment effect is the median of
+the five, not the best case.
 
 Run: python3 fig_teaser.py   ->  fig_teaser.png (here) + paper/figures/fig_teaser.pdf
 """
-import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from defuselab import (VIOLET, MAGENTA, INK, INK2, GRID, SURFACE, FancyArrowPatch,
-                       FancyBboxPatch, S, code, handles, msgs, plt, save)
+from defuselab import (ARM_COLOR, VIOLET, MAGENTA, INK, INK2, GRID, SURFACE, FancyArrowPatch,
+                       FancyBboxPatch, NOTE_ONSET_MIN, S, codes_for, msgs, plt, save,
+                       show_session)
 
 # sequential blue ramp from the validated palette (light = calm, dark = toxic)
 TOX_RAMP = LinearSegmentedColormap.from_list(
@@ -46,10 +52,38 @@ def caption(ax, x0, text):
             color=INK2, style="italic")
 
 
+def strip(ax, cond, label, show_xlabel):
+    """One session-arm on Day 1, one square per message, rows = participants."""
+    code = codes_for(show_session, cond)
+    order = sorted(code, key=lambda h: code[h])
+    rows = {h: i for i, h in enumerate(order)}
+    sel = [r for r in msgs if r["session"] == show_session and r["cond"] == cond and r["day"] == 1]
+    for r in sel:
+        ax.scatter(r["min"], rows[r["handle"]], s=11, marker="s",
+                   color=TOX_RAMP(r["tox"] / 100), edgecolor=SURFACE, linewidth=0.35, zorder=3)
+    ax.axvline(NOTE_ONSET_MIN, color=INK, lw=0.9, ls=(0, (4, 2)), zorder=2)
+    ax.axvspan(0, NOTE_ONSET_MIN, color="#f3f2ee", zorder=0)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels([code[h] for h in order], fontsize=6)
+    ax.set_ylim(len(rows) - 0.4, -1.25 if cond == "EXPT" else -0.6)
+    ax.set_xlim(-1, 61)
+    ax.set_xticks([0, 15, 30, 35, 45, 60])
+    ax.tick_params(axis="x", labelsize=6.2, length=2)
+    ax.tick_params(axis="y", length=0)
+    for side in ("top", "right", "left"):
+        ax.spines[side].set_visible(False)
+    ax.text(0.0, 1.02, label, transform=ax.transAxes, ha="left", va="bottom",
+            fontsize=6.8, fontweight="bold", color=ARM_COLOR[cond])
+    if show_xlabel:
+        ax.set_xlabel("Minutes into the session", fontsize=7)
+    else:
+        ax.tick_params(axis="x", labelbottom=False)
+
+
 def main():
-    fig = plt.figure(figsize=(7.0, 2.55))
-    gs = fig.add_gridspec(1, 2, width_ratios=[2.05, 1], wspace=0.22,
-                          left=0.005, right=0.965, top=0.87, bottom=0.15)
+    fig = plt.figure(figsize=(7.0, 2.75))
+    gs = fig.add_gridspec(1, 2, width_ratios=[2.05, 1], wspace=0.18,
+                          left=0.005, right=0.985, top=0.9, bottom=0.14)
 
     # ---- Panel A: the mechanism, in three stages -------------------------
     ax = fig.add_subplot(gs[0])
@@ -86,36 +120,23 @@ def main():
     caption(ax, 1.14, "assembled backstage\nby the LLM")
     ax.text(0.0, 1.08, "A", fontsize=9, fontweight="bold", va="top")
 
-    # ---- Panel B: the session itself, one mark per message -----------------
-    axb = fig.add_subplot(gs[1])
-    rows = {h: i for i, h in enumerate(sorted(handles, key=lambda h: code[h]))}
-    onset = float(S["noteOnsetMin"])
-    for r in msgs:
-        axb.scatter(r["min"], rows[r["handle"]], s=22, marker="s",
-                    color=TOX_RAMP(r["tox"]), edgecolor=SURFACE, linewidth=0.5, zorder=3)
-    axb.axvline(onset, color=INK, lw=0.9, ls=(0, (4, 2)), zorder=2)
-    axb.axvspan(0, onset, color="#f3f2ee", zorder=0)
-    axb.text(onset / 2, len(rows) - 0.35, "free", ha="center", fontsize=6.2, color=INK2)
-    axb.text(onset + 0.8, len(rows) - 0.35, "note phase (note appears at 15 min)",
-             ha="left", fontsize=6.2, color=INK2)
-    axb.set_yticks(range(len(rows)))
-    axb.set_yticklabels([code[h] for h in sorted(handles, key=lambda h: code[h])],
-                        fontsize=6.8)
-    axb.set_ylim(len(rows) - 0.1, -1.3)  # top-to-bottom, headroom for the label
-    axb.set_xlim(-1, msgs[-1]["min"] + 2)
-    axb.set_xlabel("Minutes into the session", fontsize=7.5)
-    axb.tick_params(axis="x", labelsize=7)
-    for side in ("top", "right", "left"):
-        axb.spines[side].set_visible(False)
-    axb.tick_params(axis="y", length=0)
-    axb.set_title(f"One session: {S['nMessages']} messages, {S['nParticipants']} fans",
-                  fontsize=7.5, pad=4)
-    # colour key: three swatches instead of a colourbar
+    # ---- Panel B: one session, both arms, one square per message ------------
+    gsb = gs[1].subgridspec(2, 1, hspace=0.55)
+    axe = fig.add_subplot(gsb[0])
+    axc = fig.add_subplot(gsb[1], sharex=axe)
+    strip(axe, "EXPT", "Community Note arm", False)
+    strip(axc, "CTRL", "Control arm", True)
+    axe.text(NOTE_ONSET_MIN + 1.0, -0.75, "feature appears", ha="left", va="center",
+             fontsize=5.8, color=INK2, style="italic")
+    fig.text(0.665, 0.965, f"Session {show_session[1]}, Day 1 (A = ARMY, B = BLINK)",
+             fontsize=7, fontweight="bold", ha="left", va="center")
+    # colour key: three swatches instead of a colourbar, on the control strip's label row
     for k, (v, lab) in enumerate(((0.05, "calm"), (0.5, "heated"), (0.95, "toxic"))):
-        axb.scatter(16 + k * 11, -0.85, s=22, marker="s", color=TOX_RAMP(v),
-                    edgecolor=SURFACE, linewidth=0.5, clip_on=False, zorder=4)
-        axb.text(17.6 + k * 11, -0.85, lab, fontsize=6, color=INK2, va="center")
-    axb.text(-4.5, -1.55, "B", fontsize=9, fontweight="bold")
+        x = 24 + k * 13
+        axc.scatter(x, -0.95, s=11, marker="s", color=TOX_RAMP(v), edgecolor=SURFACE,
+                    linewidth=0.35, clip_on=False, zorder=4)
+        axc.text(x + 1.6, -0.95, lab, fontsize=6, color=INK2, va="center", ha="left")
+    fig.text(0.655, 0.965, "B", fontsize=9, fontweight="bold", ha="right", va="center")
 
     save(fig, "fig_teaser")
 

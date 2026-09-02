@@ -6,13 +6,22 @@ CHI-style draft of the polarization-defusing (Community Notes) study, with all
 figures, tables, and statistics computed from the DefuseLab data exports.
 
 ```
-data/       DefuseLab exports (messages, per-participant sessions, surveys)
+data/       defuselab-all-messages.csv -- the coded KFeed message log: five
+                sessions x two arms (Community Note / inert control) x two
+                days, 1,829 messages (flattened from raw/all_data.xlsx)
+            defuselab-surveys.csv -- post-Day-1 battery from the pilot cohorts
+            pilot/ -- the earlier single-session export and per-login rows
 figures/    one script per figure, each next to the PNG it produces, plus
             defuselab.py (data + every statistic) and make_all.py
 analysis/   analyze.py -- wrapper that runs the whole figures/ pipeline
 paper/      main.tex (acmart manuscript, anonymous) + references.bib + build
             SUBMISSION.md -- CHI 2027 PCS keywords and paste-ready form fields
 ```
+
+The paper's result is a condition-by-phase contrast: the assigned feature
+appeared 35 minutes into every Day-1 session in both arms; control sessions
+escalated afterwards and note sessions did not, and the gap persisted on Day 2.
+The session is the unit of inference (five per arm).
 
 ### Rebuild
 

@@ -4,20 +4,25 @@
 Every figure script in this folder imports this module, so the numbers a figure
 draws are the same ones the manuscript prints. Nothing here draws anything.
 
-Inputs  (repo-relative): data/defuselab-messages.csv  (concatenated exports, deduped by event_id)
-                         data/defuselab-sessions.csv  (per participant-session rows)
-                         data/defuselab-surveys.csv   (post-Day-1 outcome battery)
+Inputs (repo-relative):
+    data/defuselab-all-messages.csv   the coded KFeed message log: five sessions
+                                      (S1-S5) x two arms (EXPT = Community Note,
+                                      CTRL = inert feature) x two days, six
+                                      participants (3 ARMY + 3 BLINK) per
+                                      session-arm; flattened from
+                                      data/raw/all_data.xlsx by convert_all_data.py
+    data/defuselab-surveys.csv        post-Day-1 outcome battery (pilot cohorts)
 
-The Community Note appeared 15 minutes into the session (from the study
-protocol; the export carries no trigger event). Messages before the onset form
-the "free" phase, messages after it the "note" phase, and the reporting windows
-are aligned to that boundary.
+Design facts read from the log and asserted below: the assigned feature
+appeared 35 minutes into every Day-1 session in both arms (the `phase` column
+switches from pre_note to post_note there); sessions ran ~60 minutes; Day 2
+had no feature. Toxicity is the platform's 0-100 score and is reported on
+that scale.
 """
 import csv
 import math
 import os
 from collections import defaultdict
-from datetime import datetime
 
 import numpy as np
 from scipy import stats as st
@@ -27,50 +32,46 @@ ROOT = os.path.dirname(HERE)
 DATA = os.path.join(ROOT, "data")
 PAPER_FIGS = os.path.join(ROOT, "paper", "figures")  # vector copies for LaTeX
 
-NOTE_ONSET_MIN = 15.0
-WINDOW_MIN = 5.0  # reporting windows; must divide NOTE_ONSET_MIN so the
-                  # note falls on a window edge rather than inside a bar
+NOTE_ONSET_MIN = 35.0   # feature onset (both arms), checked against `phase` below
+SESSION_MIN = 60.0      # nominal session length
+WINDOW_MIN = 5.0        # reporting windows; the onset falls on a window edge
+
+ARMS = ("EXPT", "CTRL")
+ARM_NAME = {"EXPT": "Community Note", "CTRL": "Control"}
 
 # Validated palette (dataviz reference instance, light mode)
-BLUE = "#2a78d6"     # baseline / free phase / Day 1
-ORANGE = "#eb6834"   # intervention / note phase / highlight
+BLUE = "#2a78d6"      # control arm
+ORANGE = "#eb6834"    # Community Note arm / highlight
 LIGHT_BLUE = "#9ec5f4"
-VIOLET = "#4a3aa7"   # ARMY badge (teaser diagram)
-MAGENTA = "#e87ba4"  # BLINK badge (teaser diagram)
+LIGHT_ORANGE = "#f6b89d"
+VIOLET = "#4a3aa7"    # ARMY badge (teaser diagram)
+MAGENTA = "#e87ba4"   # BLINK badge (teaser diagram)
 INK = "#0b0b0b"
 INK2 = "#52514e"
 GRID = "#e5e4e0"
 SURFACE = "#ffffff"
+ARM_COLOR = {"EXPT": ORANGE, "CTRL": BLUE}
+ARM_LIGHT = {"EXPT": LIGHT_ORANGE, "CTRL": LIGHT_BLUE}
 
 # ---------------------------------------------------------------- loading ---
 
+PHASE = {"pre_note": "pre", "post_note": "post", "day2_no_note": "day2"}
+
+
 def load_messages():
-    hdr = ["event_id", "cohort", "day", "arm", "fandom", "handle", "type", "is_seed",
-           "toxicity_0_100", "we", "they", "thread_id", "created_at_iso", "text_raw"]
-    uniq = {}
-    with open(os.path.join(DATA, "defuselab-messages.csv"), encoding="utf-8-sig") as f:
-        for row in csv.reader(f):
-            if not row or not row[0].startswith("ev_"):
-                continue
-            d = dict(zip(hdr, row))
-            # keep the richest duplicate (some export blocks drop thread/text columns)
-            if d["event_id"] not in uniq or (d.get("text_raw") and not uniq[d["event_id"]].get("text_raw")):
-                uniq[d["event_id"]] = d
-    rows = sorted(uniq.values(), key=lambda r: r["created_at_iso"])
-    t0 = datetime.fromisoformat(rows[0]["created_at_iso"].replace("Z", "+00:00"))
+    with open(os.path.join(DATA, "defuselab-all-messages.csv"), encoding="utf-8-sig") as f:
+        rows = list(csv.DictReader(f))
     for r in rows:
-        t = datetime.fromisoformat(r["created_at_iso"].replace("Z", "+00:00"))
-        r["min"] = (t - t0).total_seconds() / 60.0
-        r["tox"] = float(r["toxicity_0_100"]) / 100.0
-        r["we"] = int(r["we"])
-        r["they"] = int(r["they"])
-        r["phase"] = "free" if r["min"] < NOTE_ONSET_MIN else "note"
+        r["min"] = float(r["elapsed_min"])
+        r["tox"] = float(r["toxicity_0_100"])
+        r["day"] = int(r["day"])
+        r["cond"] = r["condition"]
+        r["phase"] = PHASE[r["phase"]]
+        r["outgroup"] = r["outgroup_ref"] == "True"
+        r["heavy"] = r["heavy_poster"] == "True"
+        r["task"] = r["topic"] == "note_task"
+    rows.sort(key=lambda r: (r["session"], r["cond"], r["day"], r["min"]))
     return rows
-
-
-def load_sessions():
-    with open(os.path.join(DATA, "defuselab-sessions.csv"), encoding="utf-8-sig") as f:
-        return list(csv.DictReader(f))
 
 
 def load_surveys():
@@ -85,191 +86,364 @@ def load_surveys():
 
 
 msgs = load_messages()
-sessions = load_sessions()
 surveys = load_surveys()
+SESSIONS = sorted({r["session"] for r in msgs})
 
-# anonymized participant codes: ARMY -> A1.., BLINK -> B1.. (sorted by handle)
-handles = sorted({r["handle"] for r in msgs})
-code = {}
-for fan in ("army", "blink"):
-    for i, h in enumerate([h for h in handles if h.startswith(fan)], 1):
-        code[h] = ("A" if fan == "army" else "B") + str(i)
+# the phase column must agree with the protocol onset (a few seconds of slack)
+_mis = [r for r in msgs if r["day"] == 1
+        and (r["phase"] == "pre") != (r["min"] < NOTE_ONSET_MIN)]
+assert len(_mis) <= 2, f"{len(_mis)} rows disagree with a {NOTE_ONSET_MIN}-min onset"
 
-free = [r for r in msgs if r["phase"] == "free"]
-note = [r for r in msgs if r["phase"] == "note"]
-free_tox = np.array([r["tox"] for r in free])
-note_tox = np.array([r["tox"] for r in note])
+d1 = [r for r in msgs if r["day"] == 1]
+d2 = [r for r in msgs if r["day"] == 2]
+
+
+def rows_of(cond, phase, session=None):
+    return [r for r in msgs if r["cond"] == cond and r["phase"] == phase
+            and (session is None or r["session"] == session)]
+
+
+def tox(rows):
+    return np.array([r["tox"] for r in rows])
+
+
+def fmt(x, nd=1):
+    return f"{x:.{nd}f}"
+
+
+def pfmt(p):
+    return "<.001" if p < .001 else f"{p:.3f}"
+
 
 S = {}  # -> paper/stats.tex macros
+
+# ------------------------------------------------------------- design facts --
+handles = sorted({(r["cond"], r["handle"]) for r in msgs})
+S["nSessions"] = len(SESSIONS)
 S["nMessages"] = len(msgs)
+S["nDayOneMsgs"], S["nDayTwoMsgs"] = len(d1), len(d2)
 S["nParticipants"] = len(handles)
-S["sessionMinutes"] = int(round(msgs[-1]["min"]))
-S["nFreeMsgs"] = len(free)
-S["nNoteMsgs"] = len(note)
-S["freeMean"] = f"{free_tox.mean():.3f}"
-S["noteMean"] = f"{note_tox.mean():.3f}"
-S["redPct"] = f"{100 * (1 - note_tox.mean() / free_tox.mean()):.0f}"
+S["nPerArm"] = len([h for h in handles if h[0] == "EXPT"])
+S["nPerSession"] = len({r["handle"] for r in msgs if r["session"] == "S1" and r["cond"] == "EXPT"})
+S["sessionMinutes"] = int(SESSION_MIN)
+S["noteOnsetMin"] = int(NOTE_ONSET_MIN)
+S["windowMin"] = int(WINDOW_MIN)
+S["minSessionMsgs"] = min(len([r for r in d1 if r["session"] == s and r["cond"] == c])
+                          for s in SESSIONS for c in ARMS)
+S["maxSessionMsgs"] = max(len([r for r in d1 if r["session"] == s and r["cond"] == c])
+                          for s in SESSIONS for c in ARMS)
 
-# message-level Welch test, free vs note
-welch_msg = st.ttest_ind(free_tox, note_tox, equal_var=False)
-t_msg, p_msg = welch_msg.statistic, welch_msg.pvalue
-S["msgWelchT"] = f"{t_msg:.2f}"
-S["msgWelchDf"] = f"{welch_msg.df:.1f}"
-S["msgWelchP"] = f"{p_msg:.3f}"
+# ------------------------------------------ arm x phase, message level -------
+A = {c: {ph: tox(rows_of(c, ph)) for ph in ("pre", "post", "day2")} for c in ARMS}
+for c in ARMS:
+    k = c.lower()
+    for ph, tag in (("pre", "Pre"), ("post", "Post"), ("day2", "DayTwo")):
+        S[f"{k}{tag}N"] = len(A[c][ph])
+        S[f"{k}{tag}M"] = fmt(A[c][ph].mean())
+        S[f"{k}{tag}SD"] = fmt(A[c][ph].std(ddof=1))
+        S[f"{k}{tag}HighPct"] = f"{100 * np.mean(A[c][ph] >= 60):.0f}"
+    w = st.ttest_ind(A[c]["post"], A[c]["pre"], equal_var=False)
+    S[f"{k}PrePostT"], S[f"{k}PrePostDf"], S[f"{k}PrePostP"] = fmt(w.statistic, 2), fmt(w.df), pfmt(w.pvalue)
+    S[f"{k}PrePostDiff"] = fmt(A[c]["post"].mean() - A[c]["pre"].mean())
+for ph, tag in (("pre", "Pre"), ("post", "Post"), ("day2", "DayTwo")):
+    w = st.ttest_ind(A["EXPT"][ph], A["CTRL"][ph], equal_var=False)
+    S[f"{tag.lower()}ArmT"] = fmt(w.statistic, 2)
+    S[f"{tag.lower()}ArmDf"] = fmt(w.df)
+    S[f"{tag.lower()}ArmP"] = pfmt(w.pvalue)
+S["postArmGap"] = fmt(A["CTRL"]["post"].mean() - A["EXPT"]["post"].mean())
 
-# reporting windows, aligned to the note onset and covering the whole session:
-# the final window is a full slot that the session ends partway into.
-assert NOTE_ONSET_MIN % WINDOW_MIN == 0, "windows must align with the note onset"
-session_end = msgs[-1]["min"]
-n_win = math.ceil(session_end / WINDOW_MIN)
+# ------------------------------------------- session level: change and DiD --
+sess = {c: {ph: np.array([tox(rows_of(c, ph, s)).mean() for s in SESSIONS])
+            for ph in ("pre", "post", "day2")} for c in ARMS}
+change = {c: sess[c]["post"] - sess[c]["pre"] for c in ARMS}
+did = change["CTRL"] - change["EXPT"]          # one value per session
+did_t = st.ttest_1samp(did, 0.0)
+for c in ARMS:
+    k = c.lower()
+    S[f"{k}ChangeM"] = fmt(change[c].mean())
+    S[f"{k}ChangeMin"], S[f"{k}ChangeMax"] = fmt(change[c].min()), fmt(change[c].max())
+    tt = st.ttest_rel(sess[c]["post"], sess[c]["pre"])
+    S[f"{k}SessT"], S[f"{k}SessP"] = fmt(tt.statistic, 2), pfmt(tt.pvalue)
+S["didM"], S["didSD"] = fmt(did.mean()), fmt(did.std(ddof=1))
+S["didMin"], S["didMax"] = fmt(did.min()), fmt(did.max())
+S["didT"], S["didDf"], S["didP"] = fmt(did_t.statistic, 2), len(did) - 1, pfmt(did_t.pvalue)
+S["didDz"] = fmt(did.mean() / did.std(ddof=1), 2)
+loo = [np.delete(did, i).mean() for i in range(len(did))]
+S["looMin"], S["looMax"] = fmt(min(loo)), fmt(max(loo))
+for ph, tag in (("pre", "Pre"), ("post", "Post"), ("day2", "DayTwo")):
+    tt = st.ttest_rel(sess["EXPT"][ph], sess["CTRL"][ph])
+    S[f"{tag.lower()}PairT"], S[f"{tag.lower()}PairP"] = fmt(tt.statistic, 2), pfmt(tt.pvalue)
+    S[f"expt{tag}SessM"] = fmt(sess["EXPT"][ph].mean())
+    S[f"ctrl{tag}SessM"] = fmt(sess["CTRL"][ph].mean())
+S["dayTwoGap"] = fmt(sess["CTRL"]["day2"].mean() - sess["EXPT"]["day2"].mean())
+
+
+# message-level OLS with the condition x phase interaction (Day 1 only)
+def ols(y, X):
+    beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+    resid = y - X @ beta
+    dof = len(y) - X.shape[1]
+    s2 = resid @ resid / dof
+    cov = s2 * np.linalg.inv(X.T @ X)
+    se = np.sqrt(np.diag(cov))
+    t = beta / se
+    p = 2 * st.t.sf(np.abs(t), dof)
+    return beta, se, t, p, dof
+
+
+_y = tox(d1)
+_expt = np.array([r["cond"] == "EXPT" for r in d1], float)
+_post = np.array([r["phase"] == "post" for r in d1], float)
+_X = np.column_stack([np.ones(len(_y)), _expt, _post, _expt * _post])
+_b, _se, _t, _p, _dof = ols(_y, _X)
+S["olsPostB"], S["olsPostT"], S["olsPostP"] = fmt(_b[2]), fmt(_t[2], 2), pfmt(_p[2])
+S["olsArmB"], S["olsArmT"], S["olsArmP"] = fmt(_b[1]), fmt(_t[1], 2), pfmt(_p[1])
+S["olsIntB"], S["olsIntSE"] = fmt(_b[3]), fmt(_se[3])
+S["olsIntT"], S["olsIntP"], S["olsDf"] = fmt(_t[3], 2), pfmt(_p[3]), _dof
+
+# ------------------------------------------- participant level (Day 1) ------
+per = {}
+for r in msgs:
+    k = (r["cond"], r["handle"])
+    if k not in per:
+        per[k] = {"cond": r["cond"], "session": r["session"], "fandom": r["fandom"],
+                  "heavy": r["heavy"], "pre": [], "post": [], "day2": []}
+    per[k][r["phase"]].append(r["tox"])
+for c in ARMS:
+    k = c.lower()
+    ps = [p for p in per.values() if p["cond"] == c]
+    both = [p for p in ps if p["pre"] and p["post"]]
+    pre_m = np.array([np.mean(p["pre"]) for p in both])
+    post_m = np.array([np.mean(p["post"]) for p in both])
+    diff = post_m - pre_m
+    tt = st.ttest_rel(post_m, pre_m)
+    S[f"{k}PairN"] = len(both)
+    S[f"{k}PairDiff"] = fmt(diff.mean())
+    S[f"{k}PairT"], S[f"{k}PairDf"], S[f"{k}PairP"] = fmt(tt.statistic, 2), len(both) - 1, pfmt(tt.pvalue)
+    S[f"{k}PairDz"] = fmt(abs(diff.mean() / diff.std(ddof=1)), 2)
+    S[f"{k}NDeclined"] = int((diff < 0).sum())
+    S[f"{k}NRose"] = int((diff > 0).sum())
+    S[f"{k}PctDeclined"] = f"{100 * np.mean(diff < 0):.0f}"
+    S[f"{k}ActivePre"] = sum(1 for p in ps if p["pre"])
+    S[f"{k}ActivePost"] = sum(1 for p in ps if p["post"])
+    S[f"{k}KeptPosting"] = len(both)
+    # participant-level means of pre and post (for the figure and text)
+    S[f"{k}PrePartM"], S[f"{k}PostPartM"] = fmt(pre_m.mean()), fmt(post_m.mean())
+    # heavy posters (one per session-arm, coded by the platform) vs the rest
+    heavy = [p for p in both if p["heavy"]]
+    peri = [p for p in both if not p["heavy"]]
+    hd = np.array([np.mean(p["post"]) - np.mean(p["pre"]) for p in heavy])
+    pd_ = np.array([np.mean(p["post"]) - np.mean(p["pre"]) for p in peri])
+    S[f"{k}HeavyN"], S[f"{k}PeriN"] = len(heavy), len(peri)
+    S[f"{k}HeavyPreM"] = fmt(np.mean([np.mean(p["pre"]) for p in heavy]))
+    S[f"{k}HeavyPostM"] = fmt(np.mean([np.mean(p["post"]) for p in heavy]))
+    S[f"{k}PeriPreM"] = fmt(np.mean([np.mean(p["pre"]) for p in peri]))
+    S[f"{k}PeriPostM"] = fmt(np.mean([np.mean(p["post"]) for p in peri]))
+    S[f"{k}HeavyDiff"], S[f"{k}PeriDiff"] = fmt(hd.mean()), fmt(pd_.mean())
+    S[f"{k}HeavyDiffMin"], S[f"{k}HeavyDiffMax"] = fmt(hd.min()), fmt(hd.max())
+    S[f"{k}PeriNDeclined"] = int((pd_ < 0).sum())
+    S[f"{k}HeavyNRose"] = int((hd > 0).sum())
+    w = st.ttest_ind(hd, pd_, equal_var=False)
+    S[f"{k}HeavyPeriT"], S[f"{k}HeavyPeriDf"], S[f"{k}HeavyPeriP"] = fmt(w.statistic, 2), fmt(w.df), pfmt(w.pvalue)
+    # heavy posters' share of the arm's messages, before and after
+    for ph, tag in (("pre", "Pre"), ("post", "Post")):
+        rows = rows_of(c, ph)
+        S[f"{k}HeavyShare{tag}"] = f"{100 * np.mean([r['heavy'] for r in rows]):.0f}"
+    S[f"{k}HeavyDayOneN"] = sum(len(p["pre"]) + len(p["post"]) for p in ps if p["heavy"])
+heavy_all = [p for p in per.values() if p["heavy"]]
+S["heavyBlinkN"] = sum(1 for p in heavy_all if p["fandom"] == "BLINK")
+S["heavyTotalN"] = len(heavy_all)
+S["heavyMsgPct"] = f"{100 * np.mean([r['heavy'] for r in d1]):.0f}"
+
+# ---------------------------------------------------- engagement per arm ----
+for c in ARMS:
+    k = c.lower()
+    n_pre, n_post = len(rows_of(c, "pre")), len(rows_of(c, "post"))
+    tot_min = len(SESSIONS) * SESSION_MIN
+    r_pre = n_pre / (len(SESSIONS) * NOTE_ONSET_MIN)
+    r_post = n_post / (len(SESSIONS) * (SESSION_MIN - NOTE_ONSET_MIN))
+    S[f"{k}RatePre"], S[f"{k}RatePost"] = fmt(r_pre, 2), fmt(r_post, 2)
+    S[f"{k}RateRatio"] = fmt(r_post / r_pre, 2)
+    S[f"{k}RateP"] = pfmt(st.binomtest(n_pre, n_pre + n_post, NOTE_ONSET_MIN / SESSION_MIN).pvalue)
+
+# ---------------------------------------------- topic: the note as a task ---
+for c in ARMS:
+    k = c.lower()
+    post = rows_of(c, "post")
+    n_task = sum(r["task"] for r in post)
+    S[f"{k}TaskN"] = n_task
+    S[f"{k}TaskPct"] = f"{100 * n_task / len(post):.0f}"
+    S[f"{k}TaskPreN"] = sum(r["task"] for r in rows_of(c, "pre"))
+_tab = [[S["exptTaskN"], S["exptPostN"] - S["exptTaskN"]],
+        [S["ctrlTaskN"], S["ctrlPostN"] - S["ctrlTaskN"]]]
+S["taskFisherP"] = pfmt(st.fisher_exact(_tab).pvalue)
+_task = tox([r for r in rows_of("EXPT", "post") if r["task"]])
+_orig = tox([r for r in rows_of("EXPT", "post") if not r["task"]])
+S["exptTaskTox"], S["exptOrigTox"] = fmt(_task.mean()), fmt(_orig.mean())
+_w = st.ttest_ind(_task, _orig, equal_var=False)
+S["exptTaskOrigT"], S["exptTaskOrigDf"], S["exptTaskOrigP"] = fmt(_w.statistic, 2), fmt(_w.df), pfmt(_w.pvalue)
+S["exptOrigPreDiff"] = fmt(_orig.mean() - A["EXPT"]["pre"].mean())
+
+# ---------------------------------- out-group references and pronouns -------
+for c in ARMS:
+    k = c.lower()
+    for ph, tag in (("pre", "Pre"), ("post", "Post"), ("day2", "DayTwo")):
+        rows = rows_of(c, ph)
+        S[f"{k}Out{tag}"] = fmt(np.mean([r["outgroup"] for r in rows]), 2)
+        S[f"{k}They{tag}"] = fmt(np.mean([r["pronoun"] == "they" for r in rows]), 2)
+        S[f"{k}Named{tag}"] = fmt(np.mean([r["pronoun"] == "named" for r in rows]), 2)
+    they_pre = np.mean([r["pronoun"] == "they" for r in rows_of(c, "pre")])
+    they_post = np.mean([r["pronoun"] == "they" for r in rows_of(c, "post")])
+    S[f"{k}TheyDropPct"] = f"{100 * (1 - they_post / they_pre):.0f}"
+    _t = [[sum(r["pronoun"] == "they" for r in rows_of(c, "post")),
+           sum(r["pronoun"] != "they" for r in rows_of(c, "post"))],
+          [sum(r["pronoun"] == "they" for r in rows_of(c, "pre")),
+           sum(r["pronoun"] != "they" for r in rows_of(c, "pre"))]]
+    S[f"{k}TheyFisherP"] = pfmt(st.fisher_exact(_t).pvalue)
+
+# ----------------------------------------------------- five-minute windows --
+assert NOTE_ONSET_MIN % WINDOW_MIN == 0
+n_win = int(math.ceil(SESSION_MIN / WINDOW_MIN))
 win_edges = [w * WINDOW_MIN for w in range(n_win + 1)]
-win_means, win_ns, win_labels = [], [], []
-for lo, hi in zip(win_edges[:-1], win_edges[1:]):
-    ws = [r["tox"] for r in msgs if lo <= r["min"] < hi]
-    win_means.append(np.mean(ws))
-    win_ns.append(len(ws))
-    win_labels.append(f"{lo:.0f}\u2013{hi:.0f}")
-n_pre = int(NOTE_ONSET_MIN // WINDOW_MIN)  # windows before the note appears
-for letter, m in zip("ABCDE", win_means):
-    S["win" + letter] = f"{m:.3f}"
-S["winPeak"] = f"{max(win_means[:n_pre]):.3f}"          # highest window before the note
-S["winPreMin"] = f"{min(win_means[:n_pre]):.3f}"        # lowest window before the note
-S["winFirstNote"] = f"{win_means[n_pre]:.3f}"           # first window after the note
-S["winPostMax"] = f"{max(win_means[n_pre:]):.3f}"       # highest window after the note
-S["winLast"] = f"{win_means[-1]:.3f}"
-S["dropAtNote"] = f"{100 * (1 - win_means[n_pre] / max(win_means[:n_pre])):.0f}"
-S["winMin"] = f"{min(win_means):.3f}"                   # lowest window of the session
-S["nWindows"] = len(win_means)
-S["winNs"] = ", ".join(str(n) for n in win_ns)
-S["windowMin"] = f"{WINDOW_MIN:.0f}"
-S["noteOnsetMin"] = f"{NOTE_ONSET_MIN:.0f}"
+win_labels = [f"{lo:.0f}–{hi:.0f}" for lo, hi in zip(win_edges[:-1], win_edges[1:])]
+n_pre = int(NOTE_ONSET_MIN // WINDOW_MIN)
 
-# peak window before the note vs trough window after it (Ray: clearest contrast)
-peak_i = int(np.argmax(win_means[:n_pre]))
-trough_i = n_pre + int(np.argmin(win_means[n_pre:]))
-peak_msgs = [r["tox"] for r in msgs
-             if win_edges[peak_i] <= r["min"] < win_edges[peak_i + 1]]
-trough_msgs = [r["tox"] for r in msgs
-               if win_edges[trough_i] <= r["min"] < win_edges[trough_i + 1]]
-pt = st.ttest_ind(peak_msgs, trough_msgs, equal_var=False)
-S["peakWin"] = win_labels[peak_i]
-S["troughWin"] = win_labels[trough_i]
-S["peakWinM"] = f"{np.mean(peak_msgs):.3f}"
-S["troughWinM"] = f"{np.mean(trough_msgs):.3f}"
-S["peakWinN"] = len(peak_msgs)
-S["troughWinN"] = len(trough_msgs)
-S["peakTroughT"] = f"{pt.statistic:.2f}"
-S["peakTroughDf"] = f"{pt.df:.1f}"
-S["peakTroughP"] = f"{pt.pvalue:.3f}"
+
+def window_means(rows):
+    means, ns = [], []
+    for lo, hi in zip(win_edges[:-1], win_edges[1:]):
+        v = [r["tox"] for r in rows if lo <= r["min"] < hi]
+        means.append(np.mean(v) if v else np.nan)
+        ns.append(len(v))
+    return np.array(means), ns
+
+
+win = {c: {day: window_means([r for r in msgs if r["cond"] == c and r["day"] == day])
+           for day in (1, 2)} for c in ARMS}
+win_sess = {c: {s: window_means([r for r in d1 if r["cond"] == c and r["session"] == s])[0]
+                for s in SESSIONS} for c in ARMS}
+S["nWindows"], S["nPreWindows"] = n_win, n_pre
+for c in ARMS:
+    k = c.lower()
+    m, ns = win[c][1]
+    for letter, v in zip("ABCDEFGHIJKL", m):
+        S[f"{k}Win{letter}"] = fmt(v)
+    S[f"{k}WinNs"] = ", ".join(str(n) for n in ns)
+    S[f"{k}WinFirst"] = fmt(m[0])
+    S[f"{k}WinPreMax"] = fmt(m[:n_pre].max())
+    S[f"{k}WinPreMaxLabel"] = win_labels[int(np.argmax(m[:n_pre]))]
+    S[f"{k}WinFirstPost"] = fmt(m[n_pre])
+    S[f"{k}WinPostMin"] = fmt(m[n_pre:].min())
+    S[f"{k}WinPostMinLabel"] = win_labels[n_pre + int(np.argmin(m[n_pre:]))]
+    S[f"{k}WinPostMax"] = fmt(m[n_pre:].max())
+    S[f"{k}WinLast"] = fmt(m[-1])
+    # pre-note trend, message level
+    rows = rows_of(c, "pre")
+    lr = st.linregress([r["min"] for r in rows], [r["tox"] for r in rows])
+    S[f"{k}PreSlope"], S[f"{k}PreSlopeP"] = fmt(lr.slope, 2), pfmt(lr.pvalue)
+    rows = rows_of(c, "post")
+    lr = st.linregress([r["min"] for r in rows], [r["tox"] for r in rows])
+    S[f"{k}PostSlope"], S[f"{k}PostSlopeP"] = fmt(lr.slope, 2), pfmt(lr.pvalue)
+    # Day 2 windows
+    m2, _ = win[c][2]
+    S[f"{k}DayTwoWinFirst"], S[f"{k}DayTwoWinMax"], S[f"{k}DayTwoWinMin"] = fmt(m2[0]), fmt(m2.max()), fmt(m2.min())
+S["lastWinGap"] = fmt(win["CTRL"][1][0][-1] - win["EXPT"][1][0][-1])
+S["dropAtNote"] = f"{100 * (1 - win['EXPT'][1][0][n_pre] / win['EXPT'][1][0][:n_pre].max()):.0f}"
+
+# peak window before the note vs quietest window after it, EXPT (descriptive)
+_m = win["EXPT"][1][0]
+peak_i = int(np.argmax(_m[:n_pre]))
+trough_i = n_pre + int(np.argmin(_m[n_pre:]))
+peak_msgs = [r["tox"] for r in rows_of("EXPT", "pre") if win_edges[peak_i] <= r["min"] < win_edges[peak_i + 1]]
+trough_msgs = [r["tox"] for r in rows_of("EXPT", "post") if win_edges[trough_i] <= r["min"] < win_edges[trough_i + 1]]
+_pt = st.ttest_ind(peak_msgs, trough_msgs, equal_var=False)
+S["peakWin"], S["troughWin"] = win_labels[peak_i], win_labels[trough_i]
+S["peakWinM"], S["troughWinM"] = fmt(np.mean(peak_msgs)), fmt(np.mean(trough_msgs))
+S["peakWinN"], S["troughWinN"] = len(peak_msgs), len(trough_msgs)
+S["peakTroughT"], S["peakTroughDf"], S["peakTroughP"] = fmt(_pt.statistic, 2), fmt(_pt.df), pfmt(_pt.pvalue)
 S["peakTroughDrop"] = f"{100 * (1 - np.mean(trough_msgs) / np.mean(peak_msgs)):.0f}"
+# the same window in the control arm
+_cm = win["CTRL"][1][0]
+S["ctrlAtPeakWin"], S["ctrlAtTroughWin"] = fmt(_cm[peak_i]), fmt(_cm[trough_i])
 
-# free-phase linear trend (toxicity vs minute)
-slope, intercept, r_v, p_v, se = st.linregress([r["min"] for r in free], free_tox)
-S["freeSlope"] = f"{slope:.4f}"
-S["freeSlopeP"] = f"{p_v:.2f}"
+# ----------------------------------------------------------------- Day 2 ----
+for c in ARMS:
+    k = c.lower()
+    for ph, tag in (("pre", "Pre"), ("post", "Post")):
+        tt = st.ttest_rel(sess[c]["day2"], sess[c][ph])
+        S[f"{k}{tag}DayTwoT"], S[f"{k}{tag}DayTwoP"] = fmt(tt.statistic, 2), pfmt(tt.pvalue)
+        w = st.ttest_ind(A[c]["day2"], A[c][ph], equal_var=False)
+        S[f"{k}{tag}DayTwoMsgT"], S[f"{k}{tag}DayTwoMsgDf"], S[f"{k}{tag}DayTwoMsgP"] = fmt(w.statistic, 2), fmt(w.df), pfmt(w.pvalue)
+    S[f"{k}DayTwoSessMin"], S[f"{k}DayTwoSessMax"] = fmt(sess[c]["day2"].min()), fmt(sess[c]["day2"].max())
+    ps = [p for p in per.values() if p["cond"] == c and p["day2"]]
+    S[f"{k}DayTwoActive"] = len(ps)
+S["dayTwoSessBelow"] = int((sess["EXPT"]["day2"] < sess["CTRL"]["day2"]).sum())
+S["dayTwoGapMin"] = fmt((sess["CTRL"]["day2"] - sess["EXPT"]["day2"]).min())
+S["dayTwoGapMax"] = fmt((sess["CTRL"]["day2"] - sess["EXPT"]["day2"]).max())
 
-# per-participant phase means
-per = defaultdict(lambda: {"free": [], "note": []})
-for r in msgs:
-    per[r["handle"]][r["phase"]].append(r["tox"])
-paired = {h: (np.mean(d["free"]), np.mean(d["note"]))
-          for h, d in per.items() if d["free"] and d["note"]}
-diffs = np.array([b - a for a, b in paired.values()])
-t_pair, p_pair = st.ttest_rel([b for _, b in paired.values()], [a for a, _ in paired.values()])
-S["pairedN"] = len(paired)
-S["pairedT"] = f"{t_pair:.2f}"
-S["pairedDf"] = len(paired) - 1
-S["pairedP"] = f"{p_pair:.3f}"
-S["pairedDz"] = f"{abs(diffs.mean() / diffs.std(ddof=1)):.2f}"
-S["pairedMeanDiff"] = f"{diffs.mean():.3f}"
-S["pctDeclined"] = f"{100 * np.mean(diffs < 0):.0f}"
-S["nDeclined"] = int((diffs < 0).sum())
-
-# leave-one-out robustness of the group-level drop
-loo = []
-for h in handles:
-    a = [r["tox"] for r in free if r["handle"] != h]
-    b = [r["tox"] for r in note if r["handle"] != h]
-    if a and b:
-        loo.append(np.mean(a) - np.mean(b))
-S["looMin"], S["looMax"] = f"{min(loo):.3f}", f"{max(loo):.3f}"
-
-# concentration: top-3 posters, top cross-fandom reply pair
-counts = defaultdict(int)
-for r in msgs:
-    counts[r["handle"]] += 1
-top3 = sum(sorted(counts.values())[-3:])
-S["topThreePct"] = f"{100 * top3 / len(msgs):.0f}"
-author = {r["event_id"]: r["handle"] for r in msgs}
-pair_counts = defaultdict(int)
-replies = [r for r in msgs if r["type"] == "comment" and r["thread_id"] in author]
-for r in replies:
-    pa = author[r["thread_id"]]
-    if pa[:4] != r["handle"][:4]:
-        pair_counts[tuple(sorted((r["handle"], pa)))] += 1
-top_pair, top_pair_n = max(pair_counts.items(), key=lambda kv: kv[1])
-S["nReplies"] = len([r for r in msgs if r["type"] == "comment"])
-S["topPairN"] = top_pair_n
-S["topPairA"], S["topPairB"] = code[top_pair[0]], code[top_pair[1]]
-
-# most active / most toxic participants
-most_active = max(counts, key=counts.get)
-most_toxic = max(per, key=lambda h: np.mean(per[h]["free"] + per[h]["note"]))
-S["mostActiveCode"] = code[most_active]
-S["mostActiveFreeN"] = len(per[most_active]["free"])
-S["mostActiveNoteN"] = len(per[most_active]["note"])
-S["mostActiveFreeM"] = f"{np.mean(per[most_active]['free']):.3f}"
-S["mostActiveNoteM"] = f"{np.mean(per[most_active]['note']):.3f}"
-S["mostToxicCode"] = code[most_toxic]
-S["mostToxicM"] = f"{np.mean(per[most_toxic]['free'] + per[most_toxic]['note']):.3f}"
-S["mostToxicNoteM"] = f"{np.mean(per[most_toxic]['note']):.3f}"
-S["mostToxicNoteMax"] = f"{max(per[most_toxic]['note']):.2f}"
+# ------------------------------------------------ robustness (Table 2) ------
+msg_count = {k: len(p["pre"]) + len(p["post"]) for k, p in per.items()}
 
 
-# pronoun shift
-def rate(rows, key):
-    return sum(r[key] for r in rows) / len(rows)
+def did_for(keep):
+    """Session-level DiD restricted to the participants in `keep`."""
+    out = {}
+    for c in ARMS:
+        pre_s, post_s = [], []
+        for s in SESSIONS:
+            pre_s.append(np.mean([r["tox"] for r in rows_of(c, "pre", s) if (c, r["handle"]) in keep]))
+            post_s.append(np.mean([r["tox"] for r in rows_of(c, "post", s) if (c, r["handle"]) in keep]))
+        out[c] = (np.array(pre_s), np.array(post_s))
+    dd = (out["CTRL"][1] - out["CTRL"][0]) - (out["EXPT"][1] - out["EXPT"][0])
+    tt = st.ttest_1samp(dd, 0.0)
+    return out, dd, tt
 
 
-def they_prop(rows):
-    return sum(r["they"] for r in rows) / max(1, sum(r["they"] + r["we"] for r in rows))
+ROBUST = [("All", lambda k: True),
+          ("Six", lambda k: msg_count[k] >= 6),
+          ("Ten", lambda k: msg_count[k] >= 10),
+          ("Peri", lambda k: not per[k]["heavy"])]
+for tag, rule in ROBUST:
+    keep = {k for k in per if rule(k)}
+    out, dd, tt = did_for(keep)
+    S[f"rob{tag}Part"] = len(keep)
+    S[f"rob{tag}ExptPre"], S[f"rob{tag}ExptPost"] = fmt(out["EXPT"][0].mean()), fmt(out["EXPT"][1].mean())
+    S[f"rob{tag}CtrlPre"], S[f"rob{tag}CtrlPost"] = fmt(out["CTRL"][0].mean()), fmt(out["CTRL"][1].mean())
+    S[f"rob{tag}Did"] = fmt(dd.mean())
+    S[f"rob{tag}DidT"], S[f"rob{tag}DidP"] = fmt(tt.statistic, 2), pfmt(tt.pvalue)
+
+# --------------------------------------------------- session for the teaser --
+# the session whose DiD is the median: representative, not the best case
+show_session = SESSIONS[int(np.argsort(did)[len(did) // 2])]
+S["showSession"] = show_session
+S["showSessionDid"] = fmt(did[SESSIONS.index(show_session)])
+for c in ARMS:
+    k = c.lower()
+    S[f"show{k.capitalize()}Pre"] = fmt(sess[c]["pre"][SESSIONS.index(show_session)])
+    S[f"show{k.capitalize()}Post"] = fmt(sess[c]["post"][SESSIONS.index(show_session)])
+    S[f"show{k.capitalize()}N"] = len([r for r in d1 if r["cond"] == c and r["session"] == show_session])
 
 
-S["theyFree"], S["theyNote"] = f"{rate(free, 'they'):.2f}", f"{rate(note, 'they'):.2f}"
-S["weFree"], S["weNote"] = f"{rate(free, 'we'):.2f}", f"{rate(note, 'we'):.2f}"
-S["theyPropFree"], S["theyPropNote"] = f"{they_prop(free):.3f}", f"{they_prop(note):.3f}"
+def codes_for(session, cond):
+    """Anonymized A1-A3 / B1-B3 codes for one session-arm, sorted by handle."""
+    hs = sorted({r["handle"] for r in msgs if r["session"] == session and r["cond"] == cond})
+    out, na, nb = {}, 0, 0
+    for h in hs:
+        if h.startswith("army"):
+            na += 1
+            out[h] = f"A{na}"
+        else:
+            nb += 1
+            out[h] = f"B{nb}"
+    return out
 
-# --------------------------------------------------------------- sessions ---
-# participant-session rows; TEST1 cohort is the fully message-logged session
-
-def active(rows):
-    return np.array([float(r["mean_toxicity"]) for r in rows if r["mean_toxicity"]])
-
-
-expt = [r for r in sessions if r["arm"] == "EXPT"]
-d1_all, d2_all = active([r for r in expt if r["day"] == "1"]), active([r for r in expt if r["day"] == "2"])
-t_day, p_day = st.ttest_ind(d1_all, d2_all, equal_var=False)
-S["dayOneN"], S["dayTwoN"] = len(d1_all), len(d2_all)
-S["dayOneM"], S["dayTwoM"] = f"{d1_all.mean():.3f}", f"{d2_all.mean():.3f}"
-S["dayWelchT"], S["dayWelchP"] = f"{t_day:.2f}", f"{p_day:.2f}"
-
-test1_d2 = active([r for r in sessions if r["cohort"] == "TEST1" and r["day"] == "2"])
-S["tOneDayTwoN"], S["tOneDayTwoM"] = len(test1_d2), f"{test1_d2.mean():.3f}"
-
-# participant-level phase means for the studied session + Day-2 comparison
-free_p = np.array([np.mean(d["free"]) for d in per.values() if d["free"]])
-note_p = np.array([np.mean(d["note"]) for d in per.values() if d["note"]])
-S["freePartM"], S["notePartM"] = f"{free_p.mean():.3f}", f"{note_p.mean():.3f}"
-t_nd2, p_nd2 = st.ttest_ind(note_p, test1_d2, equal_var=False)
-t_fd2, p_fd2 = st.ttest_ind(free_p, test1_d2, equal_var=False)
-S["noteDayTwoT"], S["noteDayTwoP"] = f"{t_nd2:.2f}", f"{p_nd2:.2f}"
-S["freeDayTwoT"], S["freeDayTwoP"] = f"{t_fd2:.2f}", f"{p_fd2:.2f}"
-
-S["nCohorts"] = len({r["cohort"] for r in sessions})
 
 # ---------------------------------------------------------------- surveys ---
+# The exported battery comes from the pilot cohorts, not from S1-S5.
 sv = [r for r in surveys if r["arm"] == "EXPT"]
 S["surveyN"] = len(sv)
+S["surveyCohorts"] = " and ".join(sorted({r["cohort"] for r in sv}))
+S["surveyNCohorts"] = len({r["cohort"] for r in sv})
 
 
 def scale(rows, prefix):
@@ -299,75 +473,33 @@ rival = np.array([float(r["s1_therm_rival"]) for r in sv])
 S["thermOwn"], S["thermRival"] = f"{own.mean():.1f}", f"{rival.mean():.1f}"
 S["thermGap"] = f"{(own - rival).mean():.0f}"
 S["thermGapSD"] = f"{(own - rival).std(ddof=1):.1f}"
-
-# ------------------------------------------- engagement around the note -----
-# did the note end the discussion, or just cool it? message rates per minute
-_end = msgs[-1]["min"]
-S["engFreeRate"] = f"{len(free) / NOTE_ONSET_MIN:.2f}"
-S["engNoteRate"] = f"{len(note) / (_end - NOTE_ONSET_MIN):.2f}"
-S["engRateRatio"] = f"{(len(note) / (_end - NOTE_ONSET_MIN)) / (len(free) / NOTE_ONSET_MIN):.2f}"
-S["engRateP"] = f"{st.binomtest(len(free), len(msgs), NOTE_ONSET_MIN / _end).pvalue:.2f}"
-S["engActiveFree"] = sum(1 for h in per if per[h]["free"])
-S["engActiveNote"] = sum(1 for h in per if per[h]["note"])
-S["engKeptPosting"] = sum(1 for h in per if per[h]["free"] and per[h]["note"])
-
-# superordinate identity and similarity, post-survey levels
 S["thermKpop"] = f"{np.mean([float(r['s1_therm_kpop']) for r in sv]):.1f}"
 for _k, _name in (("s1_simil_general", "similGeneral"), ("s1_simil_interests", "similInterests"),
                   ("s1_simil_values", "similValues"), ("s1_simil_care", "similCare")):
     S[_name] = f"{np.mean([float(r[_k]) for r in sv]):.2f}"
 
-# ---------------------------------------------------- robustness & screens ---
-# Ray TODO 2: does the effect survive restricting to more active participants?
-msg_counts = {h: len(per[h]["free"]) + len(per[h]["note"]) for h in per}
-ROBUST_THRESHOLDS = (0, 6, 8)
-robustness_rows = []
-for thr in ROBUST_THRESHOLDS:
-    keep = [h for h in per if msg_counts[h] >= thr]
-    a = [r["tox"] for r in msgs if r["handle"] in keep and r["phase"] == "free"]
-    b = [r["tox"] for r in msgs if r["handle"] in keep and r["phase"] == "note"]
-    w = st.ttest_ind(a, b, equal_var=False)
-    pair_h = [h for h in keep if per[h]["free"] and per[h]["note"]]
-    tp = st.ttest_rel([np.mean(per[h]["note"]) for h in pair_h],
-                      [np.mean(per[h]["free"]) for h in pair_h])
-    robustness_rows.append({
-        "thr": thr, "nPart": len(keep), "nFree": len(a), "nNote": len(b),
-        "freeM": np.mean(a), "noteM": np.mean(b),
-        "t": w.statistic, "p": w.pvalue,
-        "pairN": len(pair_h), "pairT": tp.statistic, "pairP": tp.pvalue,
-    })
-for i, row in enumerate(robustness_rows):
-    tag = ["All", "Six", "Eight"][i]
-    S["rob" + tag + "Part"] = row["nPart"]
-    S["rob" + tag + "T"] = f"{row['t']:.2f}"
-    S["rob" + tag + "P"] = f"{row['p']:.3f}"
-    S["rob" + tag + "PairP"] = f"{row['pairP']:.3f}"
-
-# Ray item 9: pre-registered screens on the survey respondents
 survey_items = [k for k in surveys[0] if k.startswith("s1_") and not k.startswith("s1_therm")]
+
+
 def straightlined(r):
     v = [float(r[k]) for k in survey_items if r[k]]
     return np.std(v) < 0.5
+
+
 def failed_heat_check(r):  # the session was designed to be heated
     return float(r["s1_sess_heated"]) <= 2
-S["nStraightlined"] = sum(1 for r in surveys if straightlined(r))
+
+
 S["nStraightlinedExpt"] = sum(1 for r in sv if straightlined(r))
 S["nFailedHeat"] = sum(1 for r in sv if failed_heat_check(r))
 S["minHeat"] = f"{min(float(r['s1_sess_heated']) for r in sv):.0f}"
 
-# ------------------------------------ enemies online, not in real life -------
-contact_items = {
-    "s1_contact_friends": "Could be friends",
-    "s1_contact_discuss": "Would discuss K-pop",
-    "s1_contact_work": "Would work together",
-    "s1_contact_share": "Would share a post",
-}
+contact_items = ["s1_contact_friends", "s1_contact_discuss", "s1_contact_work", "s1_contact_share"]
 contact_means = {k: np.mean([float(r[k]) for r in sv if r[k]]) for k in contact_items}
 S["contactFriends"] = f"{contact_means['s1_contact_friends']:.2f}"
 S["contactMax"] = f"{max(contact_means.values()):.2f}"
-one_samp = st.ttest_1samp(scale(sv, "s1_contact"), 3.0)
-S["contactVsMidT"] = f"{one_samp.statistic:.2f}"
-S["contactVsMidP"] = f"{one_samp.pvalue:.2f}"
+_one = st.ttest_1samp(scale(sv, "s1_contact"), 3.0)
+S["contactVsMidT"], S["contactVsMidP"] = f"{_one.statistic:.2f}", f"{_one.pvalue:.2f}"
 
 # =========================================================== plotting setup ==
 import matplotlib  # noqa: E402  (backend must be set before pyplot import)
@@ -405,11 +537,8 @@ def clean_axes(ax, ygrid=True):
         ax.set_axisbelow(True)
 
 
-def bar_labels(ax, bars, fmt="{:.3f}", dy=0.004):
-    for b in bars:
-        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + dy,
-                fmt.format(b.get_height()), ha="center", va="bottom",
-                fontsize=7.5, color=INK)
+def stars(p):
+    return "***" if p < .001 else "**" if p < .01 else "*" if p < .05 else "n.s."
 
 
 def write_stats_tex():
@@ -423,3 +552,8 @@ def write_stats_tex():
         for k, v in S.items():
             f.write(f"\\newcommand{{\\{texify(k)}}}{{{v}}}\n")
     return path
+
+
+if __name__ == "__main__":
+    import json
+    print(json.dumps(S, indent=1))

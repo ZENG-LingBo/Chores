@@ -70,7 +70,7 @@ expectations the paper doesn't target.
 
 Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B is a bar chart: mean message toxicity 0.368 before the note versus 0.217 after it, a 41% reduction."
 
-Figure 2: "Bar chart of mean message toxicity in nine five-minute windows across the session, with a line connecting the bar tops. Before a dashed line marking the Community Note's appearance at 15 minutes, the windows read 0.371, 0.317 and a peak of 0.395. After it they read 0.200, 0.255, 0.281, 0.229, 0.190 and 0.117. Toxicity halves across the note boundary, and no window after the note reaches even the quietest window before it."
+Figure 2: "Bar chart of mean message toxicity in ten five-minute windows across the session, with a line connecting the bar tops. Before a dashed line marking the Community Note's appearance at 15 minutes, the windows read 0.371, 0.317 and a peak of 0.395. After it they read 0.200, 0.255, 0.281, 0.229, 0.190, 0.100 and 0.150. Toxicity halves across the note boundary, and no window after the note reaches even the quietest window before it."
 
 Figure 3: "Slope chart of per-participant mean toxicity from the free phase to the note phase for the five participants who posted in both. Four lines decline; one rises slightly. The highlighted line for the most toxic participant, B1, remains the highest in the room. Annotation: paired t(4) = -3.19, p = .033, effect size d_z = 1.43."
 

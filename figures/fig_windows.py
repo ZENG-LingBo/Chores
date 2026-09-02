@@ -27,7 +27,8 @@ def main():
 
     # selective direct labels: the story points, not every bar
     peak_i = int(np.argmax(win_means[:n_pre]))
-    for i in (peak_i, n_pre, len(win_means) - 1):
+    low_i = int(np.argmin(win_means))
+    for i in (peak_i, n_pre, low_i):
         ax.text(i, win_means[i] + 0.018, f"{win_means[i]:.3f}", ha="center",
                 va="bottom", fontsize=7, color=INK, fontweight="bold")
 

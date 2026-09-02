@@ -144,6 +144,25 @@ S["winNs"] = ", ".join(str(n) for n in win_ns)
 S["windowMin"] = f"{WINDOW_MIN:.0f}"
 S["noteOnsetMin"] = f"{NOTE_ONSET_MIN:.0f}"
 
+# peak window before the note vs trough window after it (Ray: clearest contrast)
+peak_i = int(np.argmax(win_means[:n_pre]))
+trough_i = n_pre + int(np.argmin(win_means[n_pre:]))
+peak_msgs = [r["tox"] for r in msgs
+             if win_edges[peak_i] <= r["min"] < win_edges[peak_i + 1]]
+trough_msgs = [r["tox"] for r in msgs
+               if win_edges[trough_i] <= r["min"] < win_edges[trough_i + 1]]
+pt = st.ttest_ind(peak_msgs, trough_msgs, equal_var=False)
+S["peakWin"] = win_labels[peak_i]
+S["troughWin"] = win_labels[trough_i]
+S["peakWinM"] = f"{np.mean(peak_msgs):.3f}"
+S["troughWinM"] = f"{np.mean(trough_msgs):.3f}"
+S["peakWinN"] = len(peak_msgs)
+S["troughWinN"] = len(trough_msgs)
+S["peakTroughT"] = f"{pt.statistic:.2f}"
+S["peakTroughDf"] = f"{pt.df:.1f}"
+S["peakTroughP"] = f"{pt.pvalue:.3f}"
+S["peakTroughDrop"] = f"{100 * (1 - np.mean(trough_msgs) / np.mean(peak_msgs)):.0f}"
+
 # free-phase linear trend (toxicity vs minute)
 slope, intercept, r_v, p_v, se = st.linregress([r["min"] for r in free], free_tox)
 S["freeSlope"] = f"{slope:.4f}"
@@ -280,6 +299,58 @@ rival = np.array([float(r["s1_therm_rival"]) for r in sv])
 S["thermOwn"], S["thermRival"] = f"{own.mean():.1f}", f"{rival.mean():.1f}"
 S["thermGap"] = f"{(own - rival).mean():.0f}"
 S["thermGapSD"] = f"{(own - rival).std(ddof=1):.1f}"
+
+# ---------------------------------------------------- robustness & screens ---
+# Ray TODO 2: does the effect survive restricting to more active participants?
+msg_counts = {h: len(per[h]["free"]) + len(per[h]["note"]) for h in per}
+ROBUST_THRESHOLDS = (0, 6, 8)
+robustness_rows = []
+for thr in ROBUST_THRESHOLDS:
+    keep = [h for h in per if msg_counts[h] >= thr]
+    a = [r["tox"] for r in msgs if r["handle"] in keep and r["phase"] == "free"]
+    b = [r["tox"] for r in msgs if r["handle"] in keep and r["phase"] == "note"]
+    w = st.ttest_ind(a, b, equal_var=False)
+    pair_h = [h for h in keep if per[h]["free"] and per[h]["note"]]
+    tp = st.ttest_rel([np.mean(per[h]["note"]) for h in pair_h],
+                      [np.mean(per[h]["free"]) for h in pair_h])
+    robustness_rows.append({
+        "thr": thr, "nPart": len(keep), "nFree": len(a), "nNote": len(b),
+        "freeM": np.mean(a), "noteM": np.mean(b),
+        "t": w.statistic, "p": w.pvalue,
+        "pairN": len(pair_h), "pairT": tp.statistic, "pairP": tp.pvalue,
+    })
+for i, row in enumerate(robustness_rows):
+    tag = ["All", "Six", "Eight"][i]
+    S["rob" + tag + "Part"] = row["nPart"]
+    S["rob" + tag + "T"] = f"{row['t']:.2f}"
+    S["rob" + tag + "P"] = f"{row['p']:.3f}"
+    S["rob" + tag + "PairP"] = f"{row['pairP']:.3f}"
+
+# Ray item 9: pre-registered screens on the survey respondents
+survey_items = [k for k in surveys[0] if k.startswith("s1_") and not k.startswith("s1_therm")]
+def straightlined(r):
+    v = [float(r[k]) for k in survey_items if r[k]]
+    return np.std(v) < 0.5
+def failed_heat_check(r):  # the session was designed to be heated
+    return float(r["s1_sess_heated"]) <= 2
+S["nStraightlined"] = sum(1 for r in surveys if straightlined(r))
+S["nStraightlinedExpt"] = sum(1 for r in sv if straightlined(r))
+S["nFailedHeat"] = sum(1 for r in sv if failed_heat_check(r))
+S["minHeat"] = f"{min(float(r['s1_sess_heated']) for r in sv):.0f}"
+
+# ------------------------------------ enemies online, not in real life -------
+contact_items = {
+    "s1_contact_friends": "Could be friends",
+    "s1_contact_discuss": "Would discuss K-pop",
+    "s1_contact_work": "Would work together",
+    "s1_contact_share": "Would share a post",
+}
+contact_means = {k: np.mean([float(r[k]) for r in sv if r[k]]) for k in contact_items}
+S["contactFriends"] = f"{contact_means['s1_contact_friends']:.2f}"
+S["contactMax"] = f"{max(contact_means.values()):.2f}"
+one_samp = st.ttest_1samp(scale(sv, "s1_contact"), 3.0)
+S["contactVsMidT"] = f"{one_samp.statistic:.2f}"
+S["contactVsMidP"] = f"{one_samp.pvalue:.2f}"
 
 # =========================================================== plotting setup ==
 import matplotlib  # noqa: E402  (backend must be set before pyplot import)

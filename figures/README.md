@@ -6,11 +6,12 @@ without touching anything else.
 
 | Paper | Script | Image | What it shows |
 |---|---|---|---|
-| Fig. 1 (teaser) | `fig_teaser.py` | `fig_teaser.png` | The Community Notes mechanism in three stages, plus the headline drop (0.329 → 0.220, −33%) |
-| Fig. 2 | `fig_windows.py` | `fig_windows.png` | Mean toxicity in ten-minute windows; every post-note window is below every pre-note one |
-| Fig. 3 | `fig_participants.py` | `fig_participants.png` | Paired per-participant slopes, free → note phase (4 of 5 declined) |
+| Fig. 1 (teaser) | `fig_teaser.py` | `fig_teaser.png` | The Community Notes mechanism in three stages, plus the logged session drawn message by message |
+| Fig. 2 | `fig_participants.py` | `fig_participants.png` | Whole-phase and peak-vs-trough contrasts, group means as bars with participant dots |
+| Fig. 3 | `fig_attitudes.py` | `fig_attitudes.png` | Hostility intact (thermometer gap) but confined to the screen (could be friends in real life) |
 | Fig. 4 | `fig_histogram.py` | `fig_histogram.png` | Toxicity distribution before/after; the most toxic participant stays in the right tail |
-| Fig. 5 | `fig_days.py` | `fig_days.png` | Day 1 phases versus Day 2 without the feature |
+| Fig. 5 | `fig_windows.py` | `fig_windows.png` | Mean toxicity in five-minute windows; peaks just before the note, halves just after |
+| Fig. 6 | `fig_days.py` | `fig_days.png` | Day 1 phases versus Day 2 without the feature, with significance brackets |
 
 Shared code:
 

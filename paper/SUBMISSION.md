@@ -68,19 +68,23 @@ expectations the paper doesn't target.
 
 ## 3. Alt-text for All Figures and Tables (paste-ready)
 
-Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B is a bar chart: mean message toxicity 0.368 before the note versus 0.217 after it, a 41% reduction."
+Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B is a timeline of the logged session: 81 messages from six participants drawn as squares shaded from calm to toxic, with a dashed line at 15 minutes marking the Community Note; the darkest squares cluster before the line and the squares after it are mostly light."
 
-Figure 2: "Bar chart of mean message toxicity in ten five-minute windows across the session, with a line connecting the bar tops. Before a dashed line marking the Community Note's appearance at 15 minutes, the windows read 0.371, 0.317 and a peak of 0.395. After it they read 0.200, 0.255, 0.281, 0.229, 0.190, 0.100 and 0.150. Toxicity halves across the note boundary, and no window after the note reaches even the quietest window before it."
+Figure 2: "Two bar charts with individual participant dots. Left: message-level mean toxicity 0.368 in the free phase versus 0.217 in the note phase (Welch t(45.8) = 3.26, p = .002), with five participants' means connected by lines, four of which fall; the most toxic participant, B1, is highlighted. Right: 0.395 in the peak 10 to 15 minute window versus 0.100 in the quietest 40 to 45 minute window (Welch t(10.6) = 2.67, p = .023)."
 
-Figure 3: "Slope chart of per-participant mean toxicity from the free phase to the note phase for the five participants who posted in both. Four lines decline; one rises slightly. The highlighted line for the most toxic participant, B1, remains the highest in the room. Annotation: paired t(4) = -3.19, p = .033, effect size d_z = 1.43."
+Figure 3: "Left: two bars on a 0 to 100 feeling thermometer, own fandom 80 and rival fandom 20, with a 60-point gap marked. Right: horizontal bars for seven agreement items on a 1 to 5 scale: rival fans are intelligent 2.20, rival fans are moral 1.70, we share values 2.90, would share their post 2.50, would discuss K-pop with them 2.80, would work with them 2.90, and could be friends in real life 3.90, the only bar past the midpoint line at 3, highlighted."
 
 Figure 4: "Two histograms of message toxicity, before and after the note. In the free phase, messages cluster around 0.2 to 0.3 with a tail reaching 1.0. In the note phase the mass shifts toward 0 to 0.3, and the remaining high-toxicity messages, marked with hatching, belong almost entirely to the most toxic participant, B1."
 
-Figure 5: "Bar chart with jittered participant dots showing mean toxicity of 0.347 in the Day 1 free phase, 0.228 in the Day 1 note phase, and 0.267 on Day 2 with no feature. Day 2 sits between the two Day 1 phases; Welch tests against both are reported as not significant."
+Figure 5: "Bar chart of mean message toxicity in ten five-minute windows across the session, with a line connecting the bar tops. Before a dashed line marking the Community Note's appearance at 15 minutes, the windows read 0.371, 0.317 and a peak of 0.395. After it they read 0.200, 0.255, 0.281, 0.229, 0.190, 0.100 and 0.150. Toxicity halves across the note boundary, and no window after the note reaches even the quietest window before it."
+
+Figure 6: "Bar chart with jittered participant dots showing mean toxicity of 0.368 in the Day 1 free phase, 0.228 in the Day 1 note phase, and 0.267 on Day 2 with no feature. Significance brackets mark the Day 1 drop as significant at p = 0.033 and both Day 2 comparisons as not significant."
 
 Table 1: "Session summary by phase. Free phase: 30 messages, mean toxicity 0.368, 0.50 'they' references and 0.10 'we' references per message, 'they' share of plural references 0.833. Note phase: 51 messages, mean toxicity 0.217, 0.20 'they' and 0.08 'we' per message, 'they' share 0.714."
 
-Table 2: "Post-session survey means with standard deviations for the ten treatment-arm participants, on 1-to-5 scales: legitimacy of the note 2.20, reactance toward the note 4.25, perceived similarity to the rival fandom 3.02, perception of the rival fandom 1.95, cross-fandom contact intentions 3.02, session felt heated 4.20. Feeling thermometers, 0 to 100: own fandom 79.8, rival fandom 19.7, gap 60 points."
+Table 2: "Robustness of the free-to-note contrast by minimum messages posted. All six participants: Welch t = 3.26, p = .002, paired p = .033. At least six messages, five participants: Welch t = 3.17, p = .003, paired p = .033. At least eight messages, four participants: Welch t = 3.48, p = .001, paired p = .090."
+
+Table 3: "Post-session survey means with standard deviations for the ten treatment-arm participants, on 1-to-5 scales: legitimacy of the note 2.20, reactance toward the note 4.25, perceived similarity to the rival fandom 3.02, perception of the rival fandom 1.95, cross-fandom contact intentions 3.02, session felt heated 4.20. Feeling thermometers, 0 to 100: own fandom 79.8, rival fandom 19.7, gap 60 points."
 
 ---
 

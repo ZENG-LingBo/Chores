@@ -3,9 +3,15 @@
 
 Run: python3 fig_teaser.py   ->  fig_teaser.png (here) + paper/figures/fig_teaser.pdf
 """
-from defuselab import (BLUE, ORANGE, VIOLET, MAGENTA, INK, INK2, GRID, SURFACE,
-                       FancyArrowPatch, FancyBboxPatch, S, bar_labels, clean_axes,
-                       free, free_tox, note, note_tox, plt, save)
+import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+
+from defuselab import (VIOLET, MAGENTA, INK, INK2, GRID, SURFACE, FancyArrowPatch,
+                       FancyBboxPatch, S, code, handles, msgs, plt, save)
+
+# sequential blue ramp from the validated palette (light = calm, dark = toxic)
+TOX_RAMP = LinearSegmentedColormap.from_list(
+    "tox", ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"])
 
 BOXW = 0.44
 
@@ -80,24 +86,36 @@ def main():
     caption(ax, 1.14, "assembled backstage\nby the LLM")
     ax.text(0.0, 1.08, "A", fontsize=9, fontweight="bold", va="top")
 
-    # ---- Panel B: the story in one bar pair ------------------------------
+    # ---- Panel B: the session itself, one mark per message -----------------
     axb = fig.add_subplot(gs[1])
-    bars = axb.bar([0, 1], [free_tox.mean(), note_tox.mean()], width=0.62,
-                   color=[BLUE, ORANGE], edgecolor=SURFACE, linewidth=1.5)
-    bar_labels(axb, bars)
-    axb.set_xticks([0, 1])
-    axb.set_xticklabels([f"Before the note\n(n={len(free)})",
-                         f"After the note\n(n={len(note)})"], fontsize=7)
-    axb.set_ylabel("Mean message toxicity", fontsize=7.5)
-    axb.set_ylim(0, 0.42)
-    clean_axes(axb)
-    axb.annotate(f"−{S['redPct']}%", xy=(1, note_tox.mean() + 0.055),
-                 xytext=(0.62, free_tox.mean() + 0.02), fontsize=8.5,
-                 fontweight="bold", color=ORANGE,
-                 arrowprops=dict(arrowstyle="->", color=ORANGE, lw=1.2,
-                                 connectionstyle="arc3,rad=-0.25"))
-    axb.set_title("Toxicity around the note", fontsize=7.5, pad=4)
-    axb.text(-0.75, 0.475, "B", fontsize=9, fontweight="bold")
+    rows = {h: i for i, h in enumerate(sorted(handles, key=lambda h: code[h]))}
+    onset = float(S["noteOnsetMin"])
+    for r in msgs:
+        axb.scatter(r["min"], rows[r["handle"]], s=22, marker="s",
+                    color=TOX_RAMP(r["tox"]), edgecolor=SURFACE, linewidth=0.5, zorder=3)
+    axb.axvline(onset, color=INK, lw=0.9, ls=(0, (4, 2)), zorder=2)
+    axb.axvspan(0, onset, color="#f3f2ee", zorder=0)
+    axb.text(onset / 2, len(rows) - 0.35, "free", ha="center", fontsize=6.2, color=INK2)
+    axb.text(onset + 0.8, len(rows) - 0.35, "note phase (note appears at 15 min)",
+             ha="left", fontsize=6.2, color=INK2)
+    axb.set_yticks(range(len(rows)))
+    axb.set_yticklabels([code[h] for h in sorted(handles, key=lambda h: code[h])],
+                        fontsize=6.8)
+    axb.set_ylim(len(rows) - 0.1, -1.3)  # top-to-bottom, headroom for the label
+    axb.set_xlim(-1, msgs[-1]["min"] + 2)
+    axb.set_xlabel("Minutes into the session", fontsize=7.5)
+    axb.tick_params(axis="x", labelsize=7)
+    for side in ("top", "right", "left"):
+        axb.spines[side].set_visible(False)
+    axb.tick_params(axis="y", length=0)
+    axb.set_title(f"One session: {S['nMessages']} messages, {S['nParticipants']} fans",
+                  fontsize=7.5, pad=4)
+    # colour key: three swatches instead of a colourbar
+    for k, (v, lab) in enumerate(((0.05, "calm"), (0.5, "heated"), (0.95, "toxic"))):
+        axb.scatter(16 + k * 11, -0.85, s=22, marker="s", color=TOX_RAMP(v),
+                    edgecolor=SURFACE, linewidth=0.5, clip_on=False, zorder=4)
+        axb.text(17.6 + k * 11, -0.85, lab, fontsize=6, color=INK2, va="center")
+    axb.text(-4.5, -1.55, "B", fontsize=9, fontweight="bold")
 
     save(fig, "fig_teaser")
 

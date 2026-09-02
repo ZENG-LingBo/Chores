@@ -73,19 +73,21 @@ Intergroup Contact, Large Language Models, Fandom}
 \begin{teaserfigure}
   \centering
   \includegraphics[width=\textwidth]{figures/fig_teaser}
-  \caption{The Community Notes intervention and its headline effect.
-  (A)~When toxicity in a mixed ARMY--BLINK feed crosses a threshold, the
-  platform pins a Community Note with one contribution slot per fandom; the
-  note publishes only when both sides have written their part, each entry
-  verbatim under its author's badge, assembled backstage by an LLM that never
-  appears as a participant. (B)~Mean message toxicity in the fully logged
-  treatment session dropped from \StatfreeMean{} before the note appeared to
-  \StatnoteMean{} after it, a \StatredPct\% reduction (Welch
-  $t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$).}
+  \caption{A ceasefire, not a peace treaty. (A)~When toxicity in a mixed
+  ARMY--BLINK feed crosses a threshold, the platform pins a Community Note
+  with one contribution slot per fandom; the note publishes only when both
+  sides have written their part, each entry verbatim under its author's
+  badge, assembled backstage by an LLM that never appears as a participant.
+  (B)~The fully logged session, one square per message: six fans (rows A1--A3
+  ARMY, B1--B3 BLINK) over \StatsessionMinutes{} minutes, shaded from calm to
+  toxic. The darkest squares cluster before the note appears at
+  \StatnoteOnsetMin{} minutes; afterwards the exchange continues, but lighter.}
   \Description{Left: a three-stage diagram showing an escalating mixed feed,
   a pinned Community Note with one slot for ARMY and one for BLINK, and a
-  published co-signed note. Right: a bar chart showing mean message toxicity
-  falling from 0.368 before the note to 0.217 after it.}
+  published co-signed note. Right: a timeline of 81 messages from six
+  participants, each drawn as a square shaded by toxicity, with a dashed line
+  at 15 minutes marking the Community Note; dark squares are concentrated
+  before the line and the squares after it are mostly light.}
   \label{fig:teaser}
 \end{teaserfigure}
 
@@ -116,8 +118,13 @@ groups into cooperative production. In this study, we investigate whether
 structured co-creation between rival groups can reduce intergroup hostility
 on online platforms.
 
-We instantiate this idea as Community Notes, a platform feature through which
-members of rival groups co-author a single, publicly co-signed post. A pinned
+Online fights are rarely intense from the first message. They accumulate: a
+topic ignites them, and they burn only as long as the participants keep
+feeding them attention. That dependence is the opening we exploit. We
+instantiate the idea as Community Notes, a platform feature through which
+members of rival groups co-author a single, publicly co-signed post---a task
+that asks nothing of anyone's beliefs but takes a few minutes of everyone's
+attention away from the fight. A pinned
 prompt offers one slot per group; the note publishes only when both sides
 have written their part, each entry verbatim under its author's badge.
 Neither side can complete a note alone, and neither has to stop being itself.
@@ -148,7 +155,10 @@ In answering these questions, our work contributes: (1) a reusable platform
 mechanism that operationalizes cooperative interdependence in an online
 forum; (2) an extension of LLM-based depolarization from persuading
 individuals to structuring how groups interact; and (3) empirical evidence
-from real polarized communities on whether joint creation reduces toxicity.
+from real polarized communities that a shared task can call a ceasefire
+without producing a peace: toxicity fell, hostility toward the rival fandom
+did not, and participants drew a line between the enemy on screen and the
+person off it.
 
 \section{Related Work}
 
@@ -450,8 +460,11 @@ exchanged \StatnMessages{} messages over \StatsessionMinutes{} minutes on Day
 session. Day-level
 comparisons additionally use the platform's per-participant session summaries
 across treatment sessions, and survey results draw on the \StatsurveyN{}
-treatment-arm participants who completed the post-session battery.
-Message-level toxicity is scored 0--1.
+treatment-arm participants who completed the post-session battery, none of
+whom was removed by our two pre-registered screens (straightlining across the
+battery: \StatnStraightlinedExpt{} excluded; rating the session as not heated,
+our manipulation check: \StatnFailedHeat{} excluded, minimum rating
+\StatminHeat/5). Message-level toxicity is scored 0--1.
 
 \begin{table}
   \caption{The studied session by phase: free discussion (the first
@@ -477,48 +490,61 @@ Message-level toxicity is scored 0--1.
 
 \subsubsection{Toxicity fell when the note appeared.}
 Toxicity was high through the free phase, then dropped when Community Notes
-appeared. Mean message toxicity decreased from \StatfreeMean{} to
-\StatnoteMean{}, a \StatredPct\% reduction (Welch
-$t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$;
-Table~\ref{tab:phases}).
+appeared (Figure~\ref{fig:participants}, left). Mean message toxicity
+decreased from \StatfreeMean{} to \StatnoteMean{}, a \StatredPct\% reduction
+(Welch $t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$;
+Table~\ref{tab:phases}). The same held within participants: for the
+\StatpairedN{} who posted in both phases, the mean within-participant
+difference was $M_{\mathit{diff}}=\StatpairedMeanDiff$ (paired
+$t(\StatpairedDf)=\StatpairedT$, $p=\StatpairedP$, $d_z=\StatpairedDz$).
+The contrast is sharpest between the session's peak and its quietest moment
+(Figure~\ref{fig:participants}, right): the \StatwindowMin-minute window
+immediately before the note averaged \StatpeakWinM{}, the quietest window
+after it \StattroughWinM{}, a \StatpeakTroughDrop\% difference (Welch
+$t(\StatpeakTroughDf)=\StatpeakTroughT$, $p=\StatpeakTroughP$). We treat the
+whole-phase contrast as the primary result and the peak-to-trough contrast as
+descriptive, since its windows are selected after the fact.
 
-Figure~\ref{fig:windows} shows the change in toxicity over
-\StatwindowMin-minute windows, aligned so that the note falls on a window
-boundary. Toxicity peaked at \StatwinPeak{} in the window immediately before
-the Community Note appeared, then halved to \StatwinFirstNote{} in the window
-immediately after it, a \StatdropAtNote\% drop across a single window. The
-recovery that followed stayed well short of the free phase: the highest
-post-note window reached \StatwinPostMax, below even the quietest pre-note
-window (\StatwinPreMin), before toxicity fell to a session low of
-\StatwinMin. The closing window covers only the session's last three minutes
-and two messages, so we do not read its uptick to \StatwinLast{} as a
-rebound. At the participant level, we compared the participants who posted in
-both phases; their mean within-participant difference was
-$M_{\mathit{diff}}=\StatpairedMeanDiff$ (paired
-$t(\StatpairedDf)=\StatpairedT$, $p=\StatpairedP$), with
-$d_z=\StatpairedDz$.
-
-\begin{figure}
+\begin{figure*}
   \centering
-  \includegraphics[width=\linewidth]{figures/fig_windows}
-  \caption{Mean message toxicity in \StatwindowMin-minute windows across the
-  studied session ($n$ per window: \StatwinNs{} messages), with the trend
-  across windows overlaid. Windows are aligned to the note onset at
-  \StatnoteOnsetMin{} minutes, so the free/note boundary falls on a window edge
-  rather than inside a bar; the final window absorbs the session's last
-  minutes. Toxicity peaks in the window immediately before the note
-  (\StatwinPeak) and halves in the window immediately after
-  (\StatwinFirstNote). It partially recovers over the following two windows,
-  but no post-note window reaches even the quietest pre-note window, and it
-  falls to a session low of \StatwinMin{} before the closing window, which
-  spans only the last three minutes of the session and two messages.}
-  \Description{Bar chart of mean toxicity for ten five-minute windows, with a
-  line connecting the bar tops. Before a dashed line marking the Community Note
-  at 15 minutes: 0.371, 0.317 and a peak of 0.395. After it: 0.200, 0.255,
-  0.281, 0.229, 0.190, 0.100 and 0.150. The post-note windows all sit below the
-  pre-note ones.}
-  \label{fig:windows}
-\end{figure}
+  \includegraphics[width=\textwidth]{figures/fig_participants}
+  \caption{The ceasefire, with both the average and the individuals behind
+  it. Bars are message-level means; dots are individual participants' means.
+  Left: the whole free phase against the whole note phase, with each of the
+  \StatpairedN{} participants who posted in both connected across the two
+  (the most toxic participant, \StatmostToxicCode, highlighted: still the
+  most toxic voice afterwards, just a quieter one). Right: the peak
+  \StatwindowMin-minute window before the note against the quietest window
+  after it.}
+  \Description{Two bar charts with individual dots. Left: message-level mean
+  toxicity 0.368 in the free phase versus 0.217 in the note phase, with five
+  participants' means connected by lines, four of which fall. Right: 0.395 in
+  the 10 to 15 minute window versus 0.100 in the 40 to 45 minute window, with
+  the participants present in each window shown as dots.}
+  \label{fig:participants}
+\end{figure*}
+
+The result does not depend on the quieter participants. Restricting the
+analysis to participants who posted at least six or at least eight messages
+leaves the message-level contrast intact (Table~\ref{tab:robust}); the paired
+test loses power as participants drop out, as it must with four people, but
+its direction does not change.
+
+\begin{table}
+  \caption{The free-to-note contrast survives restricting the sample to more
+  active participants. Message-level Welch tests and participant-level paired
+  tests, by minimum number of messages posted.}
+  \label{tab:robust}
+  \begin{tabular}{lccc}
+    \toprule
+    Participants included & $n$ & Welch $t$ (p) & paired $p$ \\
+    \midrule
+    All & \StatrobAllPart & \StatrobAllT{} (\StatrobAllP) & \StatrobAllPairP \\
+    $\geq 6$ messages & \StatrobSixPart & \StatrobSixT{} (\StatrobSixP) & \StatrobSixPairP \\
+    $\geq 8$ messages & \StatrobEightPart & \StatrobEightT{} (\StatrobEightP) & \StatrobEightPairP \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsubsection{Attitudes did not change.}
 Participants rated the note low in legitimacy (\StatlegitM/5) and high in
@@ -528,6 +554,36 @@ own and the rival fandom was \StatthermGap{} points
 (Table~\ref{tab:survey}). These ratings suggest that participants did not
 respond to the note because they accepted its authority or felt more
 positively toward the rival fandom.
+
+The hostility, however, stops at the screen. On the same battery, the item
+participants endorsed most strongly was that a member of the rival fandom
+could be a friend in real life (\StatcontactFriends/5), the only item above
+the scale midpoint, while they rated rival fans as unintelligent and immoral
+(\StatpercM/5) and kept them 60 thermometer points below their own fandom
+(Figure~\ref{fig:attitudes}). Contact intentions as a whole sat exactly at
+the midpoint ($t(9)=\StatcontactVsMidT$, $p=\StatcontactVsMidP$ against
+neutral). The enemy in the thread, in other words, is not an enemy in the
+room---a distinction participants also drew unprompted in the focus groups.
+\todonote{add the focus-group quote on online versus real-life enemies.}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_attitudes}
+  \caption{The ceasefire did not make them like each other, but the dislike
+  is confined to the platform. (A)~Feeling thermometer toward one's own and
+  the rival fandom ($n=\StatsurveyN$). (B)~Agreement items about rival-fandom
+  members on a 1--5 scale: they are rated as unintelligent and immoral, yet
+  the single item participants endorsed most was that a rival fan could be a
+  friend in real life.}
+  \Description{Left: two bars, own fandom 80 and rival fandom 20 on a 0 to
+  100 thermometer, with a 60-point gap marked. Right: horizontal bars for
+  seven agreement items on a 1 to 5 scale; rival fans are intelligent 2.20,
+  rival fans are moral 1.70, we share values 2.90, would share their post
+  2.50, would discuss K-pop with them 2.80, would work with them 2.90, and
+  could be friends in real life 3.90, the only bar past the midpoint line at
+  3, highlighted.}
+  \label{fig:attitudes}
+\end{figure*}
 
 Survey responses and focus-group accounts pointed in different directions.
 While participants rated the note low in legitimacy, they described the
@@ -566,7 +622,7 @@ with the participant code.}
 \subsubsection{The drop was not driven by a single participant.}
 The reduction in toxicity was spread across participants. Of the
 \StatpairedN{} participants who posted in both phases, \StatpctDeclined\%
-became less toxic (Figure~\ref{fig:participants}). The one participant whose
+became less toxic (Figure~\ref{fig:participants}, left). The one participant whose
 mean toxicity increased was among the least active in the session, making
 their individual mean less stable. One further participant posted only after
 the note appeared, at low toxicity.
@@ -577,22 +633,6 @@ significant trend within the free phase itself (slope \StatfreeSlope{} per
 minute, $p=\StatfreeSlopeP$), so the discontinuity at the note does not
 reflect a smooth pre-existing decline, though the short pre-period limits how
 strongly a trend can be ruled out.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.6\linewidth]{figures/fig_participants}
-  \caption{Per-participant mean toxicity in the free phase versus the note
-  phase, for the \StatpairedN{} participants who posted in both.
-  \StatnDeclined{} of \StatpairedN{} became less toxic; the most toxic
-  participant (\StatmostToxicCode) declined least in relative terms and
-  remained the most toxic voice in the room. Participant A1, who posted only
-  after the note (4 messages, mean 0.175), is omitted.}
-  \Description{Slope chart with five lines from free phase to note phase.
-  Four lines decline, one rises slightly. The highlighted line for the most
-  toxic participant B1 starts at 0.50 and ends at 0.37, remaining the
-  highest.}
-  \label{fig:participants}
-\end{figure}
 
 \subsubsection{Hostility was concentrated from the start.}
 A small number of participants produced much of the discussion. In the
@@ -664,6 +704,48 @@ Together, these results show that the conversation changed at the same time
 as toxicity decreased. We do not claim that the topic shift caused the
 reduction in toxicity.
 
+\subsection{The Ceasefire Minute by Minute}
+
+Figure~\ref{fig:windows} shows the whole session in \StatwindowMin-minute
+windows, aligned so that the note falls on a window boundary. Toxicity was
+not running out of steam before the note: it peaked at \StatwinPeak{} in the
+window immediately before the note appeared, the highest window of the
+session, and showed no trend across the free phase (slope \StatfreeSlope{}
+per minute, $p=\StatfreeSlopeP$). It then halved to \StatwinFirstNote{} in
+the window immediately after the note, a \StatdropAtNote\% drop across a
+single window. The recovery that followed stayed well short of the free
+phase: the highest post-note window reached \StatwinPostMax, below even the
+quietest pre-note window (\StatwinPreMin), before toxicity fell to a session
+low of \StatwinMin. The closing window covers only the session's last three
+minutes and two messages, so we do not read its uptick to \StatwinLast{} as a
+rebound. Coarser windows tell the same story with less detail: at fifteen-minute
+windows, which also align with the onset, every post-note window sits below
+the pre-note window, and only at five minutes does the pre-note peak become
+visible.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig_windows}
+  \caption{Mean message toxicity in \StatwindowMin-minute windows across the
+  studied session ($n$ per window: \StatwinNs{} messages), with the trend
+  across windows overlaid. The fight was at its hottest in the window just
+  before the note, not cooling off. Windows are aligned to the note onset at
+  \StatnoteOnsetMin{} minutes, so the free/note boundary falls on a window edge
+  rather than inside a bar; the final window absorbs the session's last
+  minutes. Toxicity peaks in the window immediately before the note
+  (\StatwinPeak) and halves in the window immediately after
+  (\StatwinFirstNote). It partially recovers over the following two windows,
+  but no post-note window reaches even the quietest pre-note window, and it
+  falls to a session low of \StatwinMin{} before the closing window, which
+  spans only the last three minutes of the session and two messages.}
+  \Description{Bar chart of mean toxicity for ten five-minute windows, with a
+  line connecting the bar tops. Before a dashed line marking the Community Note
+  at 15 minutes: 0.371, 0.317 and a peak of 0.395. After it: 0.200, 0.255,
+  0.281, 0.229, 0.190, 0.100 and 0.150. The post-note windows all sit below the
+  pre-note ones.}
+  \label{fig:windows}
+\end{figure}
+
 \subsection{The Effect Did Not Persist to Day 2}
 
 On Day 2 the same participants returned and discussed without the feature.
@@ -684,11 +766,13 @@ Section~\ref{sec:pause}.
   \includegraphics[width=0.6\linewidth]{figures/fig_days}
   \caption{Participant-level mean toxicity in the Day 1 free phase, the Day 1
   note phase, and the Day 2 session without the feature (bars: group means;
-  dots: participants). Day 2 sits between the two Day 1 phases and differs
-  significantly from neither.}
-  \Description{Bar chart with jittered dots showing mean toxicity of 0.347
+  dots: participants). The Day 1 drop is significant (paired $t$,
+  $p=\StatpairedP$); Day 2 sits between the two Day 1 phases and differs
+  significantly from neither (Welch $t$).}
+  \Description{Bar chart with jittered dots showing mean toxicity of 0.368
   in the Day 1 free phase, 0.228 in the Day 1 note phase, and 0.267 on Day
-  2, with tests reported as not significant.}
+  2. Significance brackets mark the Day 1 drop as significant at p = 0.033
+  and both Day 2 comparisons as not significant.}
   \label{fig:days}
 \end{figure}
 
@@ -841,9 +925,26 @@ trajectories---who is escalating, who is being drawn in, who is moving from
 the periphery toward the core---shifting the trigger from a session-level
 threshold to a participant-level trajectory.
 
+\subsection{Design Implications}
+
+Three implications follow for platforms that host rival communities.
+\emph{Design ceasefires, not conversions.} An intervention can lower
+hostility without changing minds, so its success should be measured in
+behavior over time rather than in attitude change, and it need not be
+liked, or even accepted as legitimate, to work. \emph{Give attention
+somewhere to go.} Interruption alone is not enough; the pause has to land on
+a task both sides are willing to enter and neither can finish alone, which is
+what the two-slot note supplies. \emph{Trigger on people, not on the room.}
+The note reached the periphery, not the most committed participant, so a
+trigger that follows individual trajectories---who is escalating, who is
+being drawn in---would deploy the pause where it can still catch someone.
+Finally, participants' own line between the enemy on screen and the person
+off it (Figure~\ref{fig:attitudes}) suggests a design target we have not yet
+pursued: features that make the off-screen person visible inside the thread.
+
 \subsection{Limitations}
 
-Four limitations bound these results. First, the message-level analyses draw
+Five limitations bound these results. First, the message-level analyses draw
 on the single treatment session with complete logs; the remaining sessions
 enter the analysis only through per-participant summaries, and the control
 condition is still being fielded, so the condition-by-phase contrast that
@@ -857,8 +958,13 @@ Third, day-level comparisons treat platform participant-sessions as the unit
 of analysis; participants who reconnected contribute more than one row.
 Fourth, the survey battery analyzed here was collected after Day 1 only, so
 attitude stability is inferred from post-session levels rather than
-pre--post change. Each of these will be addressed as the full dataset is
-assembled.
+pre--post change. Fifth, the peak-to-trough contrast selects its windows
+after the fact and is reported as descriptive; the whole-phase contrast, whose
+boundary is fixed by the protocol, is the inferential result. Two further
+comparisons await data not yet exported: a message-level test of Day 1 free
+discussion against Day 2 free discussion, and quantitative coding of the
+focus-group transcripts against the behavioral record. Each of these will be
+addressed as the full dataset is assembled.
 
 \section{Conclusion}
 
@@ -872,7 +978,9 @@ as ``they'' fell by more than half---while attitudes toward the rival fandom did
 and the note itself was granted little legitimacy. The pattern is consistent
 with an attention account: the co-authored note gives an escalating fight
 somewhere else to go, without asking anyone to change what they believe or
-who they are. A pause, it turns out, can be built.
+who they are. What it bought was a ceasefire rather than a peace---and the
+participants themselves reported that the enemy in the thread would not be
+one in real life. A pause, it turns out, can be built.
 
 \begin{acks}
 \todonote{acknowledgments pending.}

@@ -8,9 +8,10 @@ Inputs  (repo-relative): data/defuselab-messages.csv  (concatenated exports, ded
                          data/defuselab-sessions.csv  (per participant-session rows)
                          data/defuselab-surveys.csv   (post-Day-1 outcome battery)
 
-The Community Note onset is taken as 20 minutes after the first message of the
-session (no explicit trigger timestamp exists in the export); messages before
-the onset form the "free" phase, messages after it the "note" phase.
+The Community Note appeared 15 minutes into the session (from the study
+protocol; the export carries no trigger event). Messages before the onset form
+the "free" phase, messages after it the "note" phase, and the reporting windows
+are aligned to that boundary.
 """
 import csv
 import os
@@ -25,7 +26,8 @@ ROOT = os.path.dirname(HERE)
 DATA = os.path.join(ROOT, "data")
 PAPER_FIGS = os.path.join(ROOT, "paper", "figures")  # vector copies for LaTeX
 
-NOTE_ONSET_MIN = 20.0
+NOTE_ONSET_MIN = 15.0
+WINDOW_MIN = 15.0  # reporting windows, aligned to the note onset
 
 # Validated palette (dataviz reference instance, light mode)
 BLUE = "#2a78d6"     # baseline / free phase / Day 1
@@ -113,15 +115,27 @@ S["msgWelchT"] = f"{t_msg:.2f}"
 S["msgWelchDf"] = f"{welch_msg.df:.1f}"
 S["msgWelchP"] = f"{p_msg:.3f}"
 
-# 10-minute windows
-win_means, win_ns = [], []
-for w in range(5):
-    ws = [r["tox"] for r in msgs if w * 10 <= r["min"] < (w + 1) * 10]
+# reporting windows, aligned to the note onset; a final window shorter than
+# half a window is merged into the one before it, so no window rests on 2 messages
+session_end = msgs[-1]["min"]
+win_edges = list(np.arange(0, session_end, WINDOW_MIN)) + [session_end + 1e-6]
+if (win_edges[-1] - win_edges[-2]) < WINDOW_MIN / 2:
+    del win_edges[-2]
+win_means, win_ns, win_labels = [], [], []
+for lo, hi in zip(win_edges[:-1], win_edges[1:]):
+    ws = [r["tox"] for r in msgs if lo <= r["min"] < hi]
     win_means.append(np.mean(ws))
     win_ns.append(len(ws))
-S["winA"], S["winB"] = f"{win_means[0]:.3f}", f"{win_means[1]:.3f}"
-S["winC"], S["winD"], S["winE"] = (f"{m:.3f}" for m in win_means[2:])
-S["winPeak"] = f"{max(win_means[:2]):.3f}"
+    win_labels.append(f"{lo:.0f}\u2013{min(hi, session_end):.0f}")
+n_pre = int(NOTE_ONSET_MIN // WINDOW_MIN)  # windows before the note appears
+for letter, m in zip("ABCDE", win_means):
+    S["win" + letter] = f"{m:.3f}"
+S["winPeak"] = f"{max(win_means[:n_pre]):.3f}"
+S["winLast"] = f"{win_means[-1]:.3f}"
+S["nWindows"] = len(win_means)
+S["winNs"] = ", ".join(str(n) for n in win_ns)
+S["windowMin"] = f"{WINDOW_MIN:.0f}"
+S["noteOnsetMin"] = f"{NOTE_ONSET_MIN:.0f}"
 
 # free-phase linear trend (toxicity vs minute)
 slope, intercept, r_v, p_v, se = st.linregress([r["min"] for r in free], free_tox)

@@ -49,8 +49,8 @@ sessions where members of ARMY and BLINK, the rival fandoms of BTS and
 BLACKPINK, discussed K-pop topics, while an LLM monitored toxicity and
 published the note backstage. When the note appeared, mean message toxicity
 fell by \StatredPct\%; the decline was shared across participants, and
-``they'' gave way to ``we,'' yet attitudes toward the rival fandom did not
-move. We argue the note works by interrupting the attention escalation
+references to the rival fandom as ``they'' halved, yet attitudes toward that
+fandom did not move. We argue the note interrupts the attention escalation
 requires, and discuss conflict interventions that need not be accepted to
 work.
 \end{abstract}
@@ -79,13 +79,13 @@ Intergroup Contact, Large Language Models, Fandom}
   note publishes only when both sides have written their part, each entry
   verbatim under its author's badge, assembled backstage by an LLM that never
   appears as a participant. (B)~Mean message toxicity in the fully logged
-  treatment session dropped from \StatfreeMean{} in the 20 minutes before the
-  note to \StatnoteMean{} in the 20 minutes after it, a \StatredPct\%
-  reduction (Welch $t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$).}
+  treatment session dropped from \StatfreeMean{} before the note appeared to
+  \StatnoteMean{} after it, a \StatredPct\% reduction (Welch
+  $t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$).}
   \Description{Left: a three-stage diagram showing an escalating mixed feed,
   a pinned Community Note with one slot for ARMY and one for BLINK, and a
   published co-signed note. Right: a bar chart showing mean message toxicity
-  falling from 0.329 before the note to 0.220 after it.}
+  falling from 0.368 before the note to 0.217 after it.}
   \label{fig:teaser}
 \end{teaserfigure}
 
@@ -446,17 +446,19 @@ participants discussed without it. The behavioral analyses below draw on the
 treatment session with complete message-level logs: \StatnParticipants{}
 participants (three ARMY, three BLINK, anonymized A1--A3 and B1--B3)
 exchanged \StatnMessages{} messages over \StatsessionMinutes{} minutes on Day
-1, with the Community Note appearing 20 minutes into the session. Day-level
+1, with the Community Note appearing \StatnoteOnsetMin{} minutes into the
+session. Day-level
 comparisons additionally use the platform's per-participant session summaries
 across treatment sessions, and survey results draw on the \StatsurveyN{}
 treatment-arm participants who completed the post-session battery.
 Message-level toxicity is scored 0--1.
 
 \begin{table}
-  \caption{The studied session by phase: free discussion (first 20 minutes)
-  versus the note phase (after the Community Note appeared). Toxicity fell
-  while first-person plural framing replaced third-person references to the
-  rival fandom.}
+  \caption{The studied session by phase: free discussion (the first
+  \StatnoteOnsetMin{} minutes)
+  versus the note phase (after the Community Note appeared). Toxicity fell, and
+  so did how often participants referred to the rival fandom as ``they'';
+  first-person plural framing stayed flat.}
   \label{tab:phases}
   \begin{tabular}{lcc}
     \toprule
@@ -480,11 +482,11 @@ appeared. Mean message toxicity decreased from \StatfreeMean{} to
 $t(\StatmsgWelchDf)=\StatmsgWelchT$, $p=\StatmsgWelchP$;
 Table~\ref{tab:phases}).
 
-Figure~\ref{fig:windows} shows the change in toxicity over ten-minute
-windows. Toxicity peaked at \StatwinPeak{} in the window before the Community
-Note appeared. After the note appeared, every ten-minute window had lower
-toxicity than every window before it, falling to \StatwinE{} in the final
-window. At the participant level, we compared the participants who posted in
+Figure~\ref{fig:windows} shows the change in toxicity over
+\StatwindowMin-minute windows, aligned so that the note falls on a window
+boundary. Toxicity stood at \StatwinPeak{} in the window before the Community
+Note appeared. Each window after the note was lower than the one before it,
+falling to \StatwinLast{} in the final window. At the participant level, we compared the participants who posted in
 both phases; their mean within-participant difference was
 $M_{\mathit{diff}}=\StatpairedMeanDiff$ (paired
 $t(\StatpairedDf)=\StatpairedT$, $p=\StatpairedP$), with
@@ -493,17 +495,17 @@ $d_z=\StatpairedDz$.
 \begin{figure}
   \centering
   \includegraphics[width=0.6\linewidth]{figures/fig_windows}
-  \caption{Mean message toxicity in ten-minute windows across the studied
-  session ($n$ per window: 20, 19, 19, 17, 6 messages), with the trend across
-  windows overlaid. The Community Note appeared 20 minutes in. Toxicity falls
-  window by window, and every window after the note is lower than every window
-  before it. Ten minutes is the finest binning that keeps at least six messages
-  per window; at five-minute bins the late windows hold as few as two messages
-  and the decline is no longer monotonic.}
-  \Description{Bar chart of mean toxicity for five ten-minute windows, with a
-  line connecting the bar tops: 0.355 and 0.303 before a dashed line marking
-  the Community Note, then 0.266, 0.206, and 0.117 after it. The line descends
-  steadily across all five windows.}
+  \caption{Mean message toxicity in \StatwindowMin-minute windows across the
+  studied session ($n$ per window: \StatwinNs{} messages), with the trend
+  across windows overlaid. Windows are aligned to the note onset at
+  \StatnoteOnsetMin{} minutes, so the free/note boundary falls on a window edge
+  rather than inside a bar; the last window absorbs the session's final
+  minutes. Toxicity falls window by window, from \StatwinA{} before the note to
+  \StatwinLast{} at the end.}
+  \Description{Bar chart of mean toxicity for three windows, with a line
+  connecting the bar tops: 0.368 for minutes 0 to 15 before a dashed line
+  marking the Community Note, then 0.245 and 0.183 after it. The line descends
+  steadily.}
   \label{fig:windows}
 \end{figure}
 
@@ -639,10 +641,13 @@ away from that particular fight. \todonote{add supporting quote from
 transcript.}
 
 A second measure showed a change at the same time. Third-person plural
-references fell from \StattheyFree{} to \StattheyNote{} per message, while
-first-person plural references increased from \StatweFree{} to \StatweNote.
-The proportion of plural references using ``they'' therefore fell from
-\StattheyPropFree{} to \StattheyPropNote{} (Table~\ref{tab:phases}).
+references to the rival fandom fell by more than half, from \StattheyFree{} to
+\StattheyNote{} per message, while first-person plural references stayed
+roughly flat (\StatweFree{} to \StatweNote). The proportion of plural
+references using ``they'' therefore fell from \StattheyPropFree{} to
+\StattheyPropNote{} (Table~\ref{tab:phases}). What changed was how much
+participants talked about the other side, not how much they invoked their
+own group.
 
 Together, these results show that the conversation changed at the same time
 as toxicity decreased. We do not claim that the topic shift caused the
@@ -716,9 +721,12 @@ did accept the task of writing something as a K-pop fan. The objects of
 judgment differ: the shared identity supplied a reason to participate, not an
 outcome of identification.
 
-One alternative reading should be kept. The shift from ``they'' to ``we''
-looks like common identity, but a change of subject produces the same
-linguistic pattern. We treat it as parallel to the attention account rather
+One alternative reading should be kept. A drop in ``they'' could look like
+common identity, but a change of subject produces the same linguistic pattern,
+and the drop here was not matched by any rise in ``we'': participants stopped
+talking about the rival fandom without talking more about their own. That
+asymmetry fits attention moving elsewhere better than it fits
+recategorisation, and we treat it as parallel to the attention account rather
 than as evidence for CIIM.
 
 This claim is testable. If interruption alone were doing the work, an inert
@@ -733,8 +741,8 @@ it.
 toxicity did not need time to build---threads opened hot, and the free phase
 held a mean near \StatfreeMean{}---but it did need attention to stay hot.
 Escalation takes participants staying with the same fight, and once the note
-pulled attention elsewhere, no ten-minute window returned to pre-note levels;
-by the final window toxicity had fallen to \StatwinE.
+pulled attention elsewhere, no window returned to pre-note levels; by the
+final window toxicity had fallen to \StatwinLast.
 
 \textbf{Interrupting attention may therefore be enough to interrupt
 escalation, without changing what anyone believes.} Depolarization
@@ -828,9 +836,12 @@ Four limitations bound these results. First, the message-level analyses draw
 on the single treatment session with complete logs; the remaining sessions
 enter the analysis only through per-participant summaries, and the control
 condition is still being fielded, so the condition-by-phase contrast that
-identifies the treatment effect is not yet available. Second, the note onset
-in the analyzed export is reconstructed as the 20-minute mark rather than
-read from a trigger log, so the phase boundary carries some imprecision.
+identifies the treatment effect is not yet available. Second, the message export carries no
+trigger event, so the note onset is taken from the study protocol
+(\StatnoteOnsetMin{} minutes) rather than read from a platform log; the phase
+boundary is accurate to the protocol, not to the second, and the reported
+effect is sensitive to it (a boundary five minutes later moves the reduction
+from \StatredPct\% to 33\%).
 Third, day-level comparisons treat platform participant-sessions as the unit
 of analysis; participants who reconnected contribute more than one row.
 Fourth, the survey battery analyzed here was collected after Day 1 only, so
@@ -845,8 +856,8 @@ a Community Note that members of rival fandoms must co-author before it can
 publish, assembled backstage by an LLM that never enters the conversation. In
 a live session between ARMY and BLINK members, toxicity fell by
 \StatredPct\% when the note appeared, the decline was shared by most
-participants rather than driven by one, and conversation shifted from
-``they'' toward ``we''---while attitudes toward the rival fandom did not move
+participants rather than driven by one, and references to the rival fandom
+as ``they'' fell by more than half---while attitudes toward the rival fandom did not move
 and the note itself was granted little legitimacy. The pattern is consistent
 with an attention account: the co-authored note gives an escalating fight
 somewhere else to go, without asking anyone to change what they believe or

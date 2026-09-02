@@ -57,10 +57,10 @@ expectations the paper doesn't target.
 > sessions where members of ARMY and BLINK, the rival fandoms of BTS and
 > BLACKPINK, discussed K-pop topics, while an LLM monitored toxicity and
 > published the note backstage. When the note appeared, mean message toxicity
-> fell by 33%; the decline was shared across participants, and "they" gave way
-> to "we," yet attitudes toward the rival fandom did not move. We argue the
-> note works by interrupting the attention escalation requires, and discuss
-> conflict interventions that need not be accepted to work.
+> fell by 41%; the decline was shared across participants, and references to
+> the rival fandom as "they" halved, yet attitudes toward that fandom did not
+> move. We argue the note interrupts the attention escalation requires, and
+> discuss conflict interventions that need not be accepted to work.
 
 (The same text is now the abstract in `main.tex`.)
 
@@ -68,17 +68,17 @@ expectations the paper doesn't target.
 
 ## 3. Alt-text for All Figures and Tables (paste-ready)
 
-Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B is a bar chart: mean message toxicity 0.329 in the 20 minutes before the note versus 0.220 in the 20 minutes after, a 33% reduction."
+Figure 1: "Two-panel teaser. Panel A is a three-stage diagram: an escalating mixed feed of ARMY and BLINK posts, then a pinned Community Note with one contribution slot per fandom that publishes only when both sides write, then the published co-signed note carrying both fandom badges, assembled backstage by an LLM. Panel B is a bar chart: mean message toxicity 0.368 before the note versus 0.217 after it, a 41% reduction."
 
-Figure 2: "Bar chart of mean message toxicity in five ten-minute windows across the session, with a line connecting the bar tops: 0.355 and 0.303 before a dashed line marking the Community Note's appearance at 20 minutes, then 0.266, 0.206, and 0.117 after it. The line descends steadily across all five windows, and every window after the note is lower than every window before it."
+Figure 2: "Bar chart of mean message toxicity in three fifteen-minute windows across the session, with a line connecting the bar tops: 0.368 for minutes 0 to 15, before a dashed line marking the Community Note's appearance at 15 minutes, then 0.245 for minutes 15 to 30 and 0.183 for minutes 30 to 48. The line descends steadily across all three windows."
 
-Figure 3: "Slope chart of per-participant mean toxicity from the free phase to the note phase for the five participants who posted in both. Four lines decline; one rises slightly. The highlighted line for the most toxic participant, B1, starts at 0.50 and ends at 0.37, remaining the highest in the room. Annotation: paired t(4) = -2.97, p = .041, effect size d_z = 1.33."
+Figure 3: "Slope chart of per-participant mean toxicity from the free phase to the note phase for the five participants who posted in both. Four lines decline; one rises slightly. The highlighted line for the most toxic participant, B1, remains the highest in the room. Annotation: paired t(4) = -3.19, p = .033, effect size d_z = 1.43."
 
 Figure 4: "Two histograms of message toxicity, before and after the note. In the free phase, messages cluster around 0.2 to 0.3 with a tail reaching 1.0. In the note phase the mass shifts toward 0 to 0.3, and the remaining high-toxicity messages, marked with hatching, belong almost entirely to the most toxic participant, B1."
 
 Figure 5: "Bar chart with jittered participant dots showing mean toxicity of 0.347 in the Day 1 free phase, 0.228 in the Day 1 note phase, and 0.267 on Day 2 with no feature. Day 2 sits between the two Day 1 phases; Welch tests against both are reported as not significant."
 
-Table 1: "Session summary by phase. Free phase: 39 messages, mean toxicity 0.329, 0.41 'they' references and 0.08 'we' references per message, 'they' share of plural references 0.842. Note phase: 42 messages, mean toxicity 0.220, 0.21 'they' and 0.10 'we' per message, 'they' share 0.692."
+Table 1: "Session summary by phase. Free phase: 30 messages, mean toxicity 0.368, 0.50 'they' references and 0.10 'we' references per message, 'they' share of plural references 0.833. Note phase: 51 messages, mean toxicity 0.217, 0.20 'they' and 0.08 'we' per message, 'they' share 0.714."
 
 Table 2: "Post-session survey means with standard deviations for the ten treatment-arm participants, on 1-to-5 scales: legitimacy of the note 2.20, reactance toward the note 4.25, perceived similarity to the rival fandom 3.02, perception of the rival fandom 1.95, cross-fandom contact intentions 3.02, session felt heated 4.20. Feeling thermometers, 0 to 100: own fandom 79.8, rival fandom 19.7, gap 60 points."
 

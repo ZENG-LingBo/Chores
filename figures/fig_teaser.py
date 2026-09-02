@@ -86,8 +86,8 @@ def main():
                    color=[BLUE, ORANGE], edgecolor=SURFACE, linewidth=1.5)
     bar_labels(axb, bars)
     axb.set_xticks([0, 1])
-    axb.set_xticklabels([f"20 min before\nthe note (n={len(free)})",
-                         f"20 min after\nthe note (n={len(note)})"], fontsize=7)
+    axb.set_xticklabels([f"Before the note\n(n={len(free)})",
+                         f"After the note\n(n={len(note)})"], fontsize=7)
     axb.set_ylabel("Mean message toxicity", fontsize=7.5)
     axb.set_ylim(0, 0.42)
     clean_axes(axb)

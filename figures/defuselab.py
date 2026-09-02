@@ -300,6 +300,23 @@ S["thermOwn"], S["thermRival"] = f"{own.mean():.1f}", f"{rival.mean():.1f}"
 S["thermGap"] = f"{(own - rival).mean():.0f}"
 S["thermGapSD"] = f"{(own - rival).std(ddof=1):.1f}"
 
+# ------------------------------------------- engagement around the note -----
+# did the note end the discussion, or just cool it? message rates per minute
+_end = msgs[-1]["min"]
+S["engFreeRate"] = f"{len(free) / NOTE_ONSET_MIN:.2f}"
+S["engNoteRate"] = f"{len(note) / (_end - NOTE_ONSET_MIN):.2f}"
+S["engRateRatio"] = f"{(len(note) / (_end - NOTE_ONSET_MIN)) / (len(free) / NOTE_ONSET_MIN):.2f}"
+S["engRateP"] = f"{st.binomtest(len(free), len(msgs), NOTE_ONSET_MIN / _end).pvalue:.2f}"
+S["engActiveFree"] = sum(1 for h in per if per[h]["free"])
+S["engActiveNote"] = sum(1 for h in per if per[h]["note"])
+S["engKeptPosting"] = sum(1 for h in per if per[h]["free"] and per[h]["note"])
+
+# superordinate identity and similarity, post-survey levels
+S["thermKpop"] = f"{np.mean([float(r['s1_therm_kpop']) for r in sv]):.1f}"
+for _k, _name in (("s1_simil_general", "similGeneral"), ("s1_simil_interests", "similInterests"),
+                  ("s1_simil_values", "similValues"), ("s1_simil_care", "similCare")):
+    S[_name] = f"{np.mean([float(r[_k]) for r in sv]):.2f}"
+
 # ---------------------------------------------------- robustness & screens ---
 # Ray TODO 2: does the effect survive restricting to more active participants?
 msg_counts = {h: len(per[h]["free"]) + len(per[h]["note"]) for h in per}

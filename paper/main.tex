@@ -427,7 +427,9 @@ Toxicity is the primary outcome, scored on pre-moderation text by Perspective
 API~\cite{lees2022} and independent human coding following Coe, Kenski, and
 Rains's incivility codebook~\cite{coe2014}, supplemented by a K-pop
 incivility lexicon validated before use with inter-rater reliability
-reported. Survey outcomes adapt validated instruments to the fandom boundary,
+reported. \todonote{state how the platform's 0--100 score is composed: which
+Perspective attributes, how they are weighted, and how the human codes and
+lexicon enter the final score.} Survey outcomes adapt validated instruments to the fandom boundary,
 following the battery of Rajadesingan et al.~\cite{rajadesingan2020}: the
 feeling thermometer toward rival-fandom members~\cite{iyengar2012}, common
 in-group identity representation as the mediator~\cite{gaertner2000}, and
@@ -452,9 +454,9 @@ We have run \StatnCohorts{} two-day sessions to date, each mixing ARMY and
 BLINK members who discussed K-pop topics under a prominent badge marking
 their fandom. On Day 1, participants discussed freely until session toxicity
 reached a threshold, which triggered Community Notes; on Day 2, the same
-participants discussed without it. The behavioral analyses below draw on the
-treatment session with complete message-level logs: \StatnParticipants{}
-participants (three ARMY, three BLINK, anonymized A1--A3 and B1--B3)
+participants discussed without it. The behavioral analyses below draw on Session~1,
+the first of the five and the only one whose message-level log has been
+exported so far: \StatnParticipants{} participants (three ARMY, three BLINK, anonymized A1--A3 and B1--B3)
 exchanged \StatnMessages{} messages over \StatsessionMinutes{} minutes on Day
 1, with the Community Note appearing \StatnoteOnsetMin{} minutes into the
 session. Day-level
@@ -464,7 +466,8 @@ treatment-arm participants who completed the post-session battery, none of
 whom was removed by our two pre-registered screens (straightlining across the
 battery: \StatnStraightlinedExpt{} excluded; rating the session as not heated,
 our manipulation check: \StatnFailedHeat{} excluded, minimum rating
-\StatminHeat/5). Message-level toxicity is scored 0--1.
+\StatminHeat/5). The platform scores each message for toxicity on a 0--100
+scale; we report it as a 0--1 proportion.
 
 \begin{table}
   \caption{The studied session by phase: free discussion (the first
@@ -530,6 +533,14 @@ leaves the message-level contrast intact (Table~\ref{tab:robust}); the paired
 test loses power as participants drop out, as it must with four people, but
 its direction does not change.
 
+Nor did the note end the discussion. Messages kept arriving at
+\StatengNoteRate{} per minute after the note against \StatengFreeRate{}
+before it (rate ratio \StatengRateRatio, exact test of equal rates
+$p=\StatengRateP$); all \StatengKeptPosting{} participants who had posted
+before the note posted after it, and one who had been silent joined in
+(\StatengActiveFree{} to \StatengActiveNote{} active participants). The
+ceasefire cooled the exchange without emptying the room.
+
 \begin{table}
   \caption{The free-to-note contrast survives restricting the sample to more
   active participants. Message-level Welch tests and participant-level paired
@@ -562,7 +573,15 @@ the scale midpoint, while they rated rival fans as unintelligent and immoral
 (\StatpercM/5) and kept them 60 thermometer points below their own fandom
 (Figure~\ref{fig:attitudes}). Contact intentions as a whole sat exactly at
 the midpoint ($t(9)=\StatcontactVsMidT$, $p=\StatcontactVsMidP$ against
-neutral). The enemy in the thread, in other words, is not an enemy in the
+neutral). The superordinate identity the note addressed was available to
+them: they rated K-pop fans as a whole at \StatthermKpop, warmer than their
+own fandom, while every similarity item toward the rival fandom sat at the
+midpoint (general \StatsimilGeneral, interests \StatsimilInterests, values
+\StatsimilValues, caring about the same things \StatsimilCare): the same kind
+of fan, of a different idol. \todonote{entry-of-day survey export pending:
+add before/after change in the thermometer gap, the K-pop thermometer and
+the contact items, and the two feature items (note changes the atmosphere;
+fandom still matters).} The enemy in the thread, in other words, is not an enemy in the
 room---a distinction participants also drew unprompted in the focus groups.
 \todonote{add the focus-group quote on online versus real-life enemies.}
 
@@ -570,13 +589,15 @@ room---a distinction participants also drew unprompted in the focus groups.
   \centering
   \includegraphics[width=\textwidth]{figures/fig_attitudes}
   \caption{The ceasefire did not make them like each other, but the dislike
-  is confined to the platform. (A)~Feeling thermometer toward one's own and
-  the rival fandom ($n=\StatsurveyN$). (B)~Agreement items about rival-fandom
+  is confined to the platform. (A)~Feeling thermometer toward one's own
+  fandom, K-pop fans overall, and the rival fandom ($n=\StatsurveyN$): the
+  shared identity is warm, the rival is cold. (B)~Agreement items about rival-fandom
   members on a 1--5 scale: they are rated as unintelligent and immoral, yet
   the single item participants endorsed most was that a rival fan could be a
   friend in real life.}
-  \Description{Left: two bars, own fandom 80 and rival fandom 20 on a 0 to
-  100 thermometer, with a 60-point gap marked. Right: horizontal bars for
+  \Description{Left: three bars on a 0 to 100 thermometer, own fandom 80,
+  K-pop overall 88, and rival fandom 20, with the 60-point own-rival gap
+  marked. Right: horizontal bars for
   seven agreement items on a 1 to 5 scale; rival fans are intelligent 2.20,
   rival fans are moral 1.70, we share values 2.90, would share their post
   2.50, would discuss K-pop with them 2.80, would work with them 2.90, and
@@ -639,9 +660,9 @@ A small number of participants produced much of the discussion. In the
 studied session, three of the six participants wrote \StattopThreePct\% of
 the messages, and a single ARMY--BLINK pair
 (\StattopPairA--\StattopPairB) accounted for \StattopPairN{} of the
-session's \StatnReplies{} replies. These figures are from the single fully
-logged session; we will report the distribution across sessions as the
-remaining logs are processed.
+session's \StatnReplies{} replies. These figures are from Session~1; the
+distribution across all five sessions will be reported as the remaining logs
+are exported.
 
 The most active participant, \StatmostActiveCode{}, posted
 \StatmostActiveFreeN{} messages during the free phase and
@@ -956,9 +977,10 @@ effect is sensitive to it (a boundary five minutes later moves the reduction
 from \StatredPct\% to 33\%).
 Third, day-level comparisons treat platform participant-sessions as the unit
 of analysis; participants who reconnected contribute more than one row.
-Fourth, the survey battery analyzed here was collected after Day 1 only, so
-attitude stability is inferred from post-session levels rather than
-pre--post change. Fifth, the peak-to-trough contrast selects its windows
+Fourth, the survey was administered on entry and again at the end of Day 1,
+but only the end-of-day administration has been exported, so attitude
+stability is inferred from post-session levels rather than pre--post
+change. Fifth, the peak-to-trough contrast selects its windows
 after the fact and is reported as descriptive; the whole-phase contrast, whose
 boundary is fixed by the protocol, is the inferential result. Two further
 comparisons await data not yet exported: a message-level test of Day 1 free

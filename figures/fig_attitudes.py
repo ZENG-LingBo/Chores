@@ -26,26 +26,27 @@ ITEMS = [
 
 def main():
     fig, (axa, axb) = plt.subplots(
-        1, 2, figsize=(7.0, 2.6), gridspec_kw={"width_ratios": [1, 2.35], "wspace": 0.08},
+        1, 2, figsize=(7.0, 2.6), gridspec_kw={"width_ratios": [1.25, 2.35], "wspace": 0.08},
         constrained_layout=True)
 
     # ---- Panel A: the thermometer gap, on its own 0-100 scale ------------
     own = np.mean([float(r["s1_therm_own"]) for r in sv])
+    kpop = np.mean([float(r["s1_therm_kpop"]) for r in sv])
     rival = np.mean([float(r["s1_therm_rival"]) for r in sv])
-    bars = axa.bar([0, 1], [own, rival], width=0.6, color=[LIGHT_BLUE, BLUE],
-                   edgecolor=SURFACE, linewidth=1.5)
-    for b, v in zip(bars, (own, rival)):
+    bars = axa.bar([0, 1, 2], [own, kpop, rival], width=0.6,
+                   color=[LIGHT_BLUE, "#5598e7", BLUE], edgecolor=SURFACE, linewidth=1.5)
+    for b, v in zip(bars, (own, kpop, rival)):
         axa.text(b.get_x() + b.get_width() / 2, v + 2, f"{v:.0f}", ha="center",
                  va="bottom", fontsize=8, fontweight="bold", color=INK)
-    axa.annotate("", xy=(1, rival + 4), xytext=(1, own - 2),
+    axa.annotate("", xy=(2.42, rival + 3), xytext=(2.42, own - 2),
                  arrowprops=dict(arrowstyle="<->", color=INK2, lw=1.0))
-    axa.text(1.12, (own + rival) / 2, f"{own - rival:.0f}-point\ngap", fontsize=7,
+    axa.text(2.52, (own + rival) / 2, f"{own - rival:.0f}-pt\ngap", fontsize=6.8,
              color=INK2, va="center", ha="left")
-    axa.set_xticks([0, 1])
-    axa.set_xticklabels(["Own\nfandom", "Rival\nfandom"], fontsize=7.5)
+    axa.set_xticks([0, 1, 2])
+    axa.set_xticklabels(["Own\nfandom", "K-pop\noverall", "Rival\nfandom"], fontsize=7)
     axa.set_ylabel("Feeling thermometer (0–100)", fontsize=7.5)
     axa.set_ylim(0, 108)
-    axa.set_xlim(-0.6, 2.0)
+    axa.set_xlim(-0.6, 3.1)
     clean_axes(axa)
     axa.set_title("Hostility is intact", fontsize=8, pad=4)
 

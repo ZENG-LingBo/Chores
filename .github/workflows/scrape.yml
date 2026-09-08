@@ -1,0 +1,102 @@
+name: Scrape course quota
+
+# Runs the scraper on GitHub's runners, which have the outbound network
+# access a sandbox may not. Results are printed into the job log so they
+# can be read from the GitHub mobile app without downloading anything,
+# and also uploaded as a CSV artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      term:
+        description: "Term code (2610 = 2026-27 Fall)"
+        required: false
+        default: "2610"
+      subjects:
+        description: "Space-separated subject codes; blank scrapes all 96"
+        required: false
+        default: ""
+      delay:
+        description: "Seconds between requests"
+        required: false
+        default: "1"
+      commit:
+        description: "Commit the CSV to data/wcq_<term>.csv on this branch"
+        required: false
+        type: boolean
+        default: false
+  push:
+    # A small smoke run on each push, so a change to the parser gets
+    # checked against the live site without scraping all 96 subjects.
+    paths:
+      - "wcq_scrape.py"
+      - ".github/workflows/scrape.yml"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    # Only the opt-in commit step writes; everything else is read-only.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Scrape
+        env:
+          # Inputs are only set on workflow_dispatch; a push gets the
+          # two-subject smoke run. Passed as env rather than interpolated
+          # into the shell so the values stay data, not code.
+          WCQ_TERM: ${{ inputs.term || '2610' }}
+          WCQ_SUBJECTS: ${{ inputs.subjects || (github.event_name == 'push' && 'ACCT COMP' || '') }}
+          WCQ_DELAY: ${{ inputs.delay || '1' }}
+        run: |
+          args=("$WCQ_TERM" --delay "$WCQ_DELAY" -o quota.csv)
+          for s in $WCQ_SUBJECTS; do args+=(-s "$s"); done
+          echo "running: python wcq_scrape.py ${args[*]}"
+          python wcq_scrape.py "${args[@]}"
+
+      - name: Preview
+        if: always()
+        run: |
+          if [ ! -f quota.csv ]; then echo "no CSV produced"; exit 0; fi
+          echo "### Course quota scrape" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$(wc -l < quota.csv)\` lines. First rows:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          head -25 quota.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          head -25 quota.csv
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quota-csv
+          path: quota.csv
+          if-no-files-found: warn
+
+      - name: Commit CSV
+        # Opt-in only. A sandbox with no outbound network can still reach git
+        # through its proxy, so committing the CSV is how the scraped data
+        # gets somewhere it can actually be read and worked on.
+        if: ${{ inputs.commit && hashFiles('quota.csv') != '' }}
+        env:
+          WCQ_TERM: ${{ inputs.term || '2610' }}
+        run: |
+          mkdir -p data
+          cp quota.csv "data/wcq_${WCQ_TERM}.csv"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "data/wcq_${WCQ_TERM}.csv"
+          if git diff --cached --quiet; then
+            echo "no change to data/wcq_${WCQ_TERM}.csv"
+            exit 0
+          fi
+          git commit -m "Update data/wcq_${WCQ_TERM}.csv from scrape run ${GITHUB_RUN_ID}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

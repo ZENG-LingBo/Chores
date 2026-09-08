@@ -1,0 +1,43 @@
+name: Dump markup
+
+# Diagnostic: prints the real structure of a subject page so the parser can
+# be written against it rather than against assumptions. Kept in the repo
+# because the site's markup is the thing most likely to change underneath
+# the scraper, and this is how you re-check it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      term:
+        description: "Term code"
+        required: false
+        default: "2610"
+      subject:
+        description: "Subject to dump"
+        required: false
+        default: "ACCT"
+  push:
+    paths:
+      - ".github/workflows/markup.yml"
+      - "tools/dump_markup.py"
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Dump
+        env:
+          WCQ_TERM: ${{ inputs.term || '2610' }}
+          WCQ_SUBJECT: ${{ inputs.subject || 'ACCT' }}
+        run: python tools/dump_markup.py "$WCQ_TERM" "$WCQ_SUBJECT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: raw-html
+          path: raw.html
+          if-no-files-found: warn

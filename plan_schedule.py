@@ -64,21 +64,10 @@ REQUIREMENTS = [
         "courses": ["ISDN 3350", "ISDN 4200", "ISOM 2700", "ISOM 4020",
                     "MARK 2120", "TEMG 3950", "ISDN 3360"],
     },
-    {
-        "bucket": "Project-related elective (3000+)",
-        "need": 9,
-        "courses": ["ISDN 3150", "ISDN 3300", "ISDN 3004",
-                    "COMP 3111", "COMP 3211", "COMP 3311", "COMP 3711",
-                    "COMP 4021", "COMP 4331", "COMP 4421", "COMP 4462",
-                    "COMP 4521", "COMP 4641", "COMP 4651",
-                    "MECH 3030", "MECH 3310", "MECH 3610", "MECH 3907",
-                    "BIEN 3320"],
-        # MATH 2350/2411 are on the approved elective list but are
-        # 2000-level, so they count toward the 18-credit total and not
-        # toward the 12-credit 3000+ floor. With every remaining credit
-        # needing to be 3000+, they are no help and are left out.
-        "note": "remaining credits must all be 3000-level or above",
-    },
+    # Project-related elective (3000+, 9 cr) is satisfied as of 2026-09-08 --
+    # the department approved a swap of already-completed courses
+    # (OCES 3301 / MECH 3640, per the emailed reply) toward this bucket, so
+    # it no longer needs a Fall or Spring section and is removed here.
 ]
 
 

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RainBorrow Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@500;700&family=Noto+Serif+SC:wght@400;600&display=swap">
+
+<style>
+  :root {
+    --bg: #F6F7F3; --bg-2: #ECEEE8; --ink: #1B2430; --ink-2: #4C5763; --muted: #7A8590; --rule: #D3D8CF;
+    --accent: #1F5FBF; --accent-soft: #DCE7F8; --note: #F7DE5A; --note-ink: #3D3406; --good: #2E7D4F; --good-soft: #DDEEE3;
+    --warn: #B4531B; --warn-soft: #F8E4D6; --bad: #A8322B; --bad-soft: #F6DEDC;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151A1F; --bg-2: #1D242B; --ink: #E7EAEC; --ink-2: #B6BEC6; --muted: #8C97A2; --rule: #2C353E;
+      --accent: #7FB0F7; --accent-soft: #1E2F47; --note: #D9B92B; --note-ink: #1F1A02; --good: #6CC493; --good-soft: #1C3527;
+      --warn: #F0A070; --warn-soft: #3A2718; --bad: #F08A83; --bad-soft: #3D1F1D; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151A1F; --bg-2: #1D242B; --ink: #E7EAEC; --ink-2: #B6BEC6; --muted: #8C97A2; --rule: #2C353E;
+    --accent: #7FB0F7; --accent-soft: #1E2F47; --note: #D9B92B; --note-ink: #1F1A02; --good: #6CC493; --good-soft: #1C3527;
+    --warn: #F0A070; --warn-soft: #3A2718; --bad: #F08A83; --bad-soft: #3D1F1D; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Source Serif 4", Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.55; }
+  h1, h2, h3, h4 { font-family: "Archivo", "Helvetica Neue", Arial, sans-serif; text-wrap: balance; line-height: 1.12; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  a { color: var(--accent); }
+  p { margin: 0 0 1em; max-width: 66ch; }
+  ul, ol { max-width: 66ch; padding-left: 1.3em; margin: 0 0 1em; }
+  li { margin-bottom: .35em; }
+  li::marker { color: var(--accent); }
+  strong { font-weight: 600; }
+  code { font-family: "IBM Plex Mono", monospace; font-size: 13px; background: var(--bg-2); padding: 1px 5px; border-radius: 3px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding-block: 40px 80px; padding-inline: 24px; }
+  .mast { border-bottom: 2px solid var(--ink); padding-bottom: 20px; margin-bottom: 28px; }
+  .mast .mono { display: block; margin-bottom: 12px; }
+  .mast h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 800; letter-spacing: -.02em; }
+  .mast p.lede { font-size: 19px; color: var(--ink-2); margin-top: 14px; max-width: 60ch; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 8px; }
+  nav.toc a { font-family: "Archivo", sans-serif; font-size: 14px; text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+  nav.toc a:hover { border-color: var(--accent); }
+  section { margin-top: 56px; }
+  section > .mono { display: block; margin-bottom: 8px; }
+  section h2 { font-size: 30px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 6px; }
+  .src { color: var(--ink-2); font-size: 15px; margin-bottom: 18px; max-width: 70ch; }
+  section h3 { font-size: 18px; font-weight: 700; margin: 26px 0 8px; }
+  section h4 { font-size: 15px; font-weight: 700; margin: 18px 0 6px; }
+  .note { background: var(--note); color: var(--note-ink); padding: 16px 18px 14px; max-width: 560px; font-family: "Archivo", sans-serif; font-size: 15px; line-height: 1.4; box-shadow: 2px 3px 0 rgba(0,0,0,.12); transform: rotate(-.6deg); margin: 22px 0 26px; }
+  .note .mono { color: var(--note-ink); opacity: .7; display: block; margin-bottom: 6px; }
+  .note p { margin: 0 0 .5em; color: inherit; max-width: none; }
+  .note p:last-child { margin-bottom: 0; }
+  .risk { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 12px 16px; margin: 18px 0; max-width: 70ch; border-radius: 0 4px 4px 0; }
+  .risk .mono { color: var(--warn); display: block; margin-bottom: 4px; }
+  .risk p { margin: 0 0 .6em; font-size: 15px; }
+  .risk p:last-child { margin: 0; }
+  .risk.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .risk.bad .mono { color: var(--bad); }
+  .risk.good { border-color: var(--good); background: var(--good-soft); }
+  .risk.good .mono { color: var(--good); }
+  .verdict { border-left: 4px solid var(--accent); background: var(--bg-2); padding: 16px 20px; margin: 18px 0; max-width: 76ch; }
+  .verdict p { max-width: 70ch; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .tablewrap { overflow-x: auto; margin: 8px 0 18px; }
+  table.nums { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  table.nums th { text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 0 10px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: bottom; }
+  table.nums td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.nums td.v { font-family: "IBM Plex Mono", monospace; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.nums td.neg { color: var(--bad); }
+  table.nums td.flag { color: var(--bad); font-weight: 600; }
+  table.nums tr.lead td { background: var(--accent-soft); font-weight: 600; }
+  .tag { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .tag.verified { background: var(--good-soft); color: var(--good); }
+  .tag.internal { background: var(--accent-soft); color: var(--accent); }
+  .tag.derived { background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--rule); }
+  .tag.assumption { background: var(--warn-soft); color: var(--warn); }
+  .tag.pending { background: var(--bg-2); color: var(--muted); border: 1px dashed var(--rule); }
+  .tag.unverified, .tag.guess { background: var(--bad-soft); color: var(--bad); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0 18px; }
+  .cards > div { background: var(--bg-2); border-radius: 4px; padding: 12px 14px; }
+  .cards .mono { display: block; margin-bottom: 4px; color: var(--accent); }
+  .cards .big { font-family: "IBM Plex Mono", monospace; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .cards .big.neg { color: var(--bad); }
+  .cards small { display: block; color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin: 14px 0 18px; }
+  .strip > div { border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px; font-size: 14.5px; }
+  .strip .mono { display: block; margin-bottom: 4px; }
+  .strip p { margin: 0; max-width: none; }
+  .issue { border-top: 1px solid var(--rule); padding: 14px 0 6px; max-width: 76ch; }
+  .issue:last-child { border-bottom: 1px solid var(--rule); }
+  .issue h4 { margin: 0 0 6px; font-size: 16px; }
+  .issue h4 .n { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-right: 10px; vertical-align: 2px; }
+  .issue p { margin: 0 0 6px; font-size: 15.5px; }
+  .issue p.fix { color: var(--ink-2); }
+  .issue p.fix::before { content: "Fix"; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--good); margin-right: 8px; }
+  /* calculator */
+  .calc { border: 1px solid var(--rule); border-radius: 4px; background: var(--bg-2); padding: 16px 18px; margin: 16px 0 8px; }
+  .calc .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+  .calc button, .copy, .filt { font-family: "Archivo", sans-serif; font-size: 13px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); border-radius: 3px; padding: 5px 10px; cursor: pointer; }
+  .calc button:hover, .copy:hover, .filt:hover { border-color: var(--accent); }
+  .calc button.on, .filt.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .calc button:focus-visible, .copy:focus-visible, .filt:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .calc .grid2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px 28px; }
+  @media (max-width: 720px) { .calc .grid2 { grid-template-columns: minmax(0, 1fr); } }
+  .calc .inp { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 4px 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--rule); }
+  .calc .inp label { font-family: "Archivo", sans-serif; font-size: 13.5px; }
+  .calc .inp input[type=range] { grid-column: 1 / 2; width: 100%; accent-color: var(--accent); }
+  .calc .inp input[type=number] { grid-column: 2 / 3; grid-row: 1 / 3; width: 96px; font-family: "IBM Plex Mono", monospace; font-size: 13px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 3px; background: var(--bg); color: var(--ink); }
+  .calc .const { font-size: 13px; color: var(--ink-2); margin: 8px 0 0; max-width: none; }
+  .calc table.nums { font-size: 13.5px; }
+  .calc .selftest { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-2); margin-top: 8px; }
+  /* register */
+  .regtools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 8px; font-size: 14px; }
+  table.reg td .key { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--accent); }
+  table.reg td .unit { color: var(--muted); font-size: 12px; }
+  table.reg td .quote { font-style: italic; color: var(--ink-2); font-size: 13.5px; margin-top: 4px; }
+  table.reg td .note-s { color: var(--ink-2); font-size: 13px; margin-top: 3px; }
+  table.reg td.srcc { font-size: 13.5px; max-width: 26ch; }
+  table.reg td.qc { font-size: 12.5px; color: var(--ink-2); max-width: 30ch; }
+  table.reg td.qc .qt { display: block; margin-bottom: 4px; }
+  table.reg tr.hide { display: none; }
+  details { border: 1px solid var(--rule); border-radius: 4px; padding: 10px 16px; margin: 18px 0; }
+  details summary { font-family: "Archivo", sans-serif; font-weight: 700; cursor: pointer; }
+  .foot { font-size: 13.5px; color: var(--ink-2); border-top: 1px solid var(--rule); margin-top: 48px; padding-top: 14px; }
+  @media (prefers-reduced-motion: reduce) { .note { transform: none; } }
+</style>
+
+<style>.wrap{max-width:1100px}.calc .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}@media (max-width:720px){.calc .grid2{grid-template-columns:minmax(0,1fr)}}</style>
+<div class="wrap">
+<header class="mast">
+  <span class="mono">TEMG3950 · Group 1 · RainBorrow · model of record · 27 Sep 2026</span>
+  <h1>RainBorrow calculator · 计算器</h1>
+  <p class="lede">One assumption set, five models. Pick a preset, move the sliders, read EBITDA. Presets A to E load the lean hardware base except B, which is the 26 Sep PDF; "PDF check" reproduces that PDF exactly. 一套假设、五个模型：选预设、拖滑块、看EBITDA。预设A至E使用精简硬件基准（B除外，B即9月26日的PDF）；“PDF check”完全复现该PDF。</p>
+</header>
+<div class="calc">
+  <div class="presets"><span class="mono">Presets · 预设</span>
+    <button type="button" data-p="A">A</button><button type="button" data-p="B">B</button><button type="button" data-p="C">C</button><button type="button" data-p="D">D</button><button type="button" data-p="E">E</button><button type="button" data-p="PDF">PDF check · 核对</button>
+    <span class="mono" style="margin-left:8px">Cost base · 成本基准</span><button type="button" id="lean">lean rack · 精简伞架</button><button type="button" id="pdfb">PDF station · PDF站点</button>
+    <button type="button" id="copyout" style="margin-left:auto">copy result · 复制结果</button></div>
+  <p class="const" id="preset_name"></p>
+  <div class="grid2"><div><div class="inp"><label for="n_S">Stations · 站点数</label><input type="number" id="n_S" step="1" min="5" max="100"><input type="range" id="r_S" min="5" max="100" step="1" aria-label="Stations · 站点数"></div>
+<div class="inp"><label for="n_R">Rain days per year (140 = any rain) · 年雨天数（140=有雨即算）</label><input type="number" id="n_R" step="1" min="50" max="160"><input type="range" id="r_R" min="50" max="160" step="1" aria-label="Rain days per year (140 = any rain) · 年雨天数（140=有雨即算）"></div>
+<div class="inp"><label for="n_b">Borrowings per station per rain day (30 = PDF ceiling) · 每站每雨天借出（30=PDF上限）</label><input type="number" id="n_b" step="1" min="1" max="40"><input type="range" id="r_b" min="1" max="40" step="1" aria-label="Borrowings per station per rain day (30 = PDF ceiling) · 每站每雨天借出（30=PDF上限）"></div>
+<div class="inp"><label for="n_paid_share">Borrowings that pay a usage fee, % · 付使用费的借出比例 %</label><input type="number" id="n_paid_share" step="0.5" min="0" max="100"><input type="range" id="r_paid_share" min="0" max="100" step="0.5" aria-label="Borrowings that pay a usage fee, % · 付使用费的借出比例 %"></div>
+<div class="inp"><label for="n_avg_fee">Average usage fee, HK$ · 平均使用费 港元</label><input type="number" id="n_avg_fee" step="0.5" min="0" max="30"><input type="range" id="r_avg_fee" min="0" max="30" step="0.5" aria-label="Average usage fee, HK$ · 平均使用费 港元"></div>
+<div class="inp"><label for="n_keep_rate">Never returned and charged, % · 不归还并被扣款的比例 %</label><input type="number" id="n_keep_rate" step="0.1" min="0" max="15"><input type="range" id="r_keep_rate" min="0" max="15" step="0.1" aria-label="Never returned and charged, % · 不归还并被扣款的比例 %"></div>
+<div class="inp"><label for="n_keep_price">Charge for a kept umbrella, HK$ · 买断扣款 港元</label><input type="number" id="n_keep_price" step="1" min="0" max="120"><input type="range" id="r_keep_price" min="0" max="120" step="1" aria-label="Charge for a kept umbrella, HK$ · 买断扣款 港元"></div>
+<div class="inp"><label for="n_loss_rate">Lost or damaged without charge, % · 无偿丢失或损坏比例 %</label><input type="number" id="n_loss_rate" step="0.05" min="0" max="5"><input type="range" id="r_loss_rate" min="0" max="5" step="0.05" aria-label="Lost or damaged without charge, % · 无偿丢失或损坏比例 %"></div>
+<div class="inp"><label for="n_sponsor_month">Sponsorship per month, HK$ · 每月赞助 港元</label><input type="number" id="n_sponsor_month" step="1000" min="0" max="100000"><input type="range" id="r_sponsor_month" min="0" max="100000" step="1000" aria-label="Sponsorship per month, HK$ · 每月赞助 港元"></div>
+<div class="inp"><label for="n_other_month">Passes and corporate orders per month, HK$ · 月卡与企业订单每月 港元</label><input type="number" id="n_other_month" step="500" min="0" max="50000"><input type="range" id="r_other_month" min="0" max="50000" step="500" aria-label="Passes and corporate orders per month, HK$ · 月卡与企业订单每月 港元"></div>
+<div class="inp"><label for="n_host_fee_month">Host fee per station per month, HK$ (negative = we pay) · 场地方每站每月费用（负数=我们付）</label><input type="number" id="n_host_fee_month" step="50" min="-1500" max="1500"><input type="range" id="r_host_fee_month" min="-1500" max="1500" step="50" aria-label="Host fee per station per month, HK$ (negative = we pay) · 场地方每站每月费用（负数=我们付）"></div>
+<div class="inp"><label for="n_opex_station_month">Operating cost per station per month, HK$ · 每站每月运营成本 港元</label><input type="number" id="n_opex_station_month" step="50" min="200" max="3000"><input type="range" id="r_opex_station_month" min="200" max="3000" step="50" aria-label="Operating cost per station per month, HK$ · 每站每月运营成本 港元"></div>
+<div class="inp"><label for="n_capex_station">Station cost incl. installation, HK$ · 站点成本含安装 港元</label><input type="number" id="n_capex_station" step="250" min="500" max="20000"><input type="range" id="r_capex_station" min="500" max="20000" step="250" aria-label="Station cost incl. installation, HK$ · 站点成本含安装 港元"></div>
+<div class="inp"><label for="n_umbrella_cost">Umbrella unit cost, HK$ · 雨伞单位成本 港元</label><input type="number" id="n_umbrella_cost" step="1" min="10" max="80"><input type="range" id="r_umbrella_cost" min="10" max="80" step="1" aria-label="Umbrella unit cost, HK$ · 雨伞单位成本 港元"></div><p class="const">Held constant · 固定不变: 30 umbrellas per station 每站30把伞, HK$100,000 app, Stripe 3.4% + HK$2.35 per capture 每笔扣款. Edit <code>assumptions.json</code> and rebuild to change them.</p></div>
+  <div><div class="cards">
+    <div><span class="mono">EBITDA, steady state · 稳态</span><div class="big" id="o_ebitda"></div><small id="o_margin"></small></div>
+    <div><span class="mono">From users only · 仅靠用户</span><div class="big" id="o_exb2b"></div><small>if hosts and sponsors paid nothing · 场地方和赞助商一分不付时</small></div>
+    <div><span class="mono">Break-even sponsorship · 盈亏平衡赞助</span><div class="big" id="o_be" style="font-size:18px"></div><small>needed on top of every other revenue line · 其他收入之外还需要的赞助</small></div>
+    <div><span class="mono">Capex and payback · 资本支出与回收期</span><div class="big" id="o_capex" style="font-size:18px"></div><small id="o_payback"></small></div></div>
+  <p class="const"><span id="o_N"></span> · <span id="o_cap"></span></p>
+  <div class="tablewrap"><table class="nums"><tbody id="o_table"></tbody></table></div>
+  <p class="selftest" id="selftest">Self-test not run (JavaScript off?). · 自检未运行</p></div></div>
+</div>
+<section>
+  <span class="mono">Models · 模型</span>
+  <h2>What each preset means · 每个预设的含义</h2>
+  <div class="tablewrap"><table class="nums"><thead><tr><th>Preset</th><th>English</th><th>中文</th></tr></thead><tbody><tr><td class="v">A</td><td>A · 24h free, deposit-to-own, canopy ads (the team&#x27;s pitch)</td><td>A · 24小时免费，押金转购买，伞面广告（团队课堂方案）</td></tr><tr><td class="v">B</td><td>B · 3h free, hourly fees, HK$99 keep-it (the 26 Sep PDF)</td><td>B · 3小时免费，按小时收费，99元买断（9月26日PDF）</td></tr><tr><td class="v">C</td><td>C · Monthly pass for the loyal segment, plus pay-as-you-go</td><td>C · 忠实客群月卡，外加按次付费</td></tr><tr><td class="v">D</td><td>D · Host-funded amenity, users free, no sponsor</td><td>D · 场地方付费的便民设施，用户免费，无赞助</td></tr><tr><td class="v">E</td><td>E · 24h free with a card hold at retail price, hosts pay a small fee, sponsor as upside</td><td>E · 24小时免费，按零售价做信用卡预授权，场地方付小额费用，赞助作为上行空间</td></tr></tbody></table></div>
+  <h3>Formulas · 公式</h3>
+  <p class="src">N = stations × rain days × borrowings per station per rain day. Revenue = paid borrowings × fee + kept umbrellas × keep price + sponsorship × 12 + passes and orders × 12 + host fees received. Costs = site fees paid + stations × 12 × operating cost + payment fees (fixed fee per capture + rate × captured revenue) + (kept + lost) × umbrella cost. EBITDA = revenue − costs. Capex = stations × station cost + fleet × umbrella cost + app. Break-even sponsorship = (costs − all non-sponsor revenue) ÷ 12. Same expressions in <code>build_business_brief.py</code>.</p>
+  <p class="src">年借出次数N = 站点数 × 雨天数 × 每站每雨天借出。收入 = 付费借出 × 费用 + 被留下的伞 × 买断价 + 赞助 × 12 + 月卡与订单 × 12 + 收到的场地费。成本 = 付出的场地费 + 站点 × 12 × 运营成本 + 支付手续费（每笔固定费 + 费率 × 扣款收入）+（留下 + 丢失）× 雨伞成本。EBITDA = 收入 − 成本。资本支出 = 站点 × 站点成本 + 伞队 × 雨伞成本 + App。盈亏平衡赞助 =（成本 − 所有非赞助收入）÷ 12。</p>
+  <p class="foot">Full brief with sources, audit and meeting agenda: <code>RainBorrow_business_plan_status_2026-09-27.html</code> (English) and <code>_bilingual.html</code>. Register: <code>assumptions.json</code>.</p>
+</section>
+</div>
+
+<script>
+(function () {
+  const PRESETS = {"A": {"S": 20, "U": 30, "R": 103, "b": 15, "loss_rate": 0.01, "app_capex": 100000, "pay_pct": 0.034, "pay_fixed": 2.35, "ramp": 0.6875, "sold_months": 12, "opex_station_month": 600, "capex_station": 3000, "umbrella_cost": 25, "paid_share": 0, "avg_fee": 0, "keep_rate": 0.03, "keep_price": 50, "sponsor_month": 20000, "other_month": 0, "host_fee_month": 100, "other_captures_month": 0, "name": "A \u00b7 24h free, deposit-to-own, canopy ads (the team's pitch)"}, "B": {"S": 20, "U": 30, "R": 103, "b": 15, "loss_rate": 0.01, "app_capex": 100000, "pay_pct": 0.034, "pay_fixed": 2.35, "ramp": 0.6875, "sold_months": 12, "opex_station_month": 1550, "capex_station": 15000, "umbrella_cost": 45, "paid_share": 0.195, "avg_fee": 6, "keep_rate": 0.005, "keep_price": 99, "sponsor_month": 60000, "other_month": 0, "host_fee_month": -500, "other_captures_month": 0, "name": "B \u00b7 3h free, hourly fees, HK$99 keep-it (the 26 Sep PDF)"}, "C": {"S": 20, "U": 30, "R": 103, "b": 15, "loss_rate": 0.01, "app_capex": 100000, "pay_pct": 0.034, "pay_fixed": 2.35, "ramp": 0.6875, "sold_months": 12, "opex_station_month": 600, "capex_station": 3000, "umbrella_cost": 25, "paid_share": 0.3, "avg_fee": 10, "keep_rate": 0.01, "keep_price": 60, "sponsor_month": 0, "other_month": 16000, "host_fee_month": 0, "other_captures_month": 800, "name": "C \u00b7 Monthly pass for the loyal segment, plus pay-as-you-go"}, "D": {"S": 20, "U": 30, "R": 103, "b": 15, "loss_rate": 0.01, "app_capex": 100000, "pay_pct": 0.034, "pay_fixed": 2.35, "ramp": 0.6875, "sold_months": 12, "opex_station_month": 600, "capex_station": 3000, "umbrella_cost": 25, "paid_share": 0, "avg_fee": 0, "keep_rate": 0.01, "keep_price": 60, "sponsor_month": 0, "other_month": 0, "host_fee_month": 1000, "other_captures_month": 0, "name": "D \u00b7 Host-funded amenity, users free, no sponsor"}, "E": {"S": 20, "U": 30, "R": 103, "b": 15, "loss_rate": 0.01, "app_capex": 100000, "pay_pct": 0.034, "pay_fixed": 2.35, "ramp": 0.6875, "sold_months": 12, "opex_station_month": 600, "capex_station": 3000, "umbrella_cost": 25, "paid_share": 0, "avg_fee": 0, "keep_rate": 0.02, "keep_price": 60, "sponsor_month": 30000, "other_month": 5000, "host_fee_month": 300, "other_captures_month": 0, "name": "E \u00b7 24h free with a card hold at retail price, hosts pay a small fee, sponsor as upside"}, "PDF": {"S": 20, "U": 30, "R": 140, "b": 30, "loss_rate": 0.010582010582010583, "app_capex": 100000, "pay_pct": 0.034, "pay_fixed": 2.35, "ramp": 0.6875, "sold_months": 12, "opex_station_month": 1550, "capex_station": 15000, "umbrella_cost": 45, "paid_share": 0.195, "avg_fee": 6, "keep_rate": 0.005, "keep_price": 99, "sponsor_month": 60000, "other_month": 0, "host_fee_month": -500, "other_captures_month": 0, "name": "PDF check \u00b7 reproduces the 26 Sep model"}};
+  const CHECK = {"revenue": 859860, "opex": 595135, "ebitda": 264725, "capex": 427000};
+  const LEAN = {"opex_station_month": 600, "capex_station": 3000, "umbrella_cost": 25};
+  const PDFB = {"opex_station_month": 1550, "capex_station": 15000, "umbrella_cost": 45};
+  const KEYS = ["S","R","b","paid_share","avg_fee","keep_rate","keep_price","loss_rate","sponsor_month","other_month","host_fee_month","opex_station_month","capex_station","umbrella_cost"];
+  const CONST = { U: 30, app_capex: 100000, pay_pct: 0.034, pay_fixed: 2.35, other_captures_month: 0 };
+  function run(p) {
+    const fleet = p.S * p.U, N = p.S * p.R * p.b;
+    const paid = N * p.paid_share, kept = N * p.keep_rate, lost = N * p.loss_rate;
+    const rev_fees = paid * p.avg_fee, rev_keep = kept * p.keep_price, rev_sponsor = p.sponsor_month * 12, rev_other = p.other_month * 12;
+    const rev_host = p.S * 12 * Math.max(p.host_fee_month, 0);
+    const revenue = rev_fees + rev_keep + rev_sponsor + rev_other + rev_host;
+    const captures = paid + kept + p.other_captures_month * 12;
+    const cost_payment = captures * p.pay_fixed + (rev_fees + rev_keep + rev_other) * p.pay_pct;
+    const cost_site = p.S * 12 * Math.max(-p.host_fee_month, 0);
+    const cost_opex = p.S * 12 * p.opex_station_month;
+    const cost_umbrellas = (kept + lost) * p.umbrella_cost;
+    const opex = cost_site + cost_opex + cost_payment + cost_umbrellas;
+    const ebitda = revenue - opex;
+    const capex = p.S * p.capex_station + fleet * p.umbrella_cost + p.app_capex;
+    const user_rev = rev_fees + rev_keep;
+    return { fleet, N, paid, kept, lost, rev_fees, rev_keep, rev_sponsor, rev_other, rev_host, revenue, captures, cost_payment, cost_site, cost_opex, cost_umbrellas, opex, ebitda,
+      margin: revenue ? ebitda / revenue : 0, capex, payback: ebitda > 0 ? capex / ebitda * 12 : null,
+      user_rev_per_b: N ? user_rev / N : 0, contrib_per_b: N ? (user_rev - cost_payment - cost_umbrellas) / N : 0,
+      be_sponsor_m: (opex - rev_fees - rev_keep - rev_other - rev_host) / 12, ebitda_ex_b2b: user_rev - opex,
+      turnover: fleet ? (kept + lost) / fleet : 0, capacity_flag: p.b > p.U, fee_share: (user_rev + rev_other) ? cost_payment / (user_rev + rev_other) : 0 };
+  }
+  const $ = (id) => document.getElementById(id);
+  const hk = (x) => x === null || x === undefined ? "never" : (x < 0 ? "-" : "") + Math.round(Math.abs(x)).toLocaleString("en-US");
+  const pc = (x) => (x * 100).toFixed(1) + "%";
+  function read() {
+    const p = Object.assign({}, CONST);
+    KEYS.forEach(k => { p[k] = parseFloat($("n_" + k).value); });
+    ["paid_share","keep_rate","loss_rate"].forEach(k => { p[k] = p[k] / 100; });
+    return p;
+  }
+  function setInputs(p) {
+    KEYS.forEach(k => {
+      let v = p[k];
+      if (["paid_share","keep_rate","loss_rate"].includes(k)) v = v * 100;
+      v = Math.round(v * 1000) / 1000;
+      $("n_" + k).value = v; $("r_" + k).value = v;
+    });
+  }
+  function render() {
+    const p = read(), o = run(p);
+    const set = (id, txt, neg) => { const el = $(id); el.textContent = txt; el.classList.toggle("neg", !!neg); };
+    set("o_ebitda", "HK$ " + hk(o.ebitda), o.ebitda < 0);
+    set("o_margin", o.revenue ? pc(o.margin) : "n/a", o.ebitda < 0);
+    set("o_exb2b", "HK$ " + hk(o.ebitda_ex_b2b), o.ebitda_ex_b2b < 0);
+    set("o_be", "HK$ " + hk(o.be_sponsor_m) + " / month", false);
+    set("o_capex", "HK$ " + hk(o.capex), false);
+    set("o_payback", o.payback ? o.payback.toFixed(0) + " months" : "never", !o.payback);
+    set("o_N", hk(o.N) + " borrowings / yr", false);
+    set("o_cap", o.capacity_flag ? "more than one turn per umbrella per rain day" : "within one turn per umbrella per rain day", o.capacity_flag);
+    const rows = [
+      ["Usage fees", o.rev_fees], ["Kept umbrellas", o.rev_keep], ["Sponsorship", o.rev_sponsor], ["Passes and corporate orders", o.rev_other], ["Host fees received", o.rev_host], ["Total revenue", o.revenue],
+      ["Site fees paid", -o.cost_site], ["Station operations", -o.cost_opex], ["Payment fees", -o.cost_payment], ["Umbrellas kept or lost", -o.cost_umbrellas], ["Total operating cost", -o.opex],
+      ["User revenue per borrowing", o.user_rev_per_b, true], ["Contribution per borrowing after fees and losses", o.contrib_per_b, true], ["Payment fees as share of user revenue", (o.user_rev_per_b || o.rev_other) ? pc(o.fee_share) : "n/a"], ["Fleet re-bought per year", pc(o.turnover)]
+    ];
+    $("o_table").innerHTML = rows.map(r => {
+      const val = typeof r[1] === "string" ? r[1] : (r[2] ? "HK$ " + r[1].toFixed(2) : "HK$ " + hk(r[1]));
+      const neg = typeof r[1] === "number" && r[1] < 0;
+      const bold = /^Total/.test(r[0]) ? ' style="font-weight:600"' : "";
+      return "<tr" + bold + "><td>" + r[0] + "</td><td class=\"v" + (neg ? " neg" : "") + "\">" + val + "</td></tr>";
+    }).join("");
+  }
+  function applyPreset(name) {
+    const p = Object.assign({}, PRESETS[name]);
+    setInputs(p); render();
+    document.querySelectorAll(".presets button[data-p]").forEach(b => b.classList.toggle("on", b.dataset.p === name));
+    $("preset_name").textContent = p.name;
+  }
+  KEYS.forEach(k => {
+    $("r_" + k).addEventListener("input", () => { $("n_" + k).value = $("r_" + k).value; render(); });
+    $("n_" + k).addEventListener("input", () => { $("r_" + k).value = $("n_" + k).value; render(); });
+  });
+  document.querySelectorAll(".presets button[data-p]").forEach(b => b.addEventListener("click", () => applyPreset(b.dataset.p)));
+  $("lean").addEventListener("click", () => { const p = read(); Object.assign(p, LEAN); setInputs(p); render(); });
+  $("pdfb").addEventListener("click", () => { const p = read(); Object.assign(p, PDFB); setInputs(p); render(); });
+  $("copyout").addEventListener("click", () => {
+    const p = read(), o = run(p);
+    const txt = "RainBorrow calculator, " + $("preset_name").textContent + "\n" + KEYS.map(k => k + " = " + p[k]).join("; ") + "\nRevenue HK$" + hk(o.revenue) + "; operating cost HK$" + hk(o.opex) + "; EBITDA HK$" + hk(o.ebitda) + "; EBITDA from users only HK$" + hk(o.ebitda_ex_b2b) + "; break-even sponsorship HK$" + hk(o.be_sponsor_m) + "/month; capex HK$" + hk(o.capex) + "; payback " + (o.payback ? o.payback.toFixed(0) + " months" : "never");
+    copyText(txt, $("copyout"));
+  });
+  function copyText(txt, btn) {
+    const done = () => { const old = btn.textContent; btn.textContent = "copied"; setTimeout(() => { btn.textContent = old; }, 1200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done).catch(() => fallback(txt, done)); } else { fallback(txt, done); }
+  }
+  function fallback(txt, done) {
+    const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {} document.body.removeChild(ta);
+  }
+  // self-test against the 26 Sep PDF, then load the recommended preset
+  const t = run(Object.assign({}, CONST, PRESETS.PDF));
+  const ok = Math.abs(t.revenue - CHECK.revenue) < 100 && Math.abs(t.opex - CHECK.opex) < 100 && Math.abs(t.ebitda - CHECK.ebitda) < 100 && Math.abs(t.capex - CHECK.capex) < 100;
+  $("selftest").textContent = ok ? "Self-test passed: the PDF preset reproduces revenue 859,860, costs 595,135, EBITDA 264,725 and capex 427,000 within HK$100." : "Self-test FAILED: " + JSON.stringify(t);
+  console.log("RainBorrow calculator self-test", ok, t);
+  applyPreset("E");
+  // register: copy buttons and filter
+  document.querySelectorAll("button.copy").forEach(b => b.addEventListener("click", () => copyText(b.dataset.q, b)));
+  document.querySelectorAll(".filt").forEach(f => f.addEventListener("click", () => {
+    document.querySelectorAll(".filt").forEach(x => x.classList.toggle("on", x === f));
+    const s = f.dataset.s;
+    document.querySelectorAll("table.reg tbody tr").forEach(tr => tr.classList.toggle("hide", s !== "all" && tr.dataset.status !== s));
+  }));
+})();
+</script>
+</html>

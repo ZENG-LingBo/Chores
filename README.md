@@ -19,8 +19,8 @@ The page is published with GitHub Pages via [`.github/workflows/pages.yml`](.git
 
 ## RainBorrow Logo Studio
 
-Mix-and-match tool for the RainBorrow logo, with twelve app-icon symbols built around sharing one umbrella in both rain and sun.
+Mix-and-match tool for the RainBorrow logo: 26 app-icon symbols built around sharing one umbrella in both rain and sun, in eight styles (Classic, Hong Kong, Pixel, Line, Flat, Realistic, Crafted).
 
 - Page: `/logo/` (source in [`docs/logo/index.html`](docs/logo/index.html), one self-contained file)
-- Every symbol is drawn as SVG in code, with flat, depth and glass finishes, and app-icon, round or bare frames.
+- Every symbol is drawn as SVG in code. Classic symbols take flat, depth or glass finishes; the other styles set their own. All take app-icon, round or bare frames.
 - Exports a 1024 px symbol PNG, symbol SVG and a transparent logo PNG. The share link stores the full combination in the URL hash.

@@ -39,6 +39,9 @@ header p{margin:6px 0 0;color:var(--mut);max-width:70ch}
 @media(max-width:760px){.opt{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:480px){.opt{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .opt button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;font-size:.78rem;background:#fff;color:#1F2A44;line-height:1.2;text-align:center}
+.opt button small{font-size:.66rem;font-weight:600;color:#6B7280;letter-spacing:.04em;text-transform:uppercase}
+.seg .n{font-weight:600;opacity:.6;font-size:.8em}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
 .opt button[aria-pressed=true]{border:2px solid var(--acc);box-shadow:0 0 0 2px rgba(219,90,107,.25)}
 .opt.type{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 @media(max-width:480px){.opt.type{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -78,7 +81,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-
 <main>
 <header>
 <h1>RainBorrow Logo Studio</h1>
-<p>Twelve app-icon symbols built on one idea: an umbrella you share, for rain and for Hong Kong sun. Mix a symbol with a typeface, layout, frame and finish, tune the colours, then download your version.</p>
+<p>Twenty-six app-icon symbols for one idea, an umbrella you share in rain and in Hong Kong sun. They come in eight styles, from pixel art and line icons to neon signs and ink painting. Mix a symbol with a typeface, layout and frame, tune the colours, then download your version.</p>
 </header>
 
 <div class="grid">
@@ -114,12 +117,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-
 
 <section class="card" aria-label="Mix and match">
 <h2>Mix and match</h2>
-<div class="lab"><h3>Symbol</h3><div class="opt" id="marks"></div><p class="story" id="story"></p></div>
+<div class="lab"><h3>Symbol</h3><div class="seg" id="styles" aria-label="Filter symbols by style"></div><div class="opt" id="marks"></div><p class="story" id="story"></p></div>
 <div class="lab"><h3>Typeface</h3><div class="opt type" id="fonts"></div></div>
 <div class="controls">
 <div class="lab"><h3>Layout</h3><div class="seg" id="layouts"></div></div>
 <div class="lab"><h3>Frame</h3><div class="seg" id="frames"></div></div>
-<div class="lab"><h3>Finish</h3><div class="seg" id="finishes"></div></div>
+<div class="lab"><h3>Finish</h3><div class="seg" id="finishes"></div><p class="tip" id="finishNote"></p></div>
 <div class="lab"><h3>Wordmark colour</h3><div class="seg" id="tones"></div></div>
 <div class="lab"><h3><label for="tagline">Tagline</label></h3><input type="text" id="tagline" maxlength="40" style="font-family:'Nunito Sans','Noto Sans HK',sans-serif"></div>
 </div>
@@ -181,6 +184,11 @@ class Painter {
   }
   shadow() { return this.filter('_sh', 2, 2, .34); }
   soft() { return this.filter('_so', 1.1, 1.1, .28); }
+  blur(sd) { const k = '_bl' + sd; if (!this[k]) { this[k] = this.id(); this.defs.push(`<filter id="${this[k]}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${sd}"/></filter>`); } return `url(#${this[k]})`; }
+  glow() { if (!this._gl) { this._gl = this.id(); this.defs.push(`<filter id="${this._gl}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`); } return `url(#${this._gl})`; }
+  rough(scale = 3) { const k = '_ro' + scale; if (!this[k]) { this[k] = this.id(); this.defs.push(`<filter id="${this[k]}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/></filter>`); } return `url(#${this[k]})`; }
+  paper() { if (!this._pa) { this._pa = this.id(); this.defs.push(`<filter id="${this._pa}" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx=".5" dy="1.5" stdDeviation="1.1" flood-color="#0B1020" flood-opacity=".38"/></filter>`); } return ` filter="url(#${this._pa})"`; }
+  grain(op) { const id = this.id(); this.defs.push(`<filter id="${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix type="saturate" values="0"/></filter>`); return `<rect width="100" height="100" filter="url(#${id})" opacity="${op}" style="mix-blend-mode:multiply"/>`; }
 }
 
 /* ---------- drawing primitives (100 x 100 space) ---------- */
@@ -253,6 +261,17 @@ function arcArrow(P, o) {
     `<path d="M${f(tip[0])} ${f(tip[1])}L${f(b1[0])} ${f(b1[1])}L${f(b2[0])} ${f(b2[1])}Z" fill="${s}" stroke="${s}" stroke-width="${f(w * .35)}" stroke-linejoin="round"/>`;
 }
 const SQ = (() => { let d = ''; for (let i = 0; i < 96; i++) { const a = i / 96 * 2 * Math.PI, c = Math.cos(a), s = Math.sin(a); d += (i ? 'L' : 'M') + f(50 + 50 * Math.sign(c) * Math.pow(Math.abs(c), .4)) + ' ' + f(50 + 50 * Math.sign(s) * Math.pow(Math.abs(s), .4)); } return d + 'Z'; })();
+function dropPath(x, y, s) {
+  const w = s * .32, cy = y + s * .18;
+  return `M${f(x)} ${f(y - s / 2)}C${f(x + s * .08)} ${f(y - s * .32)} ${f(x + w)} ${f(y - s * .06)} ${f(x + w)} ${f(cy)}A${f(w)} ${f(w)} 0 0 1 ${f(x - w)} ${f(cy)}C${f(x - w)} ${f(y - s * .06)} ${f(x - s * .08)} ${f(y - s * .32)} ${f(x)} ${f(y - s / 2)}Z`;
+}
+function ribPath(o, t) { const { cx, cy, r, ry } = o, ay = cy - ry; return `M${f(cx)} ${f(ay)}C${f(cx + t * r * K)} ${f(ay)} ${f(cx + t * r)} ${f(cy - ry * K)} ${f(cx + t * r)} ${f(cy)}`; }
+function ribPoint(o, t, u) { // point along rib t at parameter u (0 apex, 1 tip)
+  const { cx, cy, r, ry } = o, ay = cy - ry, P0 = [cx, ay], P1 = [cx + t * r * K, ay], P2 = [cx + t * r, cy - ry * K], P3 = [cx + t * r, cy], v = 1 - u;
+  return [0, 1].map(i => v * v * v * P0[i] + 3 * v * v * u * P1[i] + 3 * v * u * u * P2[i] + u * u * u * P3[i]);
+}
+const poly = (pts, fill, extra = '') => `<path d="M${pts.map(q => f(q[0]) + ' ' + f(q[1])).join('L')}Z" fill="${fill}"${extra}/>`;
+const lineS = (d, col, w, extra = '') => `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${extra}/>`;
 
 /* ---------- the twelve symbols ---------- */
 const MARKS = [
@@ -373,6 +392,193 @@ const MARKS = [
     } }
 ];
 
+/* ---------- symbols in their own styles (finish is fixed by the style) ---------- */
+MARKS.forEach(m => { m.style = 'Classic'; });
+MARKS.push(
+  { name: '傘 Glyph', style: 'Hong Kong', own: true, finish: 'flat', story: 'The traditional character 傘 is a roof over four 人, four people. Sharing is written into the word for umbrella, so the symbol simply draws it: a canopy, four little people, and the 十 of the shaft.',
+    draw: (P, p) => {
+      const ren = (x, y, col) => lineS(`M${x + 1} ${y - 7}Q${x - 1} ${y + 1} ${x - 8} ${y + 6}`, col, 4.2) + lineS(`M${x - .5} ${y - 1.5}Q${x + 3} ${y + 3} ${x + 8} ${y + 6}`, col, 4.2);
+      return lineS('M50 40L50 92', p.on, 4.6) + lineS('M29 81L71 81', p.on, 4.6) +
+        ren(31, 53, p.sun) + ren(31, 68, p.sun) + ren(69, 53, p.partner) + ren(69, 68, p.partner) +
+        canopy(P, { cx: 50, cy: 41, r: 38, ry: 25, n: 4, col: p.canopy, tip: p.on, hl: false });
+    } },
+
+  { name: '8-Bit Share', style: 'Pixel', own: true, finish: 'flat', story: 'Arcade pixels. Rain on the left, sun on the right, and two people holding one handle underneath. It stays crisp at tiny sizes because it was drawn for them.',
+    draw: (P, p) => {
+      const N = 19, c = 80 / N, o = 10, cells = new Map(), set = (x, y, col) => { if (x >= 0 && x < N && y >= 0 && y < N) cells.set(x + ',' + y, col); };
+      const cd = dk(p.canopy, .22), cl = lt(p.canopy, .3);
+      for (let y = 0; y <= 9; y++) for (let x = 0; x < N; x++) {
+        if (((x - 9) / 9.4) ** 2 + ((y - 9) / 6.6) ** 2 > 1 || (y === 9 && Math.abs(x - 9) % 3 === 2)) continue;
+        set(x, y, Math.floor((Math.abs(x - 9) + 1) / 3) % 2 ? cd : p.canopy);
+      }
+      for (let x = 1; x < 9; x++) for (let y = 0; y <= 9; y++) if (cells.has(x + ',' + y)) { set(x, y, cl); break; }
+      set(9, 2, p.on); for (let y = 10; y < N; y++) set(9, y, p.on);
+      const kid = (hx, col, arm) => { for (const [dx, dy] of [[0, 11], [1, 11], [0, 12], [1, 12]]) set(hx + dx, dy, col); for (let y = 14; y < N; y++) for (let x = hx - 1; x <= hx + 2; x++) set(x, y, col); arm.forEach(x => set(x, 15, col)); };
+      kid(4, p.sun, [7, 8]); kid(13, p.partner, [10, 11]);
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) set(16 + dx, 1 + dy, dx + dy < 0 ? lt(p.sun, .35) : p.sun);
+      for (const [x, y] of [[13, 1], [16, 4], [14, 3], [18, 3]]) set(x, y, dk(p.sun, .08));
+      for (const [x, y] of [[1, 1], [1, 2], [4, 2], [4, 3], [0, 5], [0, 6]]) set(x, y, y % 2 ? lt(p.partner, .35) : p.partner);
+      let out = ''; for (const [k, col] of cells) { const [x, y] = k.split(',').map(Number); out += `<rect x="${f(o + x * c)}" y="${f(o + y * c)}" width="${f(c + .08)}" height="${f(c + .08)}" fill="${col}"/>`; }
+      return `<g shape-rendering="crispEdges">${out}</g>`;
+    } },
+
+  { name: 'Monoline', style: 'Line', own: true, finish: 'flat', story: 'A single-weight line icon, the way system icons are drawn. One canopy over two people, rain drops to one side and the sun to the other.',
+    draw: (P, p) => {
+      const cp = { cx: 50, cy: 50, r: 34, ry: 28, n: 4 }, w = 4;
+      const person = x => lineS(`M${x - 10} 90C${x - 10} 78 ${x - 5} 74 ${x} 74C${x + 5} 74 ${x + 10} 78 ${x + 10} 90`, p.on, w) + `<circle cx="${x}" cy="64" r="5" fill="none" stroke="${p.on}" stroke-width="${w}"/>`;
+      let sunR = ''; for (let i = 0; i < 8; i++) { const a = i * 45 * D; sunR += lineS(`M${f(80 + 9.5 * Math.cos(a))} ${f(18 + 9.5 * Math.sin(a))}L${f(80 + 12.5 * Math.cos(a))} ${f(18 + 12.5 * Math.sin(a))}`, p.sun, 2.6); }
+      return lineS(canopyOutline(cp), p.canopy, w) + [-.707, 0, .707].map(t => lineS(ribPath(cp, t), p.canopy, w * .7)).join('') +
+        lineS('M50 50L50 88', p.on, w) + person(30) + person(70) +
+        `<circle cx="80" cy="18" r="5.5" fill="none" stroke="${p.sun}" stroke-width="${w * .8}"/>` + sunR +
+        lineS(dropPath(18, 21, 11), p.partner, w * .75) + lineS(dropPath(29, 11, 7.5), p.partner, w * .7);
+    } },
+
+  { name: 'Bauhaus', style: 'Flat', own: true, finish: 'flat', story: 'Built only from circles, half circles and bars. The sun rises from the corner, rain falls as a grid of dots, and the canopy is a half circle with bites taken out.',
+    bg: (P, p) => `<circle cx="100" cy="0" r="46" fill="${p.sun}"/><rect y="74" width="100" height="26" fill="${p.partner}"/>`,
+    draw: (P, p, o) => {
+      let dots = ''; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (i + j < 4) dots += `<circle cx="${14 + i * 9}" cy="${14 + j * 9}" r="2.6" fill="${p.partner}"/>`;
+      const bites = [22, 38, 54, 70].map(x => `<circle cx="${x}" cy="58" r="8" fill="${p.ground}"/>`).join('');
+      return (o.bare ? `<circle cx="80" cy="20" r="14" fill="${p.sun}"/>` : '') + dots +
+        `<path d="M14 58A32 32 0 0 1 46 26V58Z" fill="${p.canopy}"/><path d="M46 26A32 32 0 0 1 78 58H46Z" fill="${dk(p.canopy, .28)}"/>` + bites +
+        `<rect x="44" y="50" width="4" height="36" fill="${p.on}"/><path d="M48 84A8 8 0 0 1 32 84" fill="none" stroke="${p.on}" stroke-width="4"/>`;
+    } },
+
+  { name: 'Real Canopy', style: 'Realistic', own: true, finish: 'depth', story: 'A real umbrella: nylon gores, steel ribs and tips, a wooden crook handle, rain beading on the fabric and the afternoon sun glowing behind.',
+    bg: (P, p) => `<rect width="100" height="100" fill="${P.lg([[0, mix(p.tile, p.partner, .35)], [1, dk(p.tile, .28)]], 0, 0, 0, 100)}"/><circle cx="88" cy="8" r="62" fill="${P.rg([[0, lt(p.sun, .3), .95], [.18, p.sun, .5], [1, p.sun, 0]], 88, 8, 62)}"/>` +
+      Array.from({ length: 9 }, (_, i) => `<line x1="${8 + i * 5.5}" y1="${4 + (i * 13) % 20}" x2="${4 + i * 5.5}" y2="${16 + (i * 13) % 20}" stroke="${lt(p.partner, .5)}" stroke-width=".8" opacity=".55" stroke-linecap="round"/>`).join(''),
+    draw: (P, p, o) => {
+      const cp = { cx: 50, cy: 50, r: 36, ry: 29, n: 8 }, ts = ribTs(8), wood = P.lg([[0, '#C08A55'], [.5, '#8A5A2E'], [1, '#5C3A1C']], 30, 74, 56, 90);
+      let out = o.bare ? '' : `<ellipse cx="55" cy="91" rx="27" ry="4" fill="#000" opacity=".4" filter="${P.blur(1.8)}"/>`;
+      out += `<path d="M50 50L50 80" stroke="${P.lg([[0, '#F4F4F4'], [.5, '#9A9A9A'], [1, '#E0E0E0']], 48.6, 0, 51.4, 0)}" stroke-width="2.8"/>`;
+      out += lineS('M50 77L50 80A7 7 0 0 1 36 80L36 76.5', wood, 6.5) + lineS('M48.8 78L48.8 80A5.8 5.8 0 0 1 37.2 80', '#fff', 1.2, ' opacity=".35"');
+      out += canopy(P, { ...cp, col: p.canopy, tip: '#D8D8D8' });
+      out += ts.slice(1, -1).map(t => lineS(ribPath(cp, t), dk(p.canopy, .4), .7, ' opacity=".55"')).join('');
+      for (let i = 0; i < ts.length - 1; i++) { const xa = 50 + ts[i] * 36, xb = 50 + ts[i + 1] * 36; out += lineS(`M${f(xa)} 50Q${f((xa + xb) / 2)} ${f(50 - (xb - xa) * .26)} ${f(xb)} 50`, dk(p.canopy, .45), 1.3); }
+      out += ts.map(t => `<circle cx="${f(50 + t * 36)}" cy="50" r="1.2" fill="#E8E8E8" stroke="#6B6B6B" stroke-width=".35"/>`).join('');
+      out += `<ellipse cx="37" cy="31" rx="15" ry="6.5" transform="rotate(-24 37 31)" fill="${P.rg([[0, '#fff', .55], [1, '#fff', 0]], 37, 31, 15)}"/>`;
+      for (const [x, y, s] of [[40, 38, 1], [58, 30, 1.2], [66, 42, .9], [30, 44, .8], [52, 42, 1.1], [72, 36, .7], [46, 28, .8]]) out += `<ellipse cx="${x}" cy="${y}" rx="${f(1.3 * s)}" ry="${f(1.6 * s)}" fill="${lt(p.partner, .55)}" opacity=".85"/><circle cx="${f(x - .4 * s)}" cy="${f(y - .6 * s)}" r="${f(.45 * s)}" fill="#fff"/>`;
+      return out + drop(P, { x: 14, y: 60, s: 5.5, col: lt(p.partner, .3) }) + drop(P, { x: 86, y: 63, s: 4.5, col: lt(p.partner, .3) });
+    } },
+
+  { name: 'Neon Sign', style: 'Hong Kong', own: true, finish: 'flat', story: 'Glass tubes on a night-time wall, like the old signs over Nathan Road. A pink canopy, blue rain and an amber sun, all glowing.',
+    bg: (P, p) => { const base = mix(p.ink, '#000', .55); let b = `<rect width="100" height="100" fill="${base}"/>`; for (let r = 0; r < 13; r++) { b += `<line x1="0" y1="${r * 8}" x2="100" y2="${r * 8}" stroke="#fff" stroke-opacity=".05" stroke-width=".6"/>`; for (let k = 0; k < 7; k++) b += `<line x1="${k * 16 + (r % 2) * 8}" y1="${r * 8}" x2="${k * 16 + (r % 2) * 8}" y2="${r * 8 + 8}" stroke="#fff" stroke-opacity=".05" stroke-width=".6"/>`; } return b; },
+    draw: (P, p) => {
+      const g = P.glow(), tube = (d, col, w = 3) => `<g filter="${g}">${lineS(d, col, w)}</g>` + lineS(d, lt(col, .7), w * .36);
+      const cp = { cx: 50, cy: 52, r: 32, ry: 26, n: 4 };
+      let sunR = ''; for (let i = 0; i < 8; i++) { const a = i * 45 * D; sunR += `M${f(79 + 10.5 * Math.cos(a))} ${f(21 + 10.5 * Math.sin(a))}L${f(79 + 13.5 * Math.cos(a))} ${f(21 + 13.5 * Math.sin(a))}`; }
+      const clips = [[22, 52], [78, 52], [50, 70]].map(([x, y]) => `<rect x="${x - 1.5}" y="${y - .8}" width="3" height="1.6" rx=".4" fill="#6B6F7A"/>`).join('');
+      return tube(canopyOutline(cp), p.canopy) + tube(ribPath(cp, -.707) + ribPath(cp, .707), p.canopy, 2.2) + tube('M50 52L50 79A6 6 0 0 1 38 79', p.canopy) +
+        tube(`M86 21A7 7 0 1 1 86 20.9Z`, p.sun, 2.6) + tube(sunR, p.sun, 2.2) +
+        tube(dropPath(19, 22, 11), p.partner, 2.4) + tube(dropPath(31, 11, 7.5), p.partner, 2.2) + clips;
+    } },
+
+  { name: 'Brolly Buddy', style: 'Crafted', own: true, finish: 'flat', story: 'A mascot for stickers and app screens. The umbrella keeps a little raindrop out of the sun, and the sun grins back. Sharing shade works both ways.',
+    draw: (P, p) => {
+      const ol = mix(p.ink, '#000', .25), cp = { cx: 50, cy: 48, r: 32, ry: 27, n: 4 }, ow = 2.4;
+      let rays = ''; for (let i = 0; i < 8; i++) { const a = (i * 45 + 22.5) * D; rays += lineS(`M${f(80 + 12 * Math.cos(a))} ${f(19 + 12 * Math.sin(a))}L${f(80 + 15.5 * Math.cos(a))} ${f(19 + 15.5 * Math.sin(a))}`, p.sun, 3); }
+      const face = (x, y, s) => `<circle cx="${f(x - 3 * s)}" cy="${y}" r="${f(1.1 * s)}" fill="${ol}"/><circle cx="${f(x + 3 * s)}" cy="${y}" r="${f(1.1 * s)}" fill="${ol}"/>` + lineS(`M${f(x - 2.2 * s)} ${f(y + 2.4 * s)}Q${x} ${f(y + 4.4 * s)} ${f(x + 2.2 * s)} ${f(y + 2.4 * s)}`, ol, 1.2 * s);
+      return rays + `<circle cx="80" cy="19" r="9" fill="${p.sun}" stroke="${ol}" stroke-width="${ow}"/>` + face(80, 18.5, 1) +
+        lineS('M50 48L50 80A6 6 0 0 0 62 80L62 77', ol, 7) + lineS('M50 48L50 80A6 6 0 0 0 62 80L62 77', p.paper, 3) +
+        `<path d="${canopyOutline(cp)}" fill="${p.canopy}" stroke="${ol}" stroke-width="${ow}" stroke-linejoin="round"/>` + lineS(ribPath(cp, -.5) + ribPath(cp, .5), ol, 1.3, ' opacity=".45"') +
+        `<ellipse cx="40" cy="36" rx="2.7" ry="3.5" fill="${ol}"/><ellipse cx="60" cy="36" rx="2.7" ry="3.5" fill="${ol}"/><circle cx="39.2" cy="34.6" r="1" fill="#fff"/><circle cx="59.2" cy="34.6" r="1" fill="#fff"/>` +
+        `<ellipse cx="33.5" cy="42" rx="3.6" ry="2" fill="${lt(p.canopy, .45)}"/><ellipse cx="66.5" cy="42" rx="3.6" ry="2" fill="${lt(p.canopy, .45)}"/>` + lineS('M45.5 41Q50 45.5 54.5 41', ol, 1.8) +
+        `<path d="${dropPath(33, 70, 20)}" fill="${p.partner}" stroke="${ol}" stroke-width="${ow}" stroke-linejoin="round"/>` + face(33, 72.5, .9) +
+        `<path d="M42.5 58.5c-1.2-1.6-3.8-.6-3 1.3.5 1.1 3 3 3 3s2.5-1.9 3-3c.8-1.9-1.8-2.9-3-1.3z" fill="${p.canopy}" stroke="${ol}" stroke-width=".9"/>`;
+    } },
+
+  { name: 'Eclipse', style: 'Flat', own: true, finish: 'flat', story: 'Negative space. The umbrella and two people are cut out of the sun, so the shade is literally the shape of the shelter. Sun rays on one side, rain on the other.',
+    draw: (P, p) => {
+      const g = p.ground, cp = { cx: 50, cy: 47, r: 26, ry: 21, n: 4 };
+      let rays = ''; for (let i = 0; i < 9; i++) { const a = (-80 + i * 20) * D, r2 = i % 2 ? 43 : 46.5; rays += lineS(`M${f(50 + 38.5 * Math.cos(a))} ${f(50 + 38.5 * Math.sin(a))}L${f(50 + r2 * Math.cos(a))} ${f(50 + r2 * Math.sin(a))}`, p.sun, 2.6); }
+      const rain = [[8, 34], [15, 22], [7, 52], [14, 64], [22, 12]].map(([x, y]) => lineS(`M${x + 3} ${y - 6}L${x} ${y + 2}`, p.partner, 2.4)).join('');
+      return rays + rain + `<circle cx="50" cy="50" r="35" fill="${p.sun}"/>` +
+        `<path d="${canopyOutline(cp)}" fill="${g}"/><rect x="48.8" y="21.5" width="2.4" height="6" rx="1.2" fill="${g}"/>` +
+        `<path d="M50 47L50 86" stroke="${g}" stroke-width="3.4"/>` + person(P, { x: 37, y: 62, s: 17, col: g, bottom: 92 }) + person(P, { x: 63, y: 62, s: 17, col: g, bottom: 92 });
+    } },
+
+  { name: 'Paper Cut', style: 'Crafted', own: true, finish: 'flat', story: 'Layers of cut card with real shadows between them: a rain cloud, the sun, rolling hills and a stitched umbrella sheltering it all.',
+    draw: (P, p, o) => {
+      const sh = P.paper(), cp = { cx: 54, cy: 60, r: 28, ry: 23, n: 4 };
+      let out = `<g${sh}><circle cx="75" cy="25" r="13" fill="${p.sun}"/></g><g${sh}><circle cx="75" cy="25" r="8.5" fill="${lt(p.sun, .35)}"/></g>`;
+      out += `<g${sh}><path d="M14 34a8 8 0 0 1 4-15 11 11 0 0 1 20-3 8 8 0 0 1 11 9 6 6 0 0 1-1 9Z" fill="${lt(p.partner, .15)}"/></g>`;
+      out += `<g${sh}>` + [[20, 44, 7], [31, 41, 6]].map(([x, y, s]) => `<path d="${dropPath(x, y, s)}" fill="${p.partner}"/>`).join('') + '</g>';
+      if (!o.bare) out += `<g${sh}><path d="M-2 84Q24 72 50 82T102 76V102H-2Z" fill="${mix(p.tile, p.partner, .3)}"/></g><g${sh}><path d="M-2 92Q30 84 60 92T102 90V102H-2Z" fill="${mix(p.tile, p.partner, .55)}"/></g>`;
+      out += `<g${sh}>` + lineS('M54 60L54 86A5.5 5.5 0 0 1 43 86L43 83', p.paper, 3.6) + '</g>';
+      out += `<g${sh}>` + canopy(P, { ...cp, col: p.canopy, stripe: lt(p.canopy, .3), tip: p.paper, hl: false }) + '</g>';
+      out += lineS(canopyOutline({ ...cp, r: 25, ry: 20, cy: 58.5 }), p.paper, .8, ' stroke-dasharray="1.8 1.6" opacity=".85"');
+      return out + P.grain(.12);
+    } },
+
+  { name: 'Origami', style: 'Flat', own: true, finish: 'flat', story: 'A folded paper umbrella. Every gore is two facets, one catching the light and one in shade, with a faceted sun and diamond raindrops.',
+    draw: (P, p) => {
+      const ax = 50, ay = 20, tips = [14, 32, 50, 68, 86], base = [lt(p.canopy, .22), lt(p.canopy, .06), dk(p.canopy, .1), dk(p.canopy, .26)];
+      let out = `<path d="M48.5 20L50 14L51.5 20Z" fill="${p.on}"/>` + lineS('M50 50L50 82L46 86L40 86L37 82L37 79', p.on, 4, '');
+      for (let i = 0; i < 4; i++) { const m = [(tips[i] + tips[i + 1]) / 2, 51]; out += poly([[ax, ay], [tips[i], 56], m], lt(base[i], .06)) + poly([[ax, ay], m, [tips[i + 1], 56]], dk(base[i], .07)); }
+      for (let k = 0; k < 6; k++) { const a0 = (k * 60 - 90) * D, a1 = a0 + 60 * D; out += poly([[82, 20], [82 + 9 * Math.cos(a0), 20 + 9 * Math.sin(a0)], [82 + 9 * Math.cos(a1), 20 + 9 * Math.sin(a1)]], [lt(p.sun, .3), p.sun, dk(p.sun, .08), dk(p.sun, .16), p.sun, lt(p.sun, .15)][k]); }
+      for (const [x, y, s] of [[18, 24, 1], [29, 13, .8], [13, 41, .75]]) out += poly([[x, y - 6 * s], [x - 3.4 * s, y], [x, y + 4 * s]], lt(p.partner, .2)) + poly([[x, y - 6 * s], [x + 3.4 * s, y], [x, y + 4 * s]], dk(p.partner, .1));
+      return out;
+    } },
+
+  { name: 'Risograph', style: 'Crafted', own: true, finish: 'flat', story: 'Printed in three inks on warm paper: pink, blue and yellow overlap where the sun meets the canopy, with halftone shading and a slightly off-register blue.',
+    bg: (P, p) => `<rect width="100" height="100" fill="${mix(p.paper, p.sun, .12)}"/>`,
+    draw: (P, p) => {
+      const pid = P.id(), cp = { cx: 48, cy: 57, r: 32, ry: 27, n: 4 }, ts = ribTs(4), mul = ' style="mix-blend-mode:multiply"';
+      P.defs.push(`<pattern id="${pid}" patternUnits="userSpaceOnUse" width="2.6" height="2.6" patternTransform="rotate(45)"><circle cx="1.3" cy="1.3" r=".85" fill="${p.canopy}"/></pattern>`);
+      let gores = '';
+      for (let i = 0; i < 4; i++) { const a = ts[i], b = ts[i + 1], xa = 48 + a * 32, xb = 48 + b * 32, ay = 30;
+        const d = `M48 ${ay}C${f(48 + a * 32 * K)} ${ay} ${f(xa)} ${f(57 - 27 * K)} ${f(xa)} 57Q${f((xa + xb) / 2)} ${f(57 - (xb - xa) * .26)} ${f(xb)} 57C${f(xb)} ${f(57 - 27 * K)} ${f(48 + b * 32 * K)} ${ay} 48 ${ay}Z`;
+        gores += `<path d="${d}" fill="${i < 2 ? p.canopy : `url(#${pid})`}"/>`; }
+      const rain = [[14, 20], [22, 34], [10, 44], [30, 16]].map(([x, y]) => lineS(`M${x + 2} ${y - 5}L${x} ${y + 3}`, p.partner, 2.2)).join('');
+      return `<g${mul}><circle cx="70" cy="31" r="18" fill="${p.sun}"/></g><g${mul}>${gores}</g>` +
+        `<g${mul} transform="translate(1.3 .9)">` + lineS('M48 57L48 84A6 6 0 0 1 36 84L36 80', p.partner, 4.4) + lineS(canopyOutline(cp), p.partner, 1.2) + rain + '</g>' + P.grain(.18);
+    } },
+
+  { name: 'Ink & Seal', style: 'Hong Kong', own: true, finish: 'flat', story: 'A Chinese ink painting of an oil-paper umbrella on rice paper, with a pale sun, a wash of rain and a red seal in the corner.',
+    bg: (P, p) => `<rect width="100" height="100" fill="${mix(p.paper, '#E6DAC0', .65)}"/>`,
+    draw: (P, p) => {
+      const ink = mix(p.ink, '#000', .3), ro = P.rough(2.6), cp = { cx: 47, cy: 52, r: 34, ry: 24 }, ts = ribTs(10), seal = mix(p.canopy, '#C23A22', .5);
+      let rain = ''; for (let i = 0; i < 11; i++) { const x = 6 + i * 4.2, y = 8 + (i * 17) % 22; rain += lineS(`M${x + 3} ${y}L${x} ${y + 12}`, ink, .7, ' opacity=".28"'); }
+      return `<circle cx="76" cy="24" r="13" fill="${p.sun}" opacity=".5" filter="${P.blur(1.4)}"/>` + rain +
+        `<g filter="${ro}"><path d="${canopyOutline({ ...cp, ts })}" fill="${P.lg([[0, p.canopy, .95], [1, mix(p.canopy, p.paper, .55), .8]], 0, 28, 0, 52)}"/>` +
+        ts.slice(1, -1).map(t => lineS(ribPath(cp, t), ink, .7, ' opacity=".7"')).join('') +
+        lineS(canopyOutline({ ...cp, ts }), ink, 1.3) + `<ellipse cx="47" cy="28.5" rx="4" ry="1.8" fill="${ink}"/>` +
+        `<path d="M45.6 52L48.4 52L47.8 85L46.2 85Z" fill="${ink}"/>` + lineS('M47 84Q47 91 41.5 90Q38 89.5 38.2 85.5', ink, 2.6) + '</g>' +
+        `<g filter="${P.rough(1.6)}"><rect x="72" y="70" width="17" height="17" rx="2" fill="${seal}"/><rect x="74.2" y="72.2" width="12.6" height="12.6" rx="1" fill="none" stroke="${p.paper}" stroke-width=".9"/>` +
+        lineS('M76 79Q80.5 73.5 85 79Z', p.paper, 1.2) + lineS('M80.5 79L80.5 83.5Q80.5 85 79 84.6', p.paper, 1.2) + '</g>';
+    } },
+
+  { name: 'Iso Station', style: 'Flat', own: true, finish: 'flat', story: 'An isometric borrowing station with three umbrellas waiting in it, one for each weather. This is where the sharing actually happens.',
+    draw: (P, p, o) => {
+      const box = mix(p.paper, p.tile, .12), T = [50, 50], R = [76, 63], B = [50, 76], L = [24, 63], h = 18, dn = q => [q[0], q[1] + h];
+      let out = o.bare ? '' : poly([L, dn(L), [dn(B)[0] - 14, dn(B)[1] + 7], [L[0] - 14, L[1] + 7 + h]], '#000', ' opacity=".22"');
+      out += poly([L, B, dn(B), dn(L)], dk(box, .12)) + poly([B, R, dn(R), dn(B)], dk(box, .3)) + poly([T, R, B, L], lt(box, .05));
+      out += `<path d="M58 74.5L70 68.5L70 72.5L58 78.5Z" fill="${p.canopy}"/>`;
+      const furled = (x, y, col) => `<ellipse cx="${x}" cy="${y}" rx="4" ry="2" fill="${dk(box, .55)}"/>` + lineS(`M${x} ${y - 30}L${x} ${y - 36}A3.5 3.5 0 0 1 ${x + 7} ${y - 36}`, p.on, 2.4) +
+        `<path d="M${x} ${y}Q${x - 5.5} ${y - 16} ${x - 1.6} ${y - 30}L${x + 1.6} ${y - 30}Q${x + 5.5} ${y - 16} ${x} ${y}Z" fill="${col}"/><path d="M${x - 4.2} ${y - 17}L${x + 4.2} ${y - 15}" stroke="${dk(col, .3)}" stroke-width="1.4"/>`;
+      out += furled(50, 56, p.partner) + furled(38, 62, p.sun) + furled(62, 62, p.canopy) + furled(50, 68, lt(p.canopy, .25));
+      return sun(P, { x: 82, y: 18, r: 6.5, col: p.sun, len: 3.2, gap: 2.6, w: 2, glow: false }) + drop(P, { x: 17, y: 22, s: 8, col: p.partner }) + drop(P, { x: 26, y: 12, s: 6, col: p.partner }) + out;
+    } },
+
+  { name: 'Stained Glass', style: 'Crafted', own: true, finish: 'flat', story: 'Leaded glass: the canopy is pieced from panes of sun, rain and brand colour, and the sun throws shards of light across the whole window.',
+    bg: (P, p) => { const lead = mix(p.ink, '#000', .3); let b = ''; for (let k = 0; k < 9; k++) { const a0 = (78 + k * 13) * D, a1 = a0 + 13 * D; b += poly([[86, 14], [86 + 170 * Math.cos(a0), 14 + 170 * Math.sin(a0)], [86 + 170 * Math.cos(a1), 14 + 170 * Math.sin(a1)]], mix(p.tile, k % 2 ? p.sun : p.partner, .16 + (k % 3) * .1), ` stroke="${lead}" stroke-width="1.4"`); } return b; },
+    draw: (P, p) => {
+      const lead = mix(p.ink, '#000', .3), cp = { cx: 48, cy: 58, r: 34, ry: 28 }, ts = ribTs(5), us = [0, .45, .75, 1];
+      const pal = [p.canopy, lt(p.canopy, .25), mix(p.canopy, p.sun, .4), dk(p.canopy, .18), mix(p.canopy, p.partner, .35)];
+      let out = lineS('M48 58L48 85A6 6 0 0 1 36 85L36 81', lead, 6) + lineS('M48 58L48 85A6 6 0 0 1 36 85L36 81', p.paper, 2.6);
+      for (let i = 0; i < 5; i++) for (let b = 0; b < 3; b++) {
+        const sa = [], sb = []; for (let k = 0; k <= 4; k++) { const u = us[b] + (us[b + 1] - us[b]) * k / 4; sa.push(ribPoint(cp, ts[i], u)); sb.push(ribPoint(cp, ts[i + 1], u)); }
+        let d = `M${sa.map(q => f(q[0]) + ' ' + f(q[1])).join('L')}`;
+        if (b === 2) { const xa = sa[4][0], xb = sb[4][0]; d += `Q${f((xa + xb) / 2)} ${f(58 - (xb - xa) * .26)} ${f(xb)} 58`; } else d += `L${f(sb[4][0])} ${f(sb[4][1])}`;
+        d += `L${sb.slice(0, 4).reverse().map(q => f(q[0]) + ' ' + f(q[1])).join('L')}Z`;
+        out += `<path d="${d}" fill="${pal[(i * 2 + b) % 5]}" stroke="${lead}" stroke-width="1.5" stroke-linejoin="round"/>`;
+      }
+      out += `<circle cx="86" cy="14" r="10" fill="${p.sun}" stroke="${lead}" stroke-width="1.5"/><circle cx="86" cy="14" r="5" fill="${lt(p.sun, .4)}" stroke="${lead}" stroke-width="1.2"/>`;
+      return out + [[15, 24, 10], [26, 36, 8]].map(([x, y, s]) => `<path d="${dropPath(x, y, s)}" fill="${p.partner}" stroke="${lead}" stroke-width="1.4"/>`).join('');
+    } }
+);
+const STYLES = ['All', ...new Set(MARKS.map(m => m.style))];
+const ORDER = [...MARKS.keys()].filter(i => MARKS[i].own).concat([...MARKS.keys()].filter(i => !MARKS[i].own));
+
 /* ---------- options ---------- */
 const FONTS = [
   { name: 'Nunito', w: 800, ls: -.01 }, { name: 'Space Grotesk', w: 700, ls: -.02 }, { name: 'DM Serif Display', w: 400, ls: 0 },
@@ -395,7 +601,7 @@ const PRESETS = [
 ];
 const HOME_APPS = ['Weather', 'Maps', 'Transit', 'Wallet', 'Camera', 'Notes', 'Clock'];
 
-const st = { mark: 0, font: 0, layout: 0, frame: 0, finish: 1, tone: 1, tagline: 'Rain or shine · 晴雨共享', colors: { ...PRESETS[0].c } };
+const st = { mark: 0, font: 0, layout: 0, frame: 0, finish: 0, tone: 1, styleF: 'All', tagline: 'Rain or shine · 晴雨共享', colors: { ...PRESETS[0].c } };
 
 /* ---------- render ---------- */
 function palette(frame, surface) {
@@ -403,8 +609,8 @@ function palette(frame, surface) {
   return { ...c, ground, on };
 }
 function iconSVG(size, opt = {}) {
-  const frame = opt.frame || FRAMES[st.frame][0], finish = FINISHES[st.finish][0], surface = opt.surface || '#FFFFFF';
-  const m = MARKS[opt.mark ?? st.mark], P = new Painter(finish), p = palette(frame, surface), bare = frame === 'bare';
+  const frame = opt.frame || FRAMES[st.frame][0], surface = opt.surface || '#FFFFFF';
+  const m = MARKS[opt.mark ?? st.mark], finish = m.finish || FINISHES[st.finish][0], P = new Painter(finish), p = palette(frame, surface), bare = frame === 'bare';
   const body = m.draw(P, p, { bare });
   let inner;
   if (bare) inner = `<g${P.shadow()}>${body}</g>`;
@@ -448,11 +654,15 @@ function renderPreview() {
   $('#t4').innerHTML = '<small>Small sizes</small><div class="ladder">' + [96, 64, 44, 29, 20, 16].map(s => `<figure>${iconSVG(s)}<figcaption>${s}px</figcaption></figure>`).join('') + '</div>';
 }
 function renderOptions() {
-  $('#marks').innerHTML = MARKS.map((m, i) => `<button type="button" data-i="${i}" aria-pressed="${i === st.mark}">${iconSVG(60, { mark: i })}${m.name}</button>`).join('');
-  $('#story').innerHTML = `<b>${MARKS[st.mark].name}.</b> ${MARKS[st.mark].story}`;
+  $('#styles').innerHTML = STYLES.map(s => `<button type="button" data-s="${s}" aria-pressed="${s === st.styleF}">${s} <span class="n">${s === 'All' ? MARKS.length : MARKS.filter(m => m.style === s).length}</span></button>`).join('');
+  $('#marks').innerHTML = ORDER.filter(i => st.styleF === 'All' || MARKS[i].style === st.styleF).map(i => `<button type="button" data-i="${i}" aria-pressed="${i === st.mark}">${iconSVG(60, { mark: i })}${MARKS[i].name}<small>${MARKS[i].style}</small></button>`).join('');
+  const cur = MARKS[st.mark];
+  $('#story').innerHTML = `<b>${cur.name}</b> · ${cur.style}. ${cur.story}`;
   $('#fonts').innerHTML = FONTS.map((fo, i) => `<button type="button" data-i="${i}" aria-pressed="${i === st.font}"><span class="tw" style="font-family:'${fo.name}',sans-serif;font-weight:${fo.w};letter-spacing:${fo.ls}em">RainBorrow</span>${fo.name}</button>`).join('');
   const seg = (id, list, key) => { $(id).innerHTML = list.map((x, i) => `<button type="button" data-i="${i}" aria-pressed="${i === st[key]}">${x[1]}</button>`).join(''); };
   seg('#layouts', LAYOUTS, 'layout'); seg('#frames', FRAMES, 'frame'); seg('#finishes', FINISHES, 'finish'); seg('#tones', TONES, 'tone');
+  $('#finishes').querySelectorAll('button').forEach(b => { b.disabled = !!cur.own; });
+  $('#finishNote').textContent = cur.own ? `${cur.name} has its own finish. Finish applies to Classic symbols.` : 'Flat suits small sizes and print. Depth and Glass add light and shadow.';
 }
 function renderPresets() {
   const g = $('#noGreen').checked;
@@ -486,7 +696,8 @@ function renderAll() { renderPreview(); renderOptions(); renderChecks(); syncPic
 /* ---------- interaction ---------- */
 function toast(msg) { $('#toast').textContent = msg; }
 function bindGroup(id, key, fn) { $(id).addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; st[key] = +b.dataset.i; (fn || renderAll)(); }); }
-bindGroup('#marks', 'mark'); bindGroup('#fonts', 'font'); bindGroup('#layouts', 'layout'); bindGroup('#frames', 'frame'); bindGroup('#finishes', 'finish'); bindGroup('#tones', 'tone');
+bindGroup('#marks', 'mark');
+$('#styles').addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (!b) return; st.styleF = b.dataset.s; renderOptions(); }); bindGroup('#fonts', 'font'); bindGroup('#layouts', 'layout'); bindGroup('#frames', 'frame'); bindGroup('#finishes', 'finish'); bindGroup('#tones', 'tone');
 $('#presets').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; const pr = PRESETS[+b.dataset.i]; st.colors = { ...pr.c }; renderAll(); toast(`Applied the ${pr.name} palette.`); });
 $('#pickers').addEventListener('input', e => {
   const k = e.target.dataset.k; if (!k) return;
@@ -500,7 +711,7 @@ $('#tagline').addEventListener('input', e => { st.tagline = e.target.value; rend
 function randomHue(avoidGreen) { let h; do { h = Math.random() * 360; } while (avoidGreen && h > 65 && h < 175); return h; }
 $('#randomize').addEventListener('click', () => {
   const g = $('#noGreen').checked, r = n => Math.floor(Math.random() * n);
-  st.mark = r(MARKS.length); st.font = r(FONTS.length); st.layout = r(3); st.frame = r(2); st.finish = 1 + r(2); st.tone = r(TONES.length);
+  st.mark = r(MARKS.length); st.font = r(FONTS.length); st.layout = r(3); st.frame = r(2); st.finish = r(FINISHES.length); st.tone = r(TONES.length); st.styleF = 'All';
   const pool = PRESETS.filter(p => !(g && p.green));
   if (Math.random() < .45) st.colors = { ...pool[r(pool.length)].c };
   else {
@@ -509,7 +720,7 @@ $('#randomize').addEventListener('click', () => {
     st.colors = { canopy: hsl2hex(h, .68, .56), partner: hsl2hex(h2, .45, .62), sun: hsl2hex(38 + Math.random() * 10, .92, .6),
       tile: dark ? hsl2hex(h2, .38, .16) : hsl2hex(h + 20, .6, .95), ink: hsl2hex(h2, .4, .16), paper: hsl2hex(h, .6, .98) };
   }
-  renderAll(); toast(`${MARKS[st.mark].name} in ${FONTS[st.font].name}.`);
+  renderAll(); toast(`${MARKS[st.mark].name} (${MARKS[st.mark].style}) in ${FONTS[st.font].name}.`);
 });
 
 /* ---------- export ---------- */

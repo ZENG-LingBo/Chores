@@ -16,3 +16,11 @@ The page is published with GitHub Pages via [`.github/workflows/pages.yml`](.git
 - Page: `/umbrella/` (source in [`docs/umbrella/`](docs/umbrella/))
 - 3D rendering uses [three.js](https://threejs.org) (MIT), vendored and minified in `docs/umbrella/vendor/`, so there is still no build step.
 - The percentages come from tracing ~90,000 evenly spaced rays across the human visual field (about 200° × 135°) against the exact canopy geometry, with the ad artwork as the source of truth for which rays hit an ad.
+
+## RainBorrow Logo Studio
+
+Mix-and-match tool for the RainBorrow logo, with twelve app-icon symbols built around sharing one umbrella in both rain and sun.
+
+- Page: `/logo/` (source in [`docs/logo/index.html`](docs/logo/index.html), one self-contained file)
+- Every symbol is drawn as SVG in code, with flat, depth and glass finishes, and app-icon, round or bare frames.
+- Exports a 1024 px symbol PNG, symbol SVG and a transparent logo PNG. The share link stores the full combination in the URL hash.

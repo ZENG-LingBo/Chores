@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RainBorrow Logo Studio</title>
+<meta name="description" content="Mix and match RainBorrow app-icon symbols, typefaces, layouts, frames, finishes and colours, then download the result.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Space+Grotesk:wght@700&family=DM+Serif+Display&family=Poppins:wght@600&family=Outfit:wght@700&family=IBM+Plex+Mono:wght@500&family=Nunito+Sans:wght@400;600;700&family=Noto+Sans+HK:wght@600&display=swap">
+<style>
+/* Layout: preview + colours side by side on wide screens, mix-and-match controls full width below. */
+:root{--bg:#F4F1EE;--card:#fff;--fg:#1F2A44;--mut:#5B6275;--line:#E2D9D4;--acc:#DB5A6B;--acc-strong:#B94456;--focus:#7BA3C4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141826;--card:#1E2438;--fg:#F1EEF0;--mut:#A9B0C4;--line:#333B55;--acc:#E77788;--acc-strong:#B94456;--focus:#9DBEDB;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141826;--card:#1E2438;--fg:#F1EEF0;--mut:#A9B0C4;--line:#333B55;--acc:#E77788;--acc-strong:#B94456;--focus:#9DBEDB;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Nunito Sans',system-ui,sans-serif;line-height:1.45}
+h1,h2,h3{font-family:Nunito,system-ui,sans-serif;font-weight:800;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.6rem,4vw,2.2rem)} h2{font-size:1.15rem} h3{font-size:.95rem}
+main{max-width:1240px;margin:0 auto;padding-block:28px 56px;padding-inline:16px;display:grid;gap:20px}
+header p{margin:6px 0 0;color:var(--mut);max-width:70ch}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border-radius:16px;padding:20px;display:grid;gap:14px;border:1px solid var(--line);min-width:0}
+.stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:12px}
+.tile{position:relative;border-radius:12px;min-height:180px;display:flex;align-items:center;justify-content:center;padding:34px 18px 18px;overflow:hidden;border:1px solid var(--line)}
+.tile small{position:absolute;top:10px;left:12px;font:600 .72rem 'Nunito Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.logo{display:flex;align-items:center;justify-content:center;gap:.28em;font-size:34px}
+.logo.v{flex-direction:column;gap:.18em}
+.logo svg{flex:none;display:block}
+.words{display:flex;flex-direction:column;align-items:flex-start;gap:.12em}
+.logo.v .words{align-items:center}
+.word{white-space:nowrap;line-height:1}
+.tag{font:600 .36em 'Nunito Sans','Noto Sans HK',sans-serif;letter-spacing:.04em;white-space:nowrap}
+.home{width:100%;max-width:300px;border-radius:22px;padding:18px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;justify-items:center}
+.app{display:grid;justify-items:center;gap:5px;font:600 .66rem 'Nunito Sans',sans-serif;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.app i{width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,.2);display:block}
+.app svg{display:block}
+.ladder{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;justify-content:center}
+.ladder figure{margin:0;display:grid;justify-items:center;gap:6px;font:500 .7rem 'IBM Plex Mono',monospace;color:#5B6275}
+.opt{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+@media(max-width:760px){.opt{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:480px){.opt{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.opt button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;font-size:.78rem;background:#fff;color:#1F2A44;line-height:1.2;text-align:center}
+.opt button[aria-pressed=true]{border:2px solid var(--acc);box-shadow:0 0 0 2px rgba(219,90,107,.25)}
+.opt.type{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+@media(max-width:480px){.opt.type{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.opt.type .tw{font-size:1.15rem;color:#1F2A44}
+.story{margin:0;color:var(--mut);font-size:.92rem;max-width:75ch}
+.story b{color:var(--fg)}
+.row{display:grid;grid-template-columns:96px 44px minmax(0,1fr);gap:10px;align-items:center}
+.row label{font-weight:700;font-size:.9rem}
+.row small{grid-column:1/-1;margin-top:-6px;color:var(--mut);font-size:.78rem}
+input[type=color]{width:44px;height:38px;border:1px solid var(--line);border-radius:8px;padding:2px;background:none;cursor:pointer}
+input[type=text]{width:100%;font:500 .85rem 'IBM Plex Mono',monospace;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+input[type=text][aria-invalid=true]{border-color:var(--acc)}
+button{font:700 .9rem 'Nunito Sans',sans-serif;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button.primary{background:var(--acc-strong);border-color:var(--acc-strong);color:#fff}
+button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:10px;font-size:.82rem;padding:8px 12px;min-height:40px}
+.dots{display:flex}.dots i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.2);margin-right:-4px}
+.checks{display:grid;gap:8px;font-size:.9rem}
+.checks div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:baseline}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:.8rem;min-width:52px;text-align:center}
+.ok{background:#DDEBF5;color:#1F2A44}.warn{background:#FBE3CF;color:#7A3A00}
+.mono{font-family:'IBM Plex Mono',monospace}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+.tip{color:var(--mut);font-size:.9rem;margin:0}
+.toast{min-height:1.2em;color:var(--mut);font-size:.85rem}
+.seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{min-height:38px;padding:6px 12px}
+.seg button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.lab{display:grid;gap:8px;align-content:start}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
+.out{display:grid;gap:8px;justify-items:start}
+.out img{max-width:min(100%,360px);border-radius:10px;border:1px solid var(--line);background:repeating-conic-gradient(#EEE 0 25%,#FFF 0 50%) 0 0/16px 16px}
+.out p{margin:0}
+@media (prefers-reduced-motion:no-preference){button{transition:transform .12s ease,box-shadow .12s ease}button:active{transform:translateY(1px)}}
+</style>
+
+<main>
+<header>
+<h1>RainBorrow Logo Studio</h1>
+<p>Twelve app-icon symbols built on one idea: an umbrella you share, for rain and for Hong Kong sun. Mix a symbol with a typeface, layout, frame and finish, tune the colours, then download your version.</p>
+</header>
+
+<div class="grid">
+<section class="card" aria-label="Preview">
+<h2>Preview</h2>
+<div class="stage">
+<div class="tile" id="t1" style="background:#fff;color:#1F2A44"></div>
+<div class="tile" id="t2" style="color:#fff"></div>
+<div class="tile" id="t3" style="background:#E9E6E3;color:#1F2A44"></div>
+<div class="tile" id="t4" style="background:#fff;color:#1F2A44"></div>
+</div>
+<div class="bar">
+<button class="primary" id="randomize">Surprise me</button>
+<button id="dlLogo">Download logo PNG</button>
+<button id="dlMark">Download symbol PNG</button>
+<button id="dlSvg">Download symbol SVG</button>
+<button id="copySvg">Copy symbol SVG</button>
+<button id="copyLink">Copy share link</button>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<div class="out" id="out" hidden></div>
+</section>
+
+<section class="card" aria-label="Colours">
+<h2>Colours</h2>
+<div class="chips" id="presets"></div>
+<div id="pickers" style="display:grid;gap:10px"></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:.9rem"><input type="checkbox" id="noGreen" checked> Keep suggestions free of green</label>
+<h3>Print and screen checks</h3>
+<div class="checks" id="checks"></div>
+</section>
+</div>
+
+<section class="card" aria-label="Mix and match">
+<h2>Mix and match</h2>
+<div class="lab"><h3>Symbol</h3><div class="opt" id="marks"></div><p class="story" id="story"></p></div>
+<div class="lab"><h3>Typeface</h3><div class="opt type" id="fonts"></div></div>
+<div class="controls">
+<div class="lab"><h3>Layout</h3><div class="seg" id="layouts"></div></div>
+<div class="lab"><h3>Frame</h3><div class="seg" id="frames"></div></div>
+<div class="lab"><h3>Finish</h3><div class="seg" id="finishes"></div></div>
+<div class="lab"><h3>Wordmark colour</h3><div class="seg" id="tones"></div></div>
+<div class="lab"><h3><label for="tagline">Tagline</label></h3><input type="text" id="tagline" maxlength="40" style="font-family:'Nunito Sans','Noto Sans HK',sans-serif"></div>
+</div>
+</section>
+</main>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const D = Math.PI / 180, K = 0.5523;
+const f = n => +n.toFixed(2);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ---------- colour maths ---------- */
+const hex2rgb = h => { h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, c => c + c); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const rgb2hex = (r, g, b) => '#' + [r, g, b].map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+const mix = (a, b, t) => { const A = hex2rgb(a), B = hex2rgb(b); return rgb2hex(...A.map((v, i) => v + (B[i] - v) * t)); };
+const lt = (c, t) => mix(c, '#FFFFFF', t), dk = (c, t) => mix(c, '#000000', t);
+const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+const lum = c => { const [r, g, b] = hex2rgb(c).map(lin); return .2126 * r + .7152 * g + .0722 * b; };
+const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+function hsl(c) {
+  const [r, g, b] = hex2rgb(c).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  let h = 0, s = 0; const l = (mx + mn) / 2;
+  if (d) { s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn); h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; }
+  return [h, s, l];
+}
+function hsl2hex(h, s, l) {
+  h = ((h % 360) + 360) % 360;
+  const a = s * Math.min(l, 1 - l), k = n => (n + h / 30) % 12;
+  const c = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  return rgb2hex(c(0) * 255, c(8) * 255, c(4) * 255);
+}
+const pick = (bg, a, b) => contrast(a, bg) >= contrast(b, bg) ? a : b;
+const isGreen = c => { const [h, s, l] = hsl(c); return h >= 70 && h <= 170 && s > .18 && l > .12 && l < .9; };
+function deutan(c) { // Machado et al. 2009, severity 1
+  const [r, g, b] = hex2rgb(c).map(lin), M = [[.367322, .860646, -.227968], [.280085, .672501, .047413], [-.01182, .04294, .968881]];
+  const out = M.map(m => clamp(m[0] * r + m[1] * g + m[2] * b, 0, 1)).map(v => (v <= .0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - .055) * 255);
+  return out;
+}
+const dist = (a, b) => Math.hypot(...a.map((v, i) => v - b[i]));
+
+/* ---------- SVG painter ---------- */
+let UID = 0;
+class Painter {
+  constructor(finish) { this.finish = finish; this.defs = []; this.u = 'rb' + (++UID).toString(36) + '_'; this.n = 0; }
+  id() { return this.u + (this.n++); }
+  get flat() { return this.finish === 'flat'; }
+  stops(s) { return s.map(x => `<stop offset="${x[0]}" stop-color="${x[1]}"${x[2] != null ? ` stop-opacity="${x[2]}"` : ''}/>`).join(''); }
+  lg(s, x1, y1, x2, y2) { const id = this.id(); this.defs.push(`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}">${this.stops(s)}</linearGradient>`); return `url(#${id})`; }
+  rg(s, cx, cy, r, fx = cx, fy = cy) { const id = this.id(); this.defs.push(`<radialGradient id="${id}" gradientUnits="userSpaceOnUse" cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}" fx="${f(fx)}" fy="${f(fy)}">${this.stops(s)}</radialGradient>`); return `url(#${id})`; }
+  vert(c, y1, y2, a = .16) { return this.flat ? c : this.lg([[0, lt(c, a)], [1, dk(c, a * .75)]], 0, y1, 0, y2); }
+  ball(c, cx, cy, r) { return this.flat ? c : this.rg([[0, lt(c, .42)], [.55, c], [1, dk(c, .16)]], cx, cy, r, cx - r * .35, cy - r * .4); }
+  filter(key, dy, sd, op) {
+    if (this.flat) return '';
+    if (!this[key]) { this[key] = this.id(); this.defs.push(`<filter id="${this[key]}" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="${dy}" stdDeviation="${sd}" flood-color="#0B1020" flood-opacity="${op}"/></filter>`); }
+    return ` filter="url(#${this[key]})"`;
+  }
+  shadow() { return this.filter('_sh', 2, 2, .34); }
+  soft() { return this.filter('_so', 1.1, 1.1, .28); }
+}
+
+/* ---------- drawing primitives (100 x 100 space) ---------- */
+function ribTs(n) { return Array.from({ length: n + 1 }, (_, i) => -Math.cos(Math.PI * i / n)); }
+function canopyOutline(o) {
+  const { cx, cy, r, ry } = o, ts = o.ts || ribTs(o.n || 4), ay = cy - ry, X = t => cx + t * r;
+  const t0 = ts[0], tl = ts[ts.length - 1];
+  let d = `M${f(X(t0))} ${f(cy)}C${f(X(t0))} ${f(cy - ry * K)} ${f(cx + t0 * r * K)} ${f(ay)} ${f(cx)} ${f(ay)}C${f(cx + tl * r * K)} ${f(ay)} ${f(X(tl))} ${f(cy - ry * K)} ${f(X(tl))} ${f(cy)}`;
+  for (let i = ts.length - 2; i >= 0; i--) { const xa = X(ts[i]), xb = X(ts[i + 1]); d += `Q${f((xa + xb) / 2)} ${f(cy - (xb - xa) * .26)} ${f(xa)} ${f(cy)}`; }
+  return d + 'Z';
+}
+// Side view of an open umbrella: gores foreshortened towards the edges, lit from the upper left.
+function canopy(P, o) {
+  const { cx, cy, r, ry, col, stripe, tip, hl = true } = o, ts = o.ts || ribTs(o.n || 4);
+  const ay = cy - ry, X = t => cx + t * r;
+  let out = '';
+  if (tip) out += `<rect x="${f(cx - r * .045)}" y="${f(ay - r * .16)}" width="${f(r * .09)}" height="${f(r * .2)}" rx="${f(r * .045)}" fill="${tip}"/>`;
+  for (let i = 0; i < ts.length - 1; i++) {
+    const a = ts[i], b = ts[i + 1], xa = X(a), xb = X(b), s = (xb - xa) * .26;
+    const d = `M${f(cx)} ${f(ay)}C${f(cx + a * r * K)} ${f(ay)} ${f(xa)} ${f(cy - ry * K)} ${f(xa)} ${f(cy)}Q${f((xa + xb) / 2)} ${f(cy - s)} ${f(xb)} ${f(cy)}C${f(xb)} ${f(cy - ry * K)} ${f(cx + b * r * K)} ${f(ay)} ${f(cx)} ${f(ay)}Z`;
+    let c = stripe && i % 2 ? stripe : col;
+    const tc = (a + b) / 2;
+    c = tc < 0 ? lt(c, -tc * .16) : dk(c, tc * .22);
+    if (!stripe && i % 2) c = dk(c, .05);
+    out += `<path d="${d}" fill="${P.vert(c, ay, cy, .15)}"/>`;
+  }
+  if (!P.flat) {
+    out += `<path d="${canopyOutline({ cx, cy, r, ry, ts })}" fill="${P.lg([[0, '#000', 0], [.72, '#000', 0], [1, '#000', .18]], 0, ay, 0, cy)}"/>`;
+    if (hl) out += `<path d="M${f(cx - r * .7)} ${f(cy - ry * .36)}Q${f(cx - r * .6)} ${f(cy - ry * .82)} ${f(cx - r * .12)} ${f(cy - ry * .9)}" fill="none" stroke="#fff" stroke-opacity="${P.finish === 'glass' ? .62 : .4}" stroke-width="${f(r * .075)}" stroke-linecap="round"/>`;
+  }
+  return out;
+}
+function handle(P, o) {
+  const { x, y1, y2, hr = 5, w = 4, col, dir = -1, hook = true, tail = .5 } = o;
+  let d = `M${f(x)} ${f(y1)}L${f(x)} ${f(y2)}`;
+  if (hook) { const ex = x + dir * 2 * hr; d += `A${f(hr)} ${f(hr)} 0 0 ${dir < 0 ? 1 : 0} ${f(ex)} ${f(y2)}L${f(ex)} ${f(y2 - hr * tail)}`; }
+  const s = P.flat ? col : P.lg([[0, lt(col, .28)], [1, dk(col, .12)]], x - 2 * hr - w, y1, x + 2 * hr + w, y2 + hr);
+  return `<path d="${d}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+function drop(P, o) {
+  const { x, y, s, col } = o, w = s * .32, cy = y + s * .18;
+  const d = `M${f(x)} ${f(y - s / 2)}C${f(x + s * .08)} ${f(y - s * .32)} ${f(x + w)} ${f(y - s * .06)} ${f(x + w)} ${f(cy)}A${f(w)} ${f(w)} 0 0 1 ${f(x - w)} ${f(cy)}C${f(x - w)} ${f(y - s * .06)} ${f(x - s * .08)} ${f(y - s * .32)} ${f(x)} ${f(y - s / 2)}Z`;
+  let out = `<path d="${d}" fill="${P.ball(col, x, cy - w * .2, w * 1.5)}"/>`;
+  if (!P.flat) out += `<ellipse cx="${f(x - w * .4)}" cy="${f(cy - w * .2)}" rx="${f(w * .18)}" ry="${f(w * .34)}" fill="#fff" opacity=".75" transform="rotate(18 ${f(x - w * .4)} ${f(cy - w * .2)})"/>`;
+  return out;
+}
+function sun(P, o) {
+  const { x, y, r, col, rays = 8, len = r * .55, gap = r * .35, w = r * .28, rot = 0, glow = true } = o;
+  let out = '';
+  if (glow && !P.flat) out += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r * 2.4)}" fill="${P.rg([[0, col, .55], [1, col, 0]], x, y, r * 2.4)}"/>`;
+  const rs = P.flat ? col : dk(col, .04);
+  for (let i = 0; i < rays; i++) {
+    const a = (rot + i * 360 / rays) * D, c = Math.cos(a), s = Math.sin(a), r1 = r + gap, r2 = r + gap + len;
+    out += `<line x1="${f(x + c * r1)}" y1="${f(y + s * r1)}" x2="${f(x + c * r2)}" y2="${f(y + s * r2)}" stroke="${rs}" stroke-width="${f(w)}" stroke-linecap="round"/>`;
+  }
+  return out + `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r)}" fill="${P.ball(col, x, y, r)}"/>`;
+}
+function person(P, o) {
+  const { x, y, s, col, bottom } = o, hr = s * .2, b = bottom ?? y + s * 1.2;
+  const d = `M${f(x - s * .4)} ${f(b)}L${f(x - s * .4)} ${f(y + s * .62)}C${f(x - s * .4)} ${f(y + s * .36)} ${f(x - s * .22)} ${f(y + s * .3)} ${f(x)} ${f(y + s * .3)}C${f(x + s * .22)} ${f(y + s * .3)} ${f(x + s * .4)} ${f(y + s * .36)} ${f(x + s * .4)} ${f(y + s * .62)}L${f(x + s * .4)} ${f(b)}Z`;
+  return `<path d="${d}" fill="${P.vert(col, y + s * .3, b, .14)}"/><circle cx="${f(x)}" cy="${f(y)}" r="${f(hr)}" fill="${P.ball(col, x, y, hr)}"/>`;
+}
+function arcArrow(P, o) {
+  const { cx, cy, R, a0, a1, col, w } = o, pt = a => [cx + R * Math.cos(a * D), cy + R * Math.sin(a * D)];
+  const [x0, y0] = pt(a0), [x1, y1] = pt(a1), large = a1 - a0 > 180 ? 1 : 0;
+  const s = P.flat ? col : P.lg([[0, lt(col, .22)], [1, dk(col, .14)]], cx - R, cy - R, cx + R, cy + R);
+  const t = [-Math.sin(a1 * D), Math.cos(a1 * D)], n = [Math.cos(a1 * D), Math.sin(a1 * D)];
+  const tip = [x1 + t[0] * w * 1.5, y1 + t[1] * w * 1.5], b1 = [x1 + n[0] * w * 1.1 - t[0] * w * .15, y1 + n[1] * w * 1.1 - t[1] * w * .15], b2 = [x1 - n[0] * w * 1.1 - t[0] * w * .15, y1 - n[1] * w * 1.1 - t[1] * w * .15];
+  return `<path d="M${f(x0)} ${f(y0)}A${R} ${R} 0 ${large} 1 ${f(x1)} ${f(y1)}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round"/>` +
+    `<path d="M${f(tip[0])} ${f(tip[1])}L${f(b1[0])} ${f(b1[1])}L${f(b2[0])} ${f(b2[1])}Z" fill="${s}" stroke="${s}" stroke-width="${f(w * .35)}" stroke-linejoin="round"/>`;
+}
+const SQ = (() => { let d = ''; for (let i = 0; i < 96; i++) { const a = i / 96 * 2 * Math.PI, c = Math.cos(a), s = Math.sin(a); d += (i ? 'L' : 'M') + f(50 + 50 * Math.sign(c) * Math.pow(Math.abs(c), .4)) + ' ' + f(50 + 50 * Math.sign(s) * Math.pow(Math.abs(s), .4)); } return d + 'Z'; })();
+
+/* ---------- the twelve symbols ---------- */
+const MARKS = [
+  { name: 'Rain or Shine', story: 'Rain falls on one side, sun shines on the other, and one umbrella covers both. RainBorrow is as much for 33°C sunshade days as for downpours.',
+    bg: (P, p) => P.flat ? `<path d="M0 0H100L0 100Z" fill="${p.partner}" opacity=".16"/>` : `<rect width="100" height="100" fill="${P.lg([[0, p.partner, .45], [.55, p.partner, 0]], 0, 0, 100, 100)}"/><rect width="100" height="100" fill="${P.lg([[.45, p.sun, 0], [1, p.sun, .36]], 0, 0, 100, 100)}"/>`,
+    draw: (P, p) => sun(P, { x: 71, y: 29, r: 10.5, col: p.sun, len: 5, gap: 3.8, w: 2.8, rot: 22.5 }) +
+      drop(P, { x: 19, y: 25, s: 10, col: p.partner }) + drop(P, { x: 32, y: 13, s: 7.5, col: p.partner }) + drop(P, { x: 13, y: 42, s: 7, col: p.partner }) +
+      `<g${P.soft()}>` + handle(P, { x: 50, y1: 56, y2: 80, hr: 6.5, w: 4.4, col: p.on }) + canopy(P, { cx: 50, cy: 57, r: 34, ry: 29, n: 4, col: p.canopy, tip: p.on }) + '</g>' },
+
+  { name: 'Share the Shelter', story: 'Two people, one canopy, both hands on the same handle. The sharing is the product.',
+    draw: (P, p, o) => {
+      const bot = o.bare ? 93 : 108, arm = (x1, x2, col) => `<path d="M${x1} 71L${x2} 76" stroke="${P.vert(col, 70, 77)}" stroke-width="4.6" stroke-linecap="round"/>`;
+      return drop(P, { x: 11, y: 66, s: 8, col: p.partner }) + drop(P, { x: 89, y: 74, s: 8, col: p.partner }) +
+        handle(P, { x: 50, y1: 46, y2: bot, hook: false, w: 3.6, col: p.on }) +
+        person(P, { x: 31, y: 61, s: 26, col: p.sun, bottom: bot }) + person(P, { x: 69, y: 61, s: 26, col: p.partner, bottom: bot }) +
+        arm(38, 46, p.sun) + arm(62, 54, p.partner) +
+        `<g${P.soft()}>` + canopy(P, { cx: 50, cy: 47, r: 38, ry: 28, n: 6, col: p.canopy, tip: p.on }) + '</g>';
+    } },
+
+  { name: 'Borrow & Return', story: 'A closed loop: borrow at one station, return at another, and the umbrella goes round again. One arrow for rainy days, one for sunny ones.',
+    draw: (P, p) => arcArrow(P, { cx: 50, cy: 50, R: 35, a0: 150, a1: 282, col: p.partner, w: 7 }) + arcArrow(P, { cx: 50, cy: 50, R: 35, a0: 330, a1: 462, col: p.sun, w: 7 }) +
+      `<g${P.soft()}>` + handle(P, { x: 50, y1: 50, y2: 67, hr: 4.2, w: 3.6, col: p.on }) + canopy(P, { cx: 50, cy: 50, r: 22, ry: 18.5, n: 4, col: p.canopy, tip: p.on }) + '</g>' },
+
+  { name: 'Umbrella Heart', story: 'Two umbrellas lean in until their shafts meet. Together they draw a heart, with the sun sitting in the dip.',
+    draw: (P, p) => {
+      const one = (rot, col) => `<g transform="rotate(${rot} 50 83)">` + handle(P, { x: 50, y1: 46, y2: 83, hook: false, w: 3.8, col: p.on }) + canopy(P, { cx: 50, cy: 46, r: 24, ry: 20, n: 4, col, tip: p.on }) + '</g>';
+      return sun(P, { x: 50, y: 19, r: 6.5, col: p.sun, len: 3.2, gap: 2.6, w: 2, rot: 22.5 }) +
+        `<g${P.soft()}>` + one(-24, p.partner) + one(24, p.canopy) + `<circle cx="50" cy="83" r="4.8" fill="${P.ball(p.on, 50, 83, 4.8)}"/></g>`;
+    } },
+
+  { name: 'Sunshade', story: 'Seen from above, a striped sunshade becomes the sun itself, with a raindrop resting on top. One umbrella for summer afternoons and rainstorm warnings alike.',
+    draw: (P, p) => {
+      let rays = '', wedges = '';
+      const rc = P.flat ? p.sun : dk(p.sun, .03);
+      for (let i = 0; i < 16; i++) { const a = i * 22.5 * D, r2 = i % 2 ? 44 : 47.5; rays += `<line x1="${f(50 + 39.5 * Math.cos(a))}" y1="${f(50 + 39.5 * Math.sin(a))}" x2="${f(50 + r2 * Math.cos(a))}" y2="${f(50 + r2 * Math.sin(a))}" stroke="${rc}" stroke-width="3.2" stroke-linecap="round"/>`; }
+      for (let k = 0; k < 8; k++) {
+        const t0 = (-112.5 + k * 45) * D, t1 = t0 + 45 * D, m = t0 + 22.5 * D;
+        let c = k % 2 ? p.paper : p.canopy; const l = Math.cos(m - (-135 * D)) * .1; c = l > 0 ? lt(c, l) : dk(c, -l);
+        const fill = P.flat ? c : P.rg([[0, lt(c, .24)], [1, dk(c, .12)]], 50, 50, 35, 44, 44);
+        wedges += `<path d="M50 50L${f(50 + 35 * Math.cos(t0))} ${f(50 + 35 * Math.sin(t0))}Q${f(50 + 29.5 * Math.cos(m))} ${f(50 + 29.5 * Math.sin(m))} ${f(50 + 35 * Math.cos(t1))} ${f(50 + 35 * Math.sin(t1))}Z" fill="${fill}"/>`;
+        wedges += `<line x1="50" y1="50" x2="${f(50 + 35 * Math.cos(t0))}" y2="${f(50 + 35 * Math.sin(t0))}" stroke="#000" stroke-opacity=".12" stroke-width=".7"/>`;
+      }
+      const glow = P.flat ? '' : `<circle cx="50" cy="50" r="50" fill="${P.rg([[.55, p.sun, .5], [1, p.sun, 0]], 50, 50, 50)}"/>`;
+      return glow + rays + `<g${P.soft()}>` + wedges + `<circle cx="50" cy="50" r="4.2" fill="${P.ball(p.on, 50, 50, 4.2)}"/>` + '</g>' + `<g${P.soft()}>` + drop(P, { x: 64, y: 62, s: 11, col: p.partner }) + '</g>';
+    } },
+
+  { name: 'Find a Station', story: 'A map pin with a small umbrella in front of the sun. Find the nearest station, borrow, walk on.',
+    draw: (P, p, o) => {
+      const pin = 'M50 87C43 77 23 63 23 41A27 27 0 0 1 77 41C77 63 57 77 50 87Z';
+      return (o.bare ? '' : `<ellipse cx="50" cy="89" rx="9" ry="2.6" fill="#000" opacity=".28"/>`) +
+        `<ellipse cx="50" cy="89" rx="19" ry="5" fill="none" stroke="${p.partner}" stroke-width="2.2" opacity=".9"/><ellipse cx="50" cy="89" rx="29" ry="7.6" fill="none" stroke="${p.partner}" stroke-width="1.6" opacity=".45"/>` +
+        `<g${P.soft()}><path d="${pin}" fill="${P.vert(p.canopy, 14, 87, .18)}"/>` +
+        (P.flat ? '' : `<path d="M29 32Q34 19 48 16" fill="none" stroke="#fff" stroke-opacity="${P.finish === 'glass' ? .6 : .38}" stroke-width="2.4" stroke-linecap="round"/>`) +
+        `<circle cx="50" cy="41" r="18.5" fill="${P.ball(p.sun, 50, 41, 18.5)}"/>` +
+        handle(P, { x: 50, y1: 44, y2: 53.5, hr: 2.8, w: 2.3, col: p.ink }) + canopy(P, { cx: 50, cy: 44, r: 13, ry: 11, n: 4, col: p.ink, tip: p.ink, hl: false }) + '</g>';
+    } },
+
+  { name: 'Share Network', story: 'The share symbol built from three umbrellas. Each node is a station and each line a hand-off.',
+    draw: (P, p) => {
+      const N = [[29, 50, p.canopy], [71, 27, p.partner], [71, 73, p.sun]];
+      let out = N.slice(1).map(n => `<line x1="29" y1="50" x2="${n[0]}" y2="${n[1]}" stroke="${p.on}" stroke-opacity=".6" stroke-width="3.4" stroke-linecap="round"/>`).join('');
+      for (const [x, y, col] of N) {
+        const u = pick(col, p.paper, p.ink);
+        out += `<g${P.soft()}><circle cx="${x}" cy="${y}" r="16" fill="${P.ball(col, x, y, 16)}"/>` + handle(P, { x, y1: y + 1.5, y2: y + 8.5, hr: 2.2, w: 2, col: u }) + canopy(P, { cx: x, cy: y + 1.5, r: 9.5, ry: 8, n: 3, col: u, tip: u, hl: false }) + '</g>';
+      }
+      return out;
+    } },
+
+  { name: 'R Monogram', story: 'The R of RainBorrow. The bowl is half a canopy, the stem is the shaft, and the leg kicks out into the handle hook.',
+    draw: (P, p) => {
+      const x = 34, leg = `M${x + 8} 52L${x + 21} 75A6.5 6.5 0 0 0 ${x + 33} 75L${x + 33} 71`;
+      const ls = P.flat ? p.on : P.lg([[0, lt(p.on, .28)], [1, dk(p.on, .12)]], x, 52, x + 36, 84);
+      return `<g${P.soft()}><path d="${leg}" fill="none" stroke="${ls}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>` +
+        canopy(P, { cx: x, cy: 50, r: 34, ry: 31, ts: [0, .5, .866, 1], col: p.canopy, tip: p.on, hl: false }) +
+        handle(P, { x, y1: 19, y2: 82, hook: false, w: 10.5, col: p.on }) +
+        drop(P, { x: x + 44, y: 62, s: 9, col: p.partner }) + drop(P, { x: x + 49, y: 79, s: 7, col: p.partner }) + '</g>';
+    } },
+
+  { name: 'Shade Maker', story: 'Hong Kong sun, long shadow. The canopy throws a pool of shade big enough to share.',
+    draw: (P, p, o) => {
+      const tr = 'rotate(-14 52 47)', cp = { cx: 52, cy: 47, r: 30, ry: 25, n: 4 };
+      let out = '';
+      if (!o.bare) {
+        const gid = P.id(), mid = P.id(), sc = dk(p.tile, .6);
+        P.defs.push(`<g id="${gid}" transform="${tr}"><path d="${canopyOutline(cp)}"/><path d="M52 47L52 79A5.5 5.5 0 0 1 41 79L41 76" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/></g>`);
+        P.defs.push(`<mask id="${mid}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><rect width="100" height="100" fill="${P.lg([[0, '#fff'], [1, '#000']], 50, 42, 8, 96)}"/></mask>`);
+        let uses = ''; for (let i = 1; i <= 46; i++) uses += `<use href="#${gid}" x="${f(-i * 1.1)}" y="${f(i * 1.1)}"/>`;
+        out += `<g mask="url(#${mid})" fill="${sc}" color="${sc}" opacity=".8">${uses}</g>`;
+      }
+      return out + sun(P, { x: 80, y: 19, r: 8.5, col: p.sun, len: 4.2, gap: 3, w: 2.4 }) +
+        `<g${P.soft()} transform="${tr}">` + handle(P, { x: 52, y1: 47, y2: 79, hr: 5.5, w: 4.2, col: p.on }) + canopy(P, { ...cp, col: p.canopy, tip: p.on }) + '</g>';
+    } },
+
+  { name: 'Common Ground', story: 'A rain umbrella and a sun umbrella overlap. The shared middle, in the brand colour, is where RainBorrow lives.',
+    draw: (P, p) => {
+      const L = { cx: 35, cy: 53, r: 25, ry: 22, n: 4 }, R = { ...L, cx: 65 }, cid = P.id();
+      P.defs.push(`<clipPath id="${cid}"><path d="${canopyOutline(L)}"/></clipPath>`);
+      return drop(P, { x: 22, y: 24, s: 8.5, col: p.partner }) + drop(P, { x: 34, y: 14, s: 6.5, col: p.partner }) + sun(P, { x: 76, y: 20, r: 7, col: p.sun, len: 3.5, gap: 3, w: 2.2, rot: 22.5 }) +
+        `<g${P.soft()}>` + handle(P, { x: 50, y1: 53, y2: 81, hr: 5.5, w: 4.2, col: p.on }) +
+        canopy(P, { ...L, col: p.partner, tip: p.on }) + canopy(P, { ...R, col: p.sun, tip: p.on }) +
+        `<g clip-path="url(#${cid})">` + canopy(P, { ...R, col: p.canopy, hl: false }) + '</g></g>';
+    } },
+
+  { name: 'Sunrise', story: 'The canopy is the sun, rays and all. Shelter from the heat first, and from the rain when the clouds roll in.',
+    draw: (P, p) => {
+      let rays = '';
+      const rs = P.flat ? p.canopy : P.lg([[0, lt(p.canopy, .15)], [1, dk(p.canopy, .1)]], 0, 12, 0, 56);
+      for (let i = 0; i < 8; i++) { const a = (190 + i * 160 / 7) * D, c = Math.cos(a), s = Math.sin(a); rays += `<line x1="${f(50 + 34 * c)}" y1="${f(57 + 32 * s)}" x2="${f(50 + 42 * c)}" y2="${f(57 + 40 * s)}" stroke="${rs}" stroke-width="3.6" stroke-linecap="round"/>`; }
+      return rays + drop(P, { x: 15, y: 76, s: 8, col: p.partner }) + drop(P, { x: 85, y: 80, s: 8, col: p.partner }) +
+        `<g${P.soft()}>` + handle(P, { x: 50, y1: 57, y2: 82, hr: 6, w: 4.2, col: p.on }) + canopy(P, { cx: 50, cy: 57, r: 29, ry: 27, n: 4, col: p.sun, tip: p.on }) + '</g>';
+    } },
+
+  { name: 'Give & Take', story: 'One umbrella offered, one received. The two hooks link in the middle, so every hand-off is also a connection.',
+    draw: (P, p) => {
+      const one = col => handle(P, { x: 35, y1: 37, y2: 52, hr: 9, w: 4, col: p.on, dir: 1, tail: .45 }) + canopy(P, { cx: 35, cy: 37, r: 23, ry: 19, n: 4, col, tip: p.on });
+      return sun(P, { x: 79, y: 21, r: 6.5, col: p.sun, len: 3.2, gap: 2.6, w: 2, rot: 22.5 }) + drop(P, { x: 21, y: 79, s: 10, col: p.partner }) +
+        `<g${P.soft()}>` + one(p.canopy) + `<g transform="rotate(180 50 50)">` + one(p.partner) + '</g></g>';
+    } }
+];
+
+/* ---------- options ---------- */
+const FONTS = [
+  { name: 'Nunito', w: 800, ls: -.01 }, { name: 'Space Grotesk', w: 700, ls: -.02 }, { name: 'DM Serif Display', w: 400, ls: 0 },
+  { name: 'Poppins', w: 600, ls: -.01 }, { name: 'Outfit', w: 700, ls: -.015 }, { name: 'IBM Plex Mono', w: 500, ls: -.03 }
+];
+const LAYOUTS = [['h', 'Side by side'], ['v', 'Stacked'], ['tag', 'With tagline'], ['mark', 'Symbol only']];
+const FRAMES = [['app', 'App icon'], ['round', 'Round'], ['bare', 'Bare']];
+const FINISHES = [['flat', 'Flat'], ['depth', 'Depth'], ['glass', 'Glass']];
+const TONES = [['ink', 'Ink'], ['two', 'Two-tone'], ['canopy', 'Canopy']];
+const ROLES = [['canopy', 'Canopy', 'Main umbrella colour'], ['partner', 'Rain', 'Drops, second umbrella, second person'], ['sun', 'Sun', 'Sun, rays, sunshade'], ['tile', 'Icon tile', 'Background of the app icon'], ['ink', 'Ink', 'Wordmark and dark details'], ['paper', 'Paper', 'Light details and reversed wordmark']];
+const PRESETS = [
+  { name: 'Harbour Coral', c: { canopy: '#DB5A6B', partner: '#7BA3C4', sun: '#F4B942', tile: '#1F2A44', ink: '#1F2A44', paper: '#FFF8F1' } },
+  { name: 'Red Minibus', c: { canopy: '#D7263D', partner: '#3A6EC0', sun: '#FFC857', tile: '#FDF6EC', ink: '#1B1B2F', paper: '#FFFFFF' } },
+  { name: 'Egg Tart', c: { canopy: '#EE8B3A', partner: '#6C8EBF', sun: '#FFD166', tile: '#FFF1D6', ink: '#3B2A1E', paper: '#FFFFFF' } },
+  { name: 'Neon Sign', c: { canopy: '#FF4F8B', partner: '#4D7CFE', sun: '#FFD23F', tile: '#140F2D', ink: '#140F2D', paper: '#FFF6FB' } },
+  { name: 'Harbour Dusk', c: { canopy: '#C8553D', partner: '#5B7DB1', sun: '#F28F3B', tile: '#2D1E2F', ink: '#2D1E2F', paper: '#FFF5EE' } },
+  { name: 'Monsoon', c: { canopy: '#3D5A98', partner: '#8FB8DE', sun: '#F6AE2D', tile: '#EAF2FB', ink: '#14213D', paper: '#FFFFFF' } },
+  { name: 'Milk Tea', c: { canopy: '#A0522D', partner: '#7F9CC0', sun: '#E9B872', tile: '#F5EBDD', ink: '#3E2723', paper: '#FFFDF8' } },
+  { name: 'Peak Tram', green: true, c: { canopy: '#2A7F62', partner: '#7FB3D5', sun: '#F2C14E', tile: '#10292E', ink: '#10292E', paper: '#FFFDF6' } }
+];
+const HOME_APPS = ['Weather', 'Maps', 'Transit', 'Wallet', 'Camera', 'Notes', 'Clock'];
+
+const st = { mark: 0, font: 0, layout: 0, frame: 0, finish: 1, tone: 1, tagline: 'Rain or shine · 晴雨共享', colors: { ...PRESETS[0].c } };
+
+/* ---------- render ---------- */
+function palette(frame, surface) {
+  const c = st.colors, ground = frame === 'bare' ? surface : c.tile, on = pick(ground, c.ink, c.paper);
+  return { ...c, ground, on };
+}
+function iconSVG(size, opt = {}) {
+  const frame = opt.frame || FRAMES[st.frame][0], finish = FINISHES[st.finish][0], surface = opt.surface || '#FFFFFF';
+  const m = MARKS[opt.mark ?? st.mark], P = new Painter(finish), p = palette(frame, surface), bare = frame === 'bare';
+  const body = m.draw(P, p, { bare });
+  let inner;
+  if (bare) inner = `<g${P.shadow()}>${body}</g>`;
+  else {
+    const shape = frame === 'round' ? '<circle cx="50" cy="50" r="50"/>' : `<path d="${SQ}"/>`, cid = P.id();
+    P.defs.push(`<clipPath id="${cid}">${shape}</clipPath>`);
+    let bg = `<rect width="100" height="100" fill="${P.flat ? p.tile : P.lg([[0, lt(p.tile, .1)], [1, dk(p.tile, .14)]], 0, 0, 0, 100)}"/>`;
+    if (!P.flat) bg += `<circle cx="20" cy="12" r="75" fill="${P.rg([[0, '#fff', .16], [1, '#fff', 0]], 20, 12, 75)}"/>`;
+    if (m.bg) bg += m.bg(P, p);
+    let over = '';
+    if (finish === 'glass') over = `<path d="M-2 -2H102V38C72 50 28 50 -2 38Z" fill="${P.lg([[0, '#fff', .38], [1, '#fff', .04]], 0, 0, 0, 46)}"/><rect y="62" width="100" height="38" fill="${P.lg([[0, '#000', 0], [1, '#000', .2]], 0, 62, 0, 100)}"/>`;
+    if (!P.flat) over += frame === 'round' ? `<circle cx="50" cy="50" r="50" fill="none" stroke="#fff" stroke-opacity="${finish === 'glass' ? .4 : .18}" stroke-width="2.4"/>` : `<path d="${SQ}" fill="none" stroke="#fff" stroke-opacity="${finish === 'glass' ? .4 : .18}" stroke-width="2.4"/>`;
+    inner = `<g clip-path="url(#${cid})">${bg}<g${P.shadow()}>${body}</g>${over}</g>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="RainBorrow symbol: ${m.name}"><defs>${P.defs.join('')}</defs>${inner}</svg>`;
+}
+function splitWord(w) { const m = w.match(/^(.[^A-Z]*)(.*)$/); return m ? [m[1], m[2]] : [w, '']; }
+function wordColors(surface) {
+  const c = st.colors, base = pick(surface, c.ink, c.paper), tone = TONES[st.tone][0];
+  const brand = contrast(c.canopy, surface) >= 2 ? c.canopy : base;
+  return tone === 'ink' ? [base, base] : tone === 'two' ? [base, brand] : [brand, brand];
+}
+function logoHTML(sym, surface) {
+  const lay = LAYOUTS[st.layout][0], fo = FONTS[st.font], [a, b] = splitWord('RainBorrow'), [ca, cb] = wordColors(surface);
+  const svg = iconSVG(sym, { surface });
+  if (lay === 'mark') return `<div class="logo">${svg}</div>`;
+  const word = `<span class="word" style="font-family:'${fo.name}',sans-serif;font-weight:${fo.w};letter-spacing:${fo.ls}em"><span style="color:${ca}">${a}</span><span style="color:${cb}">${b}</span></span>`;
+  const tag = lay === 'tag' ? `<span class="tag" style="color:${pick(surface, st.colors.ink, st.colors.paper)}">${esc(st.tagline)}</span>` : '';
+  return `<div class="logo${lay === 'v' ? ' v' : ''}" style="font-size:${lay === 'v' ? 30 : 34}px">${svg}<span class="words">${word}${tag}</span></div>`;
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function renderPreview() {
+  const c = st.colors;
+  $('#t1').innerHTML = '<small>On white</small>' + logoHTML(64, '#FFFFFF');
+  const t2 = $('#t2'); t2.style.background = c.ink; t2.style.color = pick(c.ink, '#FFFFFF', '#1F2A44');
+  t2.innerHTML = '<small>On ink</small>' + logoHTML(64, c.ink);
+  const wall = `linear-gradient(160deg, ${mix(c.partner, '#0B1020', .45)}, ${mix(c.canopy, '#0B1020', .55)})`;
+  const homeFrame = FRAMES[st.frame][0] === 'bare' ? 'app' : FRAMES[st.frame][0];
+  $('#t3').innerHTML = `<small>Home screen</small><div class="home" style="background:${wall}"><div class="app">${iconSVG(52, { frame: homeFrame })}RainBorrow</div>${HOME_APPS.map(n => `<div class="app"><i${homeFrame === 'round' ? ' style="border-radius:50%"' : ''}></i>${n}</div>`).join('')}</div>`;
+  $('#t4').innerHTML = '<small>Small sizes</small><div class="ladder">' + [96, 64, 44, 29, 20, 16].map(s => `<figure>${iconSVG(s)}<figcaption>${s}px</figcaption></figure>`).join('') + '</div>';
+}
+function renderOptions() {
+  $('#marks').innerHTML = MARKS.map((m, i) => `<button type="button" data-i="${i}" aria-pressed="${i === st.mark}">${iconSVG(60, { mark: i })}${m.name}</button>`).join('');
+  $('#story').innerHTML = `<b>${MARKS[st.mark].name}.</b> ${MARKS[st.mark].story}`;
+  $('#fonts').innerHTML = FONTS.map((fo, i) => `<button type="button" data-i="${i}" aria-pressed="${i === st.font}"><span class="tw" style="font-family:'${fo.name}',sans-serif;font-weight:${fo.w};letter-spacing:${fo.ls}em">RainBorrow</span>${fo.name}</button>`).join('');
+  const seg = (id, list, key) => { $(id).innerHTML = list.map((x, i) => `<button type="button" data-i="${i}" aria-pressed="${i === st[key]}">${x[1]}</button>`).join(''); };
+  seg('#layouts', LAYOUTS, 'layout'); seg('#frames', FRAMES, 'frame'); seg('#finishes', FINISHES, 'finish'); seg('#tones', TONES, 'tone');
+}
+function renderPresets() {
+  const g = $('#noGreen').checked;
+  $('#presets').innerHTML = PRESETS.map((pr, i) => pr.green && g ? '' : `<button type="button" class="chip" data-i="${i}"><span class="dots">${['canopy', 'partner', 'sun', 'tile'].map(k => `<i style="background:${pr.c[k]}"></i>`).join('')}</span>${pr.name}</button>`).join('');
+}
+function renderPickers() {
+  $('#pickers').innerHTML = ROLES.map(([k, label, hint]) => `<div class="row"><label for="c_${k}">${label}</label><input type="color" id="c_${k}" data-k="${k}" value="${st.colors[k].toLowerCase()}" aria-label="${label} colour"><input type="text" id="h_${k}" data-k="${k}" value="${st.colors[k]}" spellcheck="false" aria-label="${label} hex value"><small>${hint}</small></div>`).join('');
+}
+function syncPickers() {
+  for (const [k] of ROLES) { $('#c_' + k).value = st.colors[k].toLowerCase(); const h = $('#h_' + k); if (document.activeElement !== h) { h.value = st.colors[k]; h.removeAttribute('aria-invalid'); } }
+}
+function renderChecks() {
+  const c = st.colors, rows = [];
+  const add = (ok, text) => rows.push(`<div><span class="pill ${ok ? 'ok' : 'warn'}">${ok ? 'Pass' : 'Check'}</span><span>${text}</span></div>`);
+  const r = (a, b) => contrast(a, b).toFixed(1) + ':1';
+  add(contrast(c.ink, '#FFFFFF') >= 4.5, `Wordmark on white: <span class="mono">${r(c.ink, '#FFFFFF')}</span> (needs 4.5:1)`);
+  add(contrast(c.paper, c.ink) >= 4.5, `Reversed wordmark on ink: <span class="mono">${r(c.paper, c.ink)}</span> (needs 4.5:1)`);
+  add(contrast(c.canopy, c.tile) >= 3, `Canopy against the icon tile: <span class="mono">${r(c.canopy, c.tile)}</span> (needs 3:1 to read at 29px)`);
+  add(contrast(c.sun, c.tile) >= 1.8 && contrast(c.partner, c.tile) >= 1.8, `Sun and rain against the tile: <span class="mono">${r(c.sun, c.tile)}</span> and <span class="mono">${r(c.partner, c.tile)}</span>`);
+  add(contrast(c.canopy, c.partner) >= 1.25 && contrast(c.canopy, c.sun) >= 1.25, 'Canopy stays distinct from sun and rain in greyscale print');
+  const dc = [c.canopy, c.partner, c.sun].map(deutan), dmin = Math.min(dist(dc[0], dc[1]), dist(dc[0], dc[2]), dist(dc[1], dc[2]));
+  add(dmin > 40, `Canopy, sun and rain stay apart for red-green colour blindness (closest pair ${Math.round(dmin)} of 441)`);
+  const greens = ROLES.filter(([k]) => isGreen(c[k])).map(x => x[1]);
+  if ($('#noGreen').checked) add(!greens.length, greens.length ? `Green found in: ${greens.join(', ')}` : 'No green in the palette');
+  const vivid = ROLES.filter(([k]) => { const [h, s, l] = hsl(c[k]); return s > .82 && l > .38 && l < .66 && (h > 190 && h < 320 || h > 95 && h < 170); }).map(x => x[1]);
+  add(!vivid.length, vivid.length ? `${vivid.join(', ')} may print duller in CMYK. Ask the printer for a proof.` : 'All colours sit inside a typical CMYK print range');
+  $('#checks').innerHTML = rows.join('');
+}
+function renderAll() { renderPreview(); renderOptions(); renderChecks(); syncPickers(); $('#tagline').value !== st.tagline && ($('#tagline').value = st.tagline); }
+
+/* ---------- interaction ---------- */
+function toast(msg) { $('#toast').textContent = msg; }
+function bindGroup(id, key, fn) { $(id).addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; st[key] = +b.dataset.i; (fn || renderAll)(); }); }
+bindGroup('#marks', 'mark'); bindGroup('#fonts', 'font'); bindGroup('#layouts', 'layout'); bindGroup('#frames', 'frame'); bindGroup('#finishes', 'finish'); bindGroup('#tones', 'tone');
+$('#presets').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; const pr = PRESETS[+b.dataset.i]; st.colors = { ...pr.c }; renderAll(); toast(`Applied the ${pr.name} palette.`); });
+$('#pickers').addEventListener('input', e => {
+  const k = e.target.dataset.k; if (!k) return;
+  let v = e.target.value.trim();
+  if (e.target.type === 'text') { if (!/^#?[0-9a-f]{6}$/i.test(v) && !/^#?[0-9a-f]{3}$/i.test(v)) { e.target.setAttribute('aria-invalid', 'true'); return; } e.target.removeAttribute('aria-invalid'); }
+  v = rgb2hex(...hex2rgb(v)); st.colors[k] = v; renderAll();
+});
+$('#noGreen').addEventListener('change', () => { renderPresets(); renderChecks(); });
+$('#tagline').addEventListener('input', e => { st.tagline = e.target.value; renderPreview(); });
+
+function randomHue(avoidGreen) { let h; do { h = Math.random() * 360; } while (avoidGreen && h > 65 && h < 175); return h; }
+$('#randomize').addEventListener('click', () => {
+  const g = $('#noGreen').checked, r = n => Math.floor(Math.random() * n);
+  st.mark = r(MARKS.length); st.font = r(FONTS.length); st.layout = r(3); st.frame = r(2); st.finish = 1 + r(2); st.tone = r(TONES.length);
+  const pool = PRESETS.filter(p => !(g && p.green));
+  if (Math.random() < .45) st.colors = { ...pool[r(pool.length)].c };
+  else {
+    const h = randomHue(g); let h2 = h + 150 + Math.random() * 60; if (g) while (h2 % 360 > 65 && h2 % 360 < 175) h2 += 25;
+    const dark = Math.random() < .55;
+    st.colors = { canopy: hsl2hex(h, .68, .56), partner: hsl2hex(h2, .45, .62), sun: hsl2hex(38 + Math.random() * 10, .92, .6),
+      tile: dark ? hsl2hex(h2, .38, .16) : hsl2hex(h + 20, .6, .95), ink: hsl2hex(h2, .4, .16), paper: hsl2hex(h, .6, .98) };
+  }
+  renderAll(); toast(`${MARKS[st.mark].name} in ${FONTS[st.font].name}.`);
+});
+
+/* ---------- export ---------- */
+function loadImg(svg) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }); }
+function save(blob, name, note) {
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  const out = $('#out'); out.hidden = false;
+  out.innerHTML = `<img src="${url}" alt="Exported ${name}"><p class="tip">Saved as <span class="mono">${name}</span>${note ? ' ' + note : ''}. If the download didn’t start, right-click or long-press the image to save it.</p>`;
+  toast(`Exported ${name}.`);
+}
+const canvasBlob = c => new Promise(r => c.toBlob(r, 'image/png'));
+$('#dlMark').addEventListener('click', async () => {
+  const img = await loadImg(iconSVG(1024)), c = document.createElement('canvas'); c.width = c.height = 1024;
+  c.getContext('2d').drawImage(img, 0, 0, 1024, 1024);
+  save(await canvasBlob(c), `rainborrow-symbol-${slug()}.png`, '(1024 × 1024, ready for app stores)');
+});
+$('#dlSvg').addEventListener('click', () => save(new Blob([iconSVG(1024)], { type: 'image/svg+xml' }), `rainborrow-symbol-${slug()}.svg`));
+$('#copySvg').addEventListener('click', () => copy(iconSVG(1024), 'Copied the symbol SVG.'));
+$('#dlLogo').addEventListener('click', async () => {
+  const fo = FONTS[st.font], lay = LAYOUTS[st.layout][0], S = 384, surface = '#FFFFFF';
+  try { await Promise.all([document.fonts.load(`${fo.w} 60px "${fo.name}"`), document.fonts.load(`600 20px "Nunito Sans"`), document.fonts.load(`600 20px "Noto Sans HK"`, '晴雨共享')]); } catch (e) { /* draw with fallbacks */ }
+  const img = await loadImg(iconSVG(S, { surface }));
+  const c = document.createElement('canvas'), x = c.getContext('2d'), [a, b] = splitWord('RainBorrow'), [ca, cb] = wordColors(surface);
+  const wp = lay === 'v' ? S * .36 : S * .5, tp = S * .15, pad = S * .12, gap = lay === 'v' ? S * .1 : S * .16;
+  const wordFont = `${fo.w} ${wp}px "${fo.name}", sans-serif`, tagFont = `600 ${tp}px "Nunito Sans", "Noto Sans HK", sans-serif`;
+  const setWord = () => { x.font = wordFont; if ('letterSpacing' in x) x.letterSpacing = `${fo.ls * wp}px`; };
+  setWord(); const wa = x.measureText(a).width, ww = wa + x.measureText(b).width;
+  x.font = tagFont; if ('letterSpacing' in x) x.letterSpacing = `${.04 * tp}px`; const tw = lay === 'tag' ? x.measureText(st.tagline).width : 0;
+  let W, H;
+  if (lay === 'mark') { W = H = S + pad * 2; }
+  else if (lay === 'v') { W = Math.max(S, ww) + pad * 2; H = S + gap + wp * 1.1 + pad * 2; }
+  else { W = S + gap + Math.max(ww, tw) + pad * 2; H = S + pad * 2; }
+  c.width = Math.ceil(W); c.height = Math.ceil(H);
+  const draw = (text, col, px, py) => { x.fillStyle = col; x.fillText(text, px, py); };
+  if (lay === 'mark') x.drawImage(img, pad, pad, S, S);
+  else if (lay === 'v') { x.drawImage(img, (W - S) / 2, pad, S, S); setWord(); x.textBaseline = 'alphabetic'; const bx = (W - ww) / 2, by = pad + S + gap + wp * .82; draw(a, ca, bx, by); draw(b, cb, bx + wa, by); }
+  else {
+    x.drawImage(img, pad, pad, S, S); setWord(); x.textBaseline = 'middle'; const bx = pad + S + gap, my = pad + S / 2 - (lay === 'tag' ? tp * .7 : 0);
+    draw(a, ca, bx, my); draw(b, cb, bx + wa, my);
+    if (lay === 'tag') { x.font = tagFont; if ('letterSpacing' in x) x.letterSpacing = `${.04 * tp}px`; draw(st.tagline, pick(surface, st.colors.ink, st.colors.paper), bx + wp * .03, my + wp * .5 + tp * .75); }
+  }
+  save(await canvasBlob(c), `rainborrow-logo-${slug()}.png`, '(transparent background, for light surfaces)');
+});
+const slug = () => MARKS[st.mark].name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '');
+async function copy(text, msg) {
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch (e) {
+    const out = $('#out'); out.hidden = false; out.innerHTML = '<p class="tip">Your browser blocked the clipboard. Select the text below and copy it.</p><textarea id="copyBox" rows="4" style="width:100%;font:500 .75rem \'IBM Plex Mono\',monospace" readonly></textarea>';
+    const t = $('#copyBox'); t.value = text; t.focus(); t.select(); toast('Select and copy the text below.');
+  }
+}
+
+/* share link: a plain #token so it survives any host */
+function token() { return `m${st.mark}f${st.font}l${st.layout}r${st.frame}x${st.finish}t${st.tone}-` + ROLES.map(([k]) => st.colors[k].slice(1)).join('-'); }
+function readToken(h) {
+  const m = h.replace(/^#/, '').match(/^m(\d+)f(\d+)l(\d+)r(\d+)x(\d+)t(\d+)((?:-[0-9A-Fa-f]{6}){6})$/); if (!m) return false;
+  const n = m.slice(1, 7).map(Number), lim = [MARKS, FONTS, LAYOUTS, FRAMES, FINISHES, TONES].map(a => a.length);
+  if (n.some((v, i) => v >= lim[i])) return false;
+  [st.mark, st.font, st.layout, st.frame, st.finish, st.tone] = n;
+  m[7].slice(1).split('-').forEach((hx, i) => { st.colors[ROLES[i][0]] = '#' + hx.toUpperCase(); });
+  return true;
+}
+$('#copyLink').addEventListener('click', () => copy(location.href.split('#')[0] + '#' + token(), 'Copied a link to this exact combination.'));
+window.addEventListener('hashchange', () => { if (readToken(location.hash)) renderAll(); });
+
+readToken(location.hash);
+renderPresets(); renderPickers(); renderAll();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderPreview);
+})();
+</script>

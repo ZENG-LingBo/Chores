@@ -13,10 +13,10 @@ let needsRender = true, transition = null, lastTime = 0, toastTimer;
 const pointers = new Map();
 const keys = new Set();
 const presets = {
-  outside: { az: .68, el: .48, distance: 1.97, target: [0, .21, 0], label: 'OUTSIDE / THREE-QUARTER', number: '01', title: 'Made to stand out.', copy: 'Bold stacked words. Artwork that fills the panels.', note: 'Eight curved panels.<br>One unmistakable colour.' },
-  inside: { az: .3, el: -1.05, distance: 1.95, target: [0, .42, 0], label: 'INSIDE / UNDER THE CANOPY', number: '02', title: 'A little personality inside.', copy: 'Warm Paper lining. Six messages. Two QR panels.', note: 'Look up.<br>There’s more underneath.' },
-  top: { az: 0, el: 1.54, distance: 2.05, target: [0, .46, 0], label: 'TOP / EIGHT-PANEL CANOPY', number: '03', title: 'Every angle, considered.', copy: 'The artwork repeats on opposite panels.', note: 'Logo, name, slogan.<br>A rhythm around the canopy.' },
-  detail: { az: .5, el: .08, distance: .52, target: [0, -.10, 0], label: 'DETAIL / HANDLE & HARDWARE', number: '04', title: 'The finishing touches.', copy: 'A matte grip, telescopic shaft and wrist loop.', note: 'Night Ink hardware.<br>Details you can get close to.' },
+  outside: { az: .68, el: .48, distance: 1.97, target: [0, .21, 0] },
+  inside: { az: .3, el: -1.05, distance: 1.95, target: [0, .42, 0] },
+  top: { az: 0, el: 1.54, distance: 2.05, target: [0, .46, 0] },
+  detail: { az: .5, el: .08, distance: .52, target: [0, -.10, 0] },
 };
 
 function notify(message) {
@@ -121,7 +121,9 @@ async function buildModel() {
     mesh(panelGeometry(k), outer);
     mesh(panelGeometry(k, true), inner);
   }
-  const rib = new THREE.MeshStandardMaterial({color:'#303848', roughness:.48, metalness:.28});
+  const rib = new THREE.MeshStandardMaterial({color:'#56606b', roughness:.78, metalness:.12});
+  const support = new THREE.MeshStandardMaterial({color:'#727984', roughness:.68, metalness:.2});
+  const runnerY = .355;
   const seam = new THREE.MeshStandardMaterial({color:'#bf4b5d', roughness:.9});
   const hem = new THREE.MeshStandardMaterial({color:'#d66b79', roughness:.9});
   const metal = new THREE.MeshStandardMaterial({color:'#6b727b', roughness:.26, metalness:.87, envMapIntensity:.8});
@@ -131,25 +133,25 @@ async function buildModel() {
     for (let j = 0; j <= 40; j++) {
       const p = surface(k, j/40, 0);
       upper.push(p.clone().add(new THREE.Vector3(0,.0007,0)));
-      lower.push(p.clone().add(new THREE.Vector3(0,-.005,0)));
+      lower.push(p.clone().add(new THREE.Vector3(0,-.0034,0)));
       edge.push(surface(k, 1, j/40));
     }
     tube(upper, .0008, seam);
-    tube(lower, .0024, rib);
+    tube(lower, .0014, rib);
     tube(edge, .0018, hem);
-    const anchor = surface(k, .60, 0, true).add(new THREE.Vector3(0,-.007,0));
-    link(new THREE.Vector3(0,.245,0), anchor, .002, metal);
-    const end = mesh(new THREE.CapsuleGeometry(.004, .01, 4, 10), ink);
+    const anchor = surface(k, .60, 0, true).add(new THREE.Vector3(0,-.0048,0));
+    link(new THREE.Vector3(0,runnerY,0), anchor, .00115, support);
+    const end = mesh(new THREE.CapsuleGeometry(.003, .008, 4, 10), ink);
     end.position.copy(surface(k,1,0));
     const a = Math.PI/2 + (k-.5)*TAU/8;
     end.rotation.z = Math.PI/2; end.rotation.y = -a;
-    const joint = mesh(new THREE.SphereGeometry(.004, 10, 8), metal); joint.position.copy(anchor);
+    const joint = mesh(new THREE.SphereGeometry(.0028, 10, 8), support); joint.position.copy(anchor);
   }
   // Three telescoping shaft sections and the runner beneath the rib supports.
   for (const [radius, length, y] of [[.006,.24,.44],[.0068,.19,.225],[.0077,.17,.045]]) {
     mesh(new THREE.CylinderGeometry(radius,radius,length,24),metal).position.y=y;
   }
-  mesh(new THREE.CylinderGeometry(.014,.013,.044,24),ink).position.y=.245;
+  mesh(new THREE.CylinderGeometry(.011,.010,.032,24),ink).position.y=runnerY;
   mesh(new THREE.CylinderGeometry(.009,.009,.013,24),metal).position.y=-.005;
   mesh(new THREE.CapsuleGeometry(.022,.105,8,32),ink).position.y=-.10;
   const gripSeam = mesh(new THREE.TorusGeometry(.0221,.0006,6,40),rib); gripSeam.rotation.x=Math.PI/2; gripSeam.position.y=-.146;
@@ -192,7 +194,6 @@ function autoRotate(enabled) {
 }
 function preset(name, immediate=false) {
   const p=presets[name];state.preset=name;autoRotate(false);
-  $('view-label').textContent=p.label;$('caption-number').textContent=p.number;$('caption-title').textContent=p.title;$('caption-copy').textContent=p.copy;$('design-note').innerHTML=p.note;
   document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
   const dest={az:p.az,el:p.el,distance:p.distance,target:new THREE.Vector3(...p.target)};
   // Take the short way around the canopy when changing views.

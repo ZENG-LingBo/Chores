@@ -4,22 +4,16 @@ import * as THREE from './vendor/three.module.min.js';
 const D2R = Math.PI / 180;
 const N = 8;                       // canopy panels (gores)
 const W = (2 * Math.PI) / N;       // angular width of one panel
-const TW = 256, TH = 384;          // texture tile per panel; row 0 = apex, row TH = rim
+const TW = 512, TH = 768;          // texture tile per panel; row 0 = apex, row TH = rim
 const ATW = N * TW;
 const AZ = 100 * D2R, UP = 60 * D2R, DN = 75 * D2R;  // human visual field half-extents
 const EYE_TO_GROUND = 1.62;
-const SHAFT_TO_HAND = 0.78;
-
-const BRANDS = [
-  { name: 'RAINBORROW', tag: 'Borrow. Return. Stay dry.', bg: '#FF5A36', fg: '#FFFFFF' },
-  { name: 'NOVA TEA', tag: 'Hot tea, two blocks away', bg: '#FFD23F', fg: '#1B1B1B' },
-  { name: 'KITE BANK', tag: 'Save for a rainy day', bg: '#1FB6A6', fg: '#FFFFFF' },
-  { name: 'MOSS PHONES', tag: 'Waterproof. Finally.', bg: '#FF4F9A', fg: '#FFFFFF' },
-];
+const SHAFT_TO_HAND = 0.68;
+const panelArt = { in: [], out: [], mask: [] };
 
 const S = {
-  diam: 1.05, depth: 0.26, height: 0.42, tilt: 0, fwd: 0.10, side: 0.20, spin: 0,
-  layout: 'full', panels: 'all', print: 'both', size: 0.8,
+  diam: 0.96, depth: 0.16, height: 0.42, tilt: 0, fwd: 0.10, side: 0.20, spin: 0,
+  layout: 'full', panels: 'all', print: 'both', size: 1,
   yaw: 0, pitch: 0, fov: 90,
   mode: 'pov', map: 'real',
 };
@@ -50,64 +44,51 @@ function adRect() {
   return { x: (TW - w) / 2, y: TH * 0.64 - h / 2, w, h };
 }
 
-function wrap(ctx, text, maxW) {
-  const words = text.split(' '), lines = []; let cur = '';
-  for (const w of words) {
-    const t = cur ? cur + ' ' + w : w;
-    if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t;
-  }
-  if (cur) lines.push(cur);
-  return lines;
+// Reuse the studio's flat print assets. Each atlas row samples the narrowing
+// triangular gore, so the artwork retains its proportions on the 3D panel.
+async function loadPanelArt() {
+  const loader = new THREE.ImageLoader();
+  await Promise.all(['in', 'out'].map(async side => {
+    panelArt[side] = await Promise.all(Array.from({length:side === 'in' ? 8 : 4}, async (_, k) => {
+      const image = await loader.loadAsync('assets/' + side + '-' + k + '.png');
+      const tile = document.createElement('canvas'); tile.width = TW; tile.height = TH;
+      const ctx = tile.getContext('2d', {willReadFrequently:true});
+      for (let row = 0; row < TH; row++) {
+        const t = (row + .5) / TH;
+        const width = Math.max(1, image.width * t);
+        ctx.drawImage(image, (image.width-width)/2, row/TH*image.height, width, image.height/TH, 0, row, TW, 1);
+      }
+      if (side === 'in') {
+        const data = ctx.getImageData(0,0,TW,TH), bg = data.data.slice(0,3);
+        // Count printed ink, excluding the plain cream lining.
+        for(let i=0;i<data.data.length;i+=4) {
+          const printed = Math.max(Math.abs(data.data[i]-bg[0]),Math.abs(data.data[i+1]-bg[1]),Math.abs(data.data[i+2]-bg[2])) > 24;
+          data.data[i]=data.data[i+1]=data.data[i+2]=printed?255:0; data.data[i+3]=255;
+        }
+        const maskTile = document.createElement('canvas'); maskTile.width=TW;maskTile.height=TH;
+        maskTile.getContext('2d').putImageData(data,0,0);panelArt.mask[k]=maskTile;
+      }
+      return tile;
+    }));
+  }));
 }
-
-function drawAd(ctx, x0, k, forMask) {
-  const r = adRect();
-  ctx.save();
-  ctx.beginPath(); ctx.rect(x0, 0, TW, TH); ctx.clip();
-  const rad = S.layout === 'card' ? 14 : 0;
-  ctx.beginPath();
-  if (ctx.roundRect && rad) ctx.roundRect(x0 + r.x, r.y, r.w, r.h, rad); else ctx.rect(x0 + r.x, r.y, r.w, r.h);
-  const b = BRANDS[k % BRANDS.length];
-  ctx.fillStyle = forMask ? '#fff' : b.bg;
-  ctx.fill();
-  if (!forMask) {
-    ctx.clip();
-    ctx.fillStyle = b.fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const cx = x0 + r.x + r.w / 2, pad = r.w * 0.08, maxW = r.w - pad * 2;
-    let fs = Math.min(maxW / (b.name.length * 0.68), r.h * 0.26, 46);
-    const fam = '"Archivo", "Arial Black", sans-serif';
-    ctx.font = `800 ${fs}px ${fam}`;
-    const nameY = r.y + r.h * (S.layout === 'band' ? 0.42 : 0.4);
-    ctx.fillText(b.name, cx, nameY, maxW);
-    const tfs = Math.max(11, Math.min(fs * 0.42, 20));
-    ctx.font = `600 ${tfs}px ${fam}`;
-    const lines = wrap(ctx, b.tag, maxW);
-    lines.forEach((ln, i) => ctx.fillText(ln, cx, nameY + fs * 0.85 + i * tfs * 1.25, maxW));
-    // "scan" chip
-    const cs = Math.min(r.w * 0.22, r.h * 0.16, 44);
-    if (cs > 14) {
-      const qy = r.y + r.h - cs - 10;
-      ctx.fillStyle = b.fg; ctx.fillRect(cx - cs / 2, qy, cs, cs);
-      ctx.fillStyle = b.bg;
-      for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) if ((i * 3 + j * 5 + k) % 3 === 0) ctx.fillRect(cx - cs / 2 + 3 + i * (cs - 6) / 4, qy + 3 + j * (cs - 6) / 4, (cs - 6) / 4 - 1, (cs - 6) / 4 - 1);
-    }
-  }
-  ctx.restore();
+function drawAd(ctx, x0, k, side) {
+  const r = adRect(), tiles = panelArt[side];
+  ctx.drawImage(tiles[k % tiles.length], x0+r.x, r.y, r.w, r.h);
 }
 
 function paintAtlas() {
   const inside = S.print === 'both' || S.print === 'in';
   const outside = S.print === 'both' || S.print === 'out';
-  for (const [ctx, fabric, ads] of [[ctxIn, '#41537A', inside], [ctxOut, '#1B2742', outside]]) {
+  for (const [ctx, fabric, ads] of [[ctxIn, '#F7F1EE', inside], [ctxOut, '#DB5A6B', outside]]) {
     for (let k = 0; k < N; k++) {
       const x0 = k * TW;
       ctx.fillStyle = fabric; ctx.fillRect(x0, 0, TW, TH);
-      if (ads && panelHasAd(k)) drawAd(ctx, x0, k, false);
-      ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(x0, 0, 2, TH); ctx.fillRect(x0 + TW - 2, 0, 2, TH);
+      if (ads && panelHasAd(k)) drawAd(ctx, x0, k, ctx === ctxIn ? 'in' : 'out');
     }
   }
   ctxMask.fillStyle = '#000'; ctxMask.fillRect(0, 0, ATW, TH);
-  if (inside) for (let k = 0; k < N; k++) if (panelHasAd(k)) drawAd(ctxMask, k * TW, k, true);
+  if (inside) for (let k = 0; k < N; k++) if (panelHasAd(k)) drawAd(ctxMask, k * TW, k, 'mask');
   const m = ctxMask.getImageData(0, 0, ATW, TH).data;
   for (let i = 0; i < mask.length; i++) mask[i] = m[i * 4] > 127 ? 1 : 0;
   inPixels = ctxIn.getImageData(0, 0, ATW, TH).data;
@@ -358,9 +339,10 @@ const fieldRoot = new THREE.Group();
 let armMesh = null, handMesh = null;
 const skinMat = new THREE.MeshStandardMaterial({ color: '#d9a982', roughness: 0.8 });
 const coatMat = new THREE.MeshStandardMaterial({ color: '#39404a', roughness: 0.9 });
+skinMat.userData.keep = coatMat.userData.keep = true;
 
 function canopyGeometry(G, mirror, shaded) {
-  const SEG = 12, RING = 20, pos = [], nor = [], uv = [], idx = [], col = [];
+  const SEG = 28, RING = 44, pos = [], nor = [], uv = [], idx = [], col = [];
   for (let k = 0; k < N; k++) {
     const base = pos.length / 3;
     for (let j = 0; j <= RING; j++) {
@@ -392,7 +374,9 @@ function makeTex(canvas) {
 }
 
 function disposeGroup(g) {
-  g.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material && !o.material.userData.keep) o.material.dispose(); });
+  const materials = new Set();
+  g.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material && !o.material.userData.keep) materials.add(o.material); });
+  materials.forEach(m => m.dispose());
   g.clear();
 }
 
@@ -407,27 +391,54 @@ function rebuildUmbrella() {
   const spin = new THREE.Group(); spin.rotation.y = G.spin; canopy.add(spin);
 
   const inner = new THREE.Mesh(canopyGeometry(G, false, true), new THREE.MeshBasicMaterial({ map: texIn, vertexColors: true, side: THREE.BackSide }));
-  const outer = new THREE.Mesh(canopyGeometry(G, true, false), new THREE.MeshStandardMaterial({ map: texOut, roughness: 0.65, side: THREE.FrontSide }));
+  const outer = new THREE.Mesh(canopyGeometry(G, true, false), new THREE.MeshStandardMaterial({ map: texOut, roughness: 0.76, side: THREE.FrontSide }));
   spin.add(inner, outer);
 
-  const metal = new THREE.MeshStandardMaterial({ color: '#2b2f36', metalness: 0.6, roughness: 0.4 });
-  for (let k = 0; k < N; k++) {
-    const ph = k * W - W / 2, pts = [];
-    for (let j = 0; j <= 24; j++) { const th = (G.thetaMax * j) / 24; pts.push(new THREE.Vector3(G.Rs * Math.sin(th) * Math.cos(ph), G.Rs * Math.cos(th), G.Rs * Math.sin(th) * Math.sin(ph))); }
-    spin.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.004, 5), metal));
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.008, 8, 6), metal);
-    tip.position.copy(pts[24]); spin.add(tip);
+  const metal = new THREE.MeshStandardMaterial({color:'#6b727b', roughness:.26, metalness:.87});
+  const rib = new THREE.MeshStandardMaterial({color:'#56606b', roughness:.78, metalness:.12});
+  const support = new THREE.MeshStandardMaterial({color:'#727984', roughness:.68, metalness:.2});
+  const ink = new THREE.MeshStandardMaterial({color:'#162238', roughness:.62, metalness:.08});
+  const seam = new THREE.MeshStandardMaterial({color:'#bf4b5d', roughness:.9});
+  const hem = new THREE.MeshStandardMaterial({color:'#d66b79', roughness:.9});
+  const add = (geo,mat,y=0) => { const m=new THREE.Mesh(geo,mat);m.position.y=y;spin.add(m);return m; };
+  const tube = (pts,radius,mat) => add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),48,radius,6),mat);
+  const link = (a,b,radius,mat) => {
+    const d=b.clone().sub(a),m=add(new THREE.CylinderGeometry(radius,radius,d.length(),10),mat);
+    m.position.copy(a).add(b).multiplyScalar(.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return m;
+  };
+  // Same 6.5 cm clearance below the hem as the studio's raised runner.
+  const runnerY=G.Rs-G.h-.065;
+  for(let k=0;k<N;k++) {
+    const ph=k*W-W/2, lower=[],upper=[],edge=[];
+    for(let j=0;j<=40;j++) {
+      const th=G.thetaMax*j/40;
+      const p=new THREE.Vector3(G.Rs*Math.sin(th)*Math.cos(ph),G.Rs*Math.cos(th),G.Rs*Math.sin(th)*Math.sin(ph));
+      upper.push(p.clone().add(new THREE.Vector3(0,.0007,0)));
+      lower.push(p.clone().add(new THREE.Vector3(0,-.0034,0)));
+      const a=ph+W*j/40;edge.push(new THREE.Vector3(G.r*Math.cos(a),G.Rs-G.h,G.r*Math.sin(a)));
+    }
+    tube(upper,.0008,seam);tube(lower,.0014,rib);tube(edge,.0018,hem);
+    const r=G.r*.6,anchor=new THREE.Vector3(r*Math.cos(ph),Math.sqrt(G.Rs*G.Rs-r*r)-.0066,r*Math.sin(ph));
+    link(new THREE.Vector3(0,runnerY,0),anchor,.00115,support);
+    const tip=add(new THREE.CapsuleGeometry(.003,.008,4,10),ink);
+    tip.position.copy(edge[0]);tip.rotation.z=Math.PI/2;tip.rotation.y=-ph;
+    add(new THREE.SphereGeometry(.0028,10,8),support).position.copy(anchor);
   }
-  const ferrule = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.008, 0.07, 8), metal); ferrule.position.set(0, G.Rs + 0.03, 0); spin.add(ferrule);
+  add(new THREE.CylinderGeometry(.011,.010,.032,24),ink,runnerY);
+  add(new THREE.CapsuleGeometry(.0055,.024,5,16),ink,G.Rs+.017);
+  // The same telescoping shaft, navy grip, button and wrist loop as the studio.
+  for(const [radius,length,offset] of [[.006,.24,-.14],[.0068,.19,-.355],[.0077,.17,-.535]]) {
+    add(new THREE.CylinderGeometry(radius,radius,length,24),metal,G.Rs+offset);
+  }
+  add(new THREE.CylinderGeometry(.009,.009,.013,24),metal,G.Rs-.585);
+  add(new THREE.CapsuleGeometry(.022,.105,8,32),ink,G.Rs-SHAFT_TO_HAND);
+  const gripSeam=add(new THREE.TorusGeometry(.0221,.0006,6,40),rib,G.Rs-.726);gripSeam.rotation.x=Math.PI/2;
+  const button=add(new THREE.CapsuleGeometry(.009,.008,6,16),metal,G.Rs-.647);button.position.z=.020;button.scale.z=.30;
+  const buttonInset=add(new THREE.CapsuleGeometry(.0067,.006,6,16),ink,G.Rs-.647);buttonInset.position.z=.023;buttonInset.scale.z=.2;
+  const loop=[];for(let i=0;i<=48;i++){const t=i/48*Math.PI*2;loop.push(new THREE.Vector3(.017*Math.sin(t),G.Rs-.775+.029*Math.cos(t),.004*Math.sin(2*t)));}
+  tube(loop,.0015,ink);
   umbrellaRoot.add(canopy);
-
-  // shaft + grip
-  const A = new THREE.Vector3(...G.apex), av = new THREE.Vector3(...G.a), q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), av);
-  const shaftLen = SHAFT_TO_HAND + 0.1;
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, shaftLen, 8), metal);
-  shaft.quaternion.copy(q); shaft.position.copy(A).addScaledVector(av, -shaftLen / 2); umbrellaRoot.add(shaft);
-  const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.15, 10), new THREE.MeshStandardMaterial({ color: '#4b2f1c', roughness: 0.6 }));
-  grip.quaternion.copy(q); grip.position.copy(A).addScaledVector(av, -(SHAFT_TO_HAND + 0.02)); umbrellaRoot.add(grip);
 
   // arm from shoulder to the hand on the grip
   const S0 = new THREE.Vector3(0.22, -0.25, 0.08), H = new THREE.Vector3(...G.hand);
@@ -539,6 +550,12 @@ for (const id of ['layout', 'panels', 'print']) {
   $(id).value = S[id];
   $(id).addEventListener('change', (e) => { S[id] = e.target.value; dirtyAds = true; });
 }
+$('studio-design').addEventListener('click', () => {
+  Object.assign(S, {diam:.96, depth:.16, layout:'full', panels:'all', print:'both', size:1, spin:0});
+  Object.keys(sliders).forEach(syncSlider);
+  for (const id of ['layout','panels','print']) $(id).value=S[id];
+  dirtyAds=dirtyGeo=true;
+});
 document.querySelectorAll('[data-gaze]').forEach((b) => b.addEventListener('click', () => { S.pitch = +b.dataset.gaze; syncSlider('pitch'); gaze(); }));
 
 function setMode(m) {
@@ -583,11 +600,17 @@ addEventListener('keydown', (e) => {
 new ResizeObserver(resize).observe(viewer);
 
 /* ------------------------------------------------------------------ start */
+try { await loadPanelArt(); }
+catch (error) {
+  $('nogl').style.display='block'; glcanvas.style.display='none';
+  $('nogl').textContent='The canopy artwork could not load. Reload the page to try again.';
+  throw error;
+}
 buildWorld();
 paintAtlas();
 setMode('pov'); rebuildField(); resize();
 requestAnimationFrame(frame);
-if (document.fonts) document.fonts.load('800 20px Archivo').then(() => { dirtyAds = true; }).catch(() => {});
+
 
 // handy for automated checks
 window.__sim = { S, orbit, stats: () => latest, setState: (o) => { Object.assign(S, o); dirtyAds = dirtyGeo = true; gaze(); Object.keys(sliders).forEach(syncSlider); } };

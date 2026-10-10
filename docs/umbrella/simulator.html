@@ -2,18 +2,19 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Umbrella View Simulator</title>
+<title>RainBorrow — Visibility Lab</title>
 <meta name="description" content="3D simulation of what the holder of an advertising umbrella actually sees, and how much of their vision the ads cover.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 
 <style>
+  @font-face { font-family: Nunito; src: url(assets/Nunito.ttf) format("truetype"); font-weight: 400 900; font-display: swap; }
   :root {
-    --bg: #0E1319; --panel: #161D25; --panel-2: #1D2630; --ink: #E8ECEF; --ink-2: #B3BDC7; --muted: #7F8B97;
-    --rule: #2A3540; --accent: #FF4F8B; --accent-2: #5CC8FF; --good: #6CC493; --canopy: #5B6B8A;
+    --bg: #151d2a; --panel: #1c2635; --panel-2: #273345; --ink: #eee9e3; --ink-2: #c3c8d0; --muted: #a6adb9;
+    --rule: #36404f; --accent: #f494a4; --accent-2: #a9c8e0; --good: #6CC493; --canopy: #758295;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Archivo", system-ui, sans-serif; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Nunito", system-ui, sans-serif; }
   body { padding: 0 16px 48px; }
   .wrap { max-width: 1280px; margin: 0 auto; }
   header { padding: 22px 0 14px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; justify-content: space-between; }
@@ -31,11 +32,11 @@
   .viewer canvas { width: 100%; height: 100%; display: block; }
   .hud { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
   .seg { display: inline-flex; background: rgba(14,19,25,.82); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; backdrop-filter: blur(4px); }
-  .seg button { background: none; border: 0; color: var(--ink-2); font: 600 13px "Archivo", sans-serif; padding: 7px 12px; cursor: pointer; }
-  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .seg button { background: none; border: 0; color: var(--ink-2); font: 600 13px "Nunito", sans-serif; padding: 7px 12px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #162238; }
   .seg button:focus-visible { outline: 2px solid var(--accent-2); outline-offset: -2px; }
   .badge { position: absolute; right: 10px; bottom: 10px; background: rgba(14,19,25,.85); border: 1px solid var(--rule); border-radius: 8px;
-    padding: 6px 10px; font: 500 12px "IBM Plex Mono", monospace; color: var(--ink-2); }
+    padding: 6px 10px; font: 500 12px ui-monospace, monospace; color: var(--ink-2); }
   .badge b { color: var(--accent); font-size: 15px; }
   .hint { color: var(--muted); font-size: 12.5px; margin: 8px 2px 0; }
 
@@ -50,7 +51,7 @@
   .legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); flex-wrap: wrap; }
   .legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; background: var(--c); }
   dl { margin: 12px 0 0; display: grid; grid-template-columns: 1fr auto; gap: 5px 12px; font-size: 13.5px; }
-  dt { color: var(--ink-2); } dd { margin: 0; text-align: right; font: 500 13.5px "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+  dt { color: var(--ink-2); } dd { margin: 0; text-align: right; font: 500 13.5px ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
   .fish { display: block; width: 100%; max-width: 380px; aspect-ratio: 1; margin: 0 auto; border-radius: 8px; background: #0A0D12; }
   .cap { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
@@ -64,11 +65,11 @@
 
   .ctl { display: grid; grid-template-columns: 1fr 64px; gap: 2px 10px; align-items: center; margin: 9px 0; font-size: 13.5px; }
   .ctl label { color: var(--ink-2); }
-  .ctl output { text-align: right; font: 500 12.5px "IBM Plex Mono", monospace; color: var(--ink); }
+  .ctl output { text-align: right; font: 500 12.5px ui-monospace, monospace; color: var(--ink); }
   .ctl input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
-  .ctl select { grid-column: 1 / -1; width: 100%; background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 7px 8px; font: 500 13.5px "Archivo", sans-serif; }
+  .ctl select { grid-column: 1 / -1; width: 100%; background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 7px 8px; font: 500 13.5px "Nunito", sans-serif; }
   .presets { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
-  .presets button { background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px; font: 600 12.5px "Archivo", sans-serif; cursor: pointer; }
+  .presets button { background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px; font: 600 12.5px "Nunito", sans-serif; cursor: pointer; }
   .presets button:hover { border-color: var(--accent); }
   details { border-top: 1px solid var(--rule); padding-top: 4px; }
   details:first-of-type { border-top: 0; }
@@ -80,8 +81,8 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Umbrella View Simulator</h1>
-      <p>What does the person <em>under</em> an advertising umbrella actually see &mdash; and how much of their vision is ad? Real-time 3D model of the canopy, with the holder's visual field ray-traced against it.</p>
+      <h1>RainBorrow Visibility Lab</h1>
+      <p>The studio design, seen from the holder’s perspective.</p>
     </div>
     <a href="./">&larr; RainBorrow 3D Studio</a>
   </header>
@@ -96,7 +97,7 @@
             <button id="mode-out" aria-pressed="false">Outside view</button>
           </div>
         </div>
-        <div class="badge" id="badge">Ads in view: <b id="badge-num">–</b></div>
+        <div class="badge" id="badge">Artwork in view: <b id="badge-num">–</b></div>
         <div class="fallback" id="nogl">WebGL isn't available in this browser, so the 3D view can't render. The measurements on the right still work.</div>
       </div>
       <p class="hint" id="hint">Drag to look around like the holder would &middot; scroll to zoom the field of view.</p>
@@ -104,15 +105,15 @@
 
     <aside>
       <div class="card" id="result">
-        <h2>Ad share of the holder's vision</h2>
-        <div class="headline"><span class="num" id="h-num">–</span><span class="lbl">of the whole visual field<br>(&asymp;200&deg; &times; 135&deg;) is advertisement</span></div>
+        <h2>Artwork in the holder’s vision</h2>
+        <div class="headline"><span class="num" id="h-num">–</span><span class="lbl">of the whole visual field<br>(&asymp;200&deg; &times; 135&deg;) contains printed artwork</span></div>
         <div class="bar" aria-hidden="true"><i class="b-ad" id="bar-ad"></i><i class="b-can" id="bar-can"></i></div>
-        <div class="legend"><span style="--c:var(--accent)">Ad</span><span style="--c:var(--canopy)">Plain canopy</span><span style="--c:var(--panel-2)">Open view</span></div>
+        <div class="legend"><span style="--c:var(--accent)">Artwork</span><span style="--c:var(--canopy)">Plain canopy</span><span style="--c:var(--panel-2)">Open view</span></div>
         <dl>
-          <dt>Canopy blocks (ads + fabric)</dt><dd id="r-canopy">–</dd>
-          <dt>Ads, central vision (&plusmn;30&deg; of gaze)</dt><dd id="r-central">–</dd>
-          <dt>Ads, what's on screen right now</dt><dd id="r-screen">–</dd>
-          <dt>Ad area printed (per side)</dt><dd id="r-area">–</dd>
+          <dt>Canopy blocks (artwork + fabric)</dt><dd id="r-canopy">–</dd>
+          <dt>Artwork, central vision (&plusmn;30&deg; of gaze)</dt><dd id="r-central">–</dd>
+          <dt>Artwork on screen right now</dt><dd id="r-screen">–</dd>
+          <dt>Printed ink area (inside)</dt><dd id="r-area">–</dd>
         </dl>
       </div>
 
@@ -127,9 +128,9 @@
       </div>
 
       <div class="card">
-        <h2>Ad share by where the holder looks</h2>
+        <h2>Artwork visibility by gaze</h2>
         <table>
-          <thead><tr><th>Gaze</th><th>Ads</th><th>Canopy</th></tr></thead>
+          <thead><tr><th>Gaze</th><th>Artwork</th><th>Canopy</th></tr></thead>
           <tbody id="gaze-table"></tbody>
         </table>
         <p class="cap">Looking straight ahead the rim of the canopy sits well above the horizon, so most of what the holder sees is the street, not the umbrella.</p>
@@ -148,14 +149,15 @@
           <div class="ctl"><label for="fov">Screen field of view</label><output id="o-fov"></output><input type="range" id="fov" min="50" max="120" step="1"></div>
         </details>
         <details open>
-          <summary>Advertisement</summary>
-          <div class="ctl"><label for="layout">Ad design</label><span></span>
+          <summary>Canopy artwork</summary>
+          <div class="presets"><button id="studio-design">Reset to studio design</button></div>
+          <div class="ctl"><label for="layout">Artwork layout</label><span></span>
             <select id="layout">
-              <option value="full">Full-panel print</option>
-              <option value="card">Centred ad card</option>
+              <option value="full">Studio full-panel design</option>
+              <option value="card">Centred artwork card</option>
               <option value="band">Rim band</option>
             </select></div>
-          <div class="ctl"><label for="panels">Panels carrying ads</label><span></span>
+          <div class="ctl"><label for="panels">Printed panels</label><span></span>
             <select id="panels">
               <option value="all">All 8 panels</option>
               <option value="alt">Every other panel (4)</option>
@@ -168,7 +170,7 @@
               <option value="in">Inside only (holder sees it)</option>
               <option value="out">Outside only (passers-by see it)</option>
             </select></div>
-          <div class="ctl"><label for="size">Ad size on each panel</label><output id="o-size"></output><input type="range" id="size" min="20" max="100" step="1"></div>
+          <div class="ctl"><label for="size">Artwork size on each panel</label><output id="o-size"></output><input type="range" id="size" min="20" max="100" step="1"></div>
         </details>
         <details>
           <summary>Umbrella</summary>
@@ -180,7 +182,7 @@
           <div class="ctl"><label for="side">Held to the right</label><output id="o-side"></output><input type="range" id="side" min="-20" max="40" step="1"></div>
           <div class="ctl"><label for="spin">Spin the handle</label><output id="o-spin"></output><input type="range" id="spin" min="0" max="359" step="1"></div>
         </details>
-        <p class="note">Method: every direction in the holder's visual field (about 90,000 evenly spaced rays over the sphere, kept where they fall inside the field) is traced against the canopy's exact geometry, and counted as ad, plain fabric or open. Equal solid angle means equal weight. The umbrella shaft and the holder's arm aren't included in the count. All brands shown are fictional.</p>
+        <p class="note">Method: rays are sampled at equal solid angles across the holder’s visual field. Artwork coverage counts printed ink on the cream lining, excluding the plain background. The dome is a smooth spherical approximation of the studio canopy, with matching diameter and depth; fabric scallops, the frame and the holder are excluded from these measurements.</p>
       </div>
     </aside>
   </div>

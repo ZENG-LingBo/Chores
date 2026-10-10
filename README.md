@@ -24,9 +24,9 @@ Interactive product viewer for the RainBorrow showcase umbrella, with the bold, 
 
 3D simulation of what the holder of an advertising umbrella sees, and what share of their visual field is ad.
 
-- Page: `/umbrella/simulator.html` (the original simulator, retained with its `app.js`)
+- Page: `/umbrella/simulator.html`; `app.js` reuses the studio's outside and inside panel artwork, with a 96 cm canopy, 16 cm dome, matching navy handle and raised, thinner frame. The studio-design reset restores the default print and dimensions.
 - 3D rendering uses [three.js](https://threejs.org) (MIT), vendored and minified in `docs/umbrella/vendor/`, so there is still no build step.
-- The percentages come from tracing ~90,000 evenly spaced rays across the human visual field (about 200° × 135°) against the exact canopy geometry, with the ad artwork as the source of truth for which rays hit an ad.
+- The percentages sample directions from ~90,000 evenly spaced rays over the sphere, retaining the human visual field (about 200° × 135°). They count printed ink from the inside artwork, excluding the cream background. The analytical dome is a smooth spherical approximation of the studio canopy; cloth scallops, frame and holder are excluded. Layout, size, panel selection and print-side controls update both the rendered artwork and its coverage mask.
 
 ## RainBorrow Logo Studio
 
